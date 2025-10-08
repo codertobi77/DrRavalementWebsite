@@ -1,0 +1,60 @@
+
+import Button from '../../../components/base/Button';
+
+export default function HeroSection() {
+  return (
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-900 via-orange-800 to-red-900">
+      {/* Background decorations */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0"></div>
+      </div>
+      <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-16 h-16 sm:w-20 sm:h-20 bg-orange-400 rounded-full opacity-20 blur-xl"></div>
+      <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-24 h-24 sm:w-32 sm:h-32 bg-red-400 rounded-full opacity-20 blur-xl"></div>
+
+      <div className="relative w-full px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+            Expert en
+            <span className="block bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
+              Ravalement de Façades
+            </span>
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-orange-100 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4">
+            DR RAVALEMENT, votre spécialiste en ravalement de façades, maçonnerie générale et couverture en Seine-et-Marne et Île-de-France. Techniques modernes et savoir-faire traditionnel.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-4">
+          <Button variant="secondary" size="lg" href="/contact" className="shadow-xl flex items-center space-x-2 w-full sm:w-auto">
+            <span className="text-sm sm:text-base">Devis Gratuit Immédiat</span>
+          </Button>
+          <button className="flex items-center space-x-3 text-white hover:text-orange-200 transition-colors group w-full sm:w-auto justify-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center group-hover:bg-opacity-30 transition-all">
+              <i className="ri-play-fill text-lg sm:text-xl"></i>
+            </div>
+            <span className="font-medium text-sm sm:text-base">Voir Nos Réalisations</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 max-w-5xl mx-auto px-4">
+          <div className="text-center">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">500+</div>
+            <div className="text-orange-200 font-medium text-xs sm:text-sm lg:text-base">Façades Rénovées</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">15+</div>
+            <div className="text-orange-200 font-medium text-xs sm:text-sm lg:text-base">Années d'Expérience</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">98%</div>
+            <div className="text-orange-200 font-medium text-xs sm:text-sm lg:text-base">Clients Satisfaits</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">25+</div>
+            <div className="text-orange-200 font-medium text-xs sm:text-sm lg:text-base">Communes Servies</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
