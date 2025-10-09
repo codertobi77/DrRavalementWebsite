@@ -1,0 +1,60 @@
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { validateCmsData, deduplicateByKey, logCmsError, createLoadingState } from "../../lib/cms-utils";
+
+export default function AboutTeamSection() {
+  const rawTeamMembers = useQuery(api.cms.getTeamMembers);
+
+  // Validation et déduplication des données
+  const teamMembers = validateCmsData(
+    rawTeamMembers,
+    (items) => deduplicateByKey(items, 'name'),
+    "Aucun membre d'équipe disponible"
+  );
+
+  if (!teamMembers) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {createLoadingState(3).map((item) => (
+          <div key={item._id} className="text-center animate-pulse">
+            <div className="w-48 h-48 bg-gray-300 rounded-full mx-auto mb-6"></div>
+            <div className="h-6 bg-gray-300 rounded mb-2"></div>
+            <div className="h-5 bg-gray-300 rounded mb-4"></div>
+            <div className="h-4 bg-gray-300 rounded"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  try {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {teamMembers.map((member) => (
+          <div key={member._id} className="text-center hover:transform hover:scale-105 transition-all duration-300">
+            <img 
+              src={member.image}
+              alt={member.name}
+              className="w-48 h-48 rounded-full mx-auto mb-6 object-cover border-4 border-orange-100 hover:border-orange-300 transition-colors"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder-avatar.jpg';
+              }}
+            />
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">{member.name}</h3>
+            <p className="text-orange-600 font-medium mb-4">{member.role}</p>
+            <p className="text-gray-600">
+              {member.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    );
+  } catch (error) {
+    logCmsError("AboutTeamSection", error, teamMembers);
+    return (
+      <div className="text-center text-gray-600">
+        <p>Erreur lors du chargement de l'équipe</p>
+      </div>
+    );
+  }
+}

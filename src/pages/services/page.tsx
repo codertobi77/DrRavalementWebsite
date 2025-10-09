@@ -1,6 +1,9 @@
 
 import Header from '../../components/feature/Header';
 import Footer from '../../components/feature/Footer';
+import ServicesSection from '../../components/cms/ServicesSection';
+import ServicesProcessSection from '../../components/cms/ServicesProcessSection';
+import TestCMSConnection from '../../components/cms/TestCMSConnection';
 
 export default function Services() {
   return (
@@ -33,171 +36,7 @@ export default function Services() {
                 Des services complets pour tous vos projets de rénovation
               </p>
             </div>
-
-            {/* Ravalement de Façades */}
-            <div className="mb-20">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6">Ravalement de Façades</h3>
-                  <p className="text-lg text-gray-600 mb-6">
-                    Spécialistes du ravalement par projection machine, nous redonnons vie à vos façades avec des techniques modernes et des finitions variées.
-                  </p>
-                  <ul className="space-y-4 mb-8">
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Projection Machine</h4>
-                        <p className="text-gray-600">Technique moderne pour un rendu uniforme et durable</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Finitions Variées</h4>
-                        <p className="text-gray-600">Grattée, talochée, lissée selon vos préférences</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Nettoyage Haute Pression</h4>
-                        <p className="text-gray-600">Préparation optimale des supports</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Isolation Thermique</h4>
-                        <p className="text-gray-600">Amélioration des performances énergétiques</p>
-                      </div>
-                    </li>
-                  </ul>
-                  <a 
-                    href="/contact" 
-                    className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors whitespace-nowrap"
-                  >
-                    Demander un Devis
-                  </a>
-                </div>
-                <div className="relative">
-                  <img 
-                    src="https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg?auto=compress&cs=tinysrgb&w=800" 
-                    alt="Ravalement de façades" 
-                    className="rounded-2xl shadow-2xl"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Maçonnerie Générale */}
-            <div className="mb-20">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="order-2 lg:order-1">
-                  <img 
-                    src="https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=800" 
-                    alt="Maçonnerie générale" 
-                    className="rounded-2xl shadow-2xl"
-                  />
-                </div>
-                <div className="order-1 lg:order-2">
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6">Maçonnerie Générale</h3>
-                  <p className="text-lg text-gray-600 mb-6">
-                    Travaux de maçonnerie pour constructions neuves, extensions, réparations et aménagements extérieurs.
-                  </p>
-                  <ul className="space-y-4 mb-8">
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Murs en Parpaing</h4>
-                        <p className="text-gray-600">Construction et réparation de murs porteurs</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Clôtures et Murets</h4>
-                        <p className="text-gray-600">Délimitation et sécurisation de vos espaces</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Fondations</h4>
-                        <p className="text-gray-600">Bases solides pour vos constructions</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Réparations Structurelles</h4>
-                        <p className="text-gray-600">Remise en état de structures endommagées</p>
-                      </div>
-                    </li>
-                  </ul>
-                  <a 
-                    href="/contact" 
-                    className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors whitespace-nowrap"
-                  >
-                    Demander un Devis
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Couverture */}
-            <div className="mb-20">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6">Couverture & Étanchéité</h3>
-                  <p className="text-lg text-gray-600 mb-6">
-                    Services complets de couverture, réparation de toitures et solutions d'étanchéité pour protéger votre habitat.
-                  </p>
-                  <ul className="space-y-4 mb-8">
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Réfection de Toiture</h4>
-                        <p className="text-gray-600">Rénovation complète de votre couverture</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Étanchéité Terrasse</h4>
-                        <p className="text-gray-600">Protection durable contre les infiltrations</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Zinguerie</h4>
-                        <p className="text-gray-600">Gouttières, chéneaux et évacuation des eaux</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <i className="ri-check-line text-orange-600 text-xl mt-1"></i>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Isolation Toiture</h4>
-                        <p className="text-gray-600">Amélioration du confort thermique</p>
-                      </div>
-                    </li>
-                  </ul>
-                  <a 
-                    href="/contact" 
-                    className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors whitespace-nowrap"
-                  >
-                    Demander un Devis
-                  </a>
-                </div>
-                <div className="relative">
-                  <img 
-                    src="https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800" 
-                    alt="Couverture et étanchéité" 
-                    className="rounded-2xl shadow-2xl"
-                  />
-                </div>
-              </div>
-            </div>
+            <ServicesSection />
           </div>
         </section>
 
@@ -308,44 +147,7 @@ export default function Services() {
                 Une méthode éprouvée pour la réussite de votre projet
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl font-bold text-white">1</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Diagnostic</h3>
-                <p className="text-gray-600">
-                  Évaluation complète de l'état de vos façades et identification des besoins.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl font-bold text-white">2</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Devis</h3>
-                <p className="text-gray-600">
-                  Proposition détaillée avec solutions techniques et tarification transparente.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl font-bold text-white">3</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Réalisation</h3>
-                <p className="text-gray-600">
-                  Exécution des travaux par nos équipes qualifiées avec suivi quotidien.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl font-bold text-white">4</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Livraison</h3>
-                <p className="text-gray-600">
-                  Réception des travaux, nettoyage du chantier et remise des garanties.
-                </p>
-              </div>
-            </div>
+            <ServicesProcessSection />
           </div>
         </section>
 
@@ -376,6 +178,7 @@ export default function Services() {
         </section>
       </main>
       <Footer />
+      <TestCMSConnection />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import WhyChooseSection from './components/WhyChooseSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import NewsletterSection from './components/NewsletterSection';
 import CTASection from './components/CTASection';
+import TestCMSConnection from '../../components/cms/TestCMSConnection';
 
 export default function Home() {
   return (
@@ -25,6 +26,7 @@ export default function Home() {
         </div>
       </main>
       <Footer />
+      <TestCMSConnection />
     </div>
   );
 }

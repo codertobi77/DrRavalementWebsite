@@ -1,46 +1,113 @@
+import { useState } from 'react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { validateCmsData, deduplicateStatistics, deduplicateServices, deduplicateZones, deduplicateReasons, deduplicateTestimonials } from "../../lib/cms-utils";
 
 export default function TestCMSConnection() {
-  const statistics = useQuery(api.cms.getStatistics);
-  const services = useQuery(api.cms.getServices);
-  const teamMembers = useQuery(api.cms.getTeamMembers);
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Récupérer toutes les données CMS
+  const rawStatistics = useQuery(api.cms.getStatistics);
+  const rawServices = useQuery(api.cms.getServices);
+  const rawZones = useQuery(api.cms.getZones);
+  const rawReasons = useQuery(api.cms.getReasons);
+  const rawTestimonials = useQuery(api.cms.getTestimonials);
 
-  console.log("🔍 TestCMSConnection - Données reçues:");
-  console.log("📊 Statistiques:", statistics);
-  console.log("🔧 Services:", services);
-  console.log("👥 Membres d'équipe:", teamMembers);
+  // Appliquer la déduplication
+  const statistics = validateCmsData(rawStatistics, deduplicateStatistics);
+  const services = validateCmsData(rawServices, deduplicateServices);
+  const zones = validateCmsData(rawZones, deduplicateZones);
+  const reasons = validateCmsData(rawReasons, deduplicateReasons);
+  const testimonials = validateCmsData(rawTestimonials, deduplicateTestimonials);
+
+  const getDuplicationInfo = (raw: any[], processed: any[], name: string) => {
+    const duplicates = raw ? raw.length - (processed?.length || 0) : 0;
+    return {
+      name,
+      total: raw?.length || 0,
+      unique: processed?.length || 0,
+      duplicates,
+      hasDuplicates: duplicates > 0
+    };
+  };
+
+  const dataInfo = [
+    getDuplicationInfo(rawStatistics, statistics, "Statistiques"),
+    getDuplicationInfo(rawServices, services, "Services"),
+    getDuplicationInfo(rawZones, zones, "Zones"),
+    getDuplicationInfo(rawReasons, reasons, "Raisons"),
+    getDuplicationInfo(rawTestimonials, testimonials, "Témoignages"),
+  ];
+
+  const totalDuplicates = dataInfo.reduce((sum, info) => sum + info.duplicates, 0);
+  const hasAnyDuplicates = dataInfo.some(info => info.hasDuplicates);
+
+  if (!isExpanded) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50">
+        <button
+          onClick={() => setIsExpanded(true)}
+          className={`px-4 py-2 rounded-lg shadow-lg transition-all ${
+            hasAnyDuplicates 
+              ? 'bg-red-500 hover:bg-red-600 text-white' 
+              : 'bg-green-500 hover:bg-green-600 text-white'
+          }`}
+        >
+          <i className="ri-database-line mr-2"></i>
+          CMS Status
+          {hasAnyDuplicates && (
+            <span className="ml-2 bg-red-600 text-xs px-2 py-1 rounded-full">
+              {totalDuplicates}
+            </span>
+          )}
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 bg-blue-100 border border-blue-300 rounded-lg">
-      <h3 className="text-lg font-semibold text-blue-900 mb-4">Test de Connexion CMS</h3>
-      
-      <div className="space-y-2">
-        <p><strong>Statistiques:</strong> {statistics ? `${statistics.length} trouvées` : 'Chargement...'}</p>
-        <p><strong>Services:</strong> {services ? `${services.length} trouvés` : 'Chargement...'}</p>
-        <p><strong>Membres d'équipe:</strong> {teamMembers ? `${teamMembers.length} trouvés` : 'Chargement...'}</p>
+    <div className="fixed bottom-4 right-4 z-50 bg-white rounded-lg shadow-xl border p-4 max-w-sm">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-gray-900">État CMS</h3>
+        <button
+          onClick={() => setIsExpanded(false)}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          <i className="ri-close-line"></i>
+        </button>
       </div>
 
-      {statistics && statistics.length > 0 && (
-        <div className="mt-4">
-          <h4 className="font-medium text-blue-900 mb-2">Première statistique:</h4>
-          <p className="text-sm text-blue-700">
-            {statistics[0].label}: {statistics[0].value}
-          </p>
+      <div className="space-y-2">
+        {dataInfo.map((info) => (
+          <div key={info.name} className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">{info.name}:</span>
+            <div className="flex items-center space-x-2">
+              <span className={`px-2 py-1 rounded text-xs ${
+                info.hasDuplicates ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+              }`}>
+                {info.unique}/{info.total}
+              </span>
+              {info.hasDuplicates && (
+                <span className="text-red-600 text-xs">
+                  -{info.duplicates}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {hasAnyDuplicates && (
+        <div className="mt-3 p-2 bg-red-50 rounded text-xs text-red-700">
+          <i className="ri-warning-line mr-1"></i>
+          {totalDuplicates} élément(s) dupliqué(s) détecté(s) et supprimé(s)
         </div>
       )}
 
-      {teamMembers && teamMembers.length > 0 && (
-        <div className="mt-4">
-          <h4 className="font-medium text-blue-900 mb-2">Premier membre d'équipe:</h4>
-          <p className="text-sm text-blue-700">
-            {teamMembers[0].name} - {teamMembers[0].role}
-          </p>
-          <p className="text-xs text-blue-600">
-            Image: {teamMembers[0].image ? 'Présente' : 'Absente'}
-          </p>
-        </div>
-      )}
+      <div className="mt-3 text-xs text-gray-500">
+        <i className="ri-check-line mr-1"></i>
+        Déduplication automatique active
+      </div>
     </div>
   );
 }
