@@ -130,7 +130,7 @@ export default function ClientDashboard() {
   };
 
   // Mock data - in real app, this would come from API
-  const projects: ClientProject[] = [
+  const mockProjects: ClientProject[] = [
     {
       id: '1',
       clientName: 'Jean Dupont',

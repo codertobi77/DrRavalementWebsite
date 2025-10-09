@@ -86,12 +86,16 @@ export interface Quote {
 
 export interface Booking {
   id: string
-  client_id: string
+  client_name: string
+  client_email: string
+  client_phone: string
   service_type: string
-  date: string
-  time: string
-  status: 'pending' | 'confirmed' | 'cancelled'
+  booking_date: string
+  booking_time: string
+  duration: number
+  address?: string
   notes?: string
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
   created_at: string
   updated_at: string
 }

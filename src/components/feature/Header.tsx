@@ -61,32 +61,6 @@ export default function Header() {
             <a href="/portfolio" className="font-medium transition-colors duration-200 text-gray-700 hover:text-orange-600 text-sm">
               Réalisations
             </a>
-            <div className="relative group">
-              <button className="font-medium transition-colors duration-200 text-gray-700 hover:text-orange-600 flex items-center text-sm">
-                Outils
-                <i className="ri-arrow-down-s-line ml-1"></i>
-              </button>
-              <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="py-2">
-                  <a href="/quote-calculator" className="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
-                    <i className="ri-calculator-line mr-3"></i>
-                    Calculateur de Devis
-                  </a>
-                  <a href="/before-after" className="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
-                    <i className="ri-image-line mr-3"></i>
-                    Avant/Après
-                  </a>
-                  <a href="/interactive-map" className="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
-                    <i className="ri-map-pin-line mr-3"></i>
-                    Carte Interactive
-                  </a>
-                  <a href="/color-simulator" className="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
-                    <i className="ri-palette-line mr-3"></i>
-                    Simulateur Couleurs
-                  </a>
-                </div>
-              </div>
-            </div>
             <a href="/booking" className="font-medium transition-colors duration-200 text-gray-700 hover:text-orange-600 text-sm">
               Rendez-vous
             </a>
@@ -123,31 +97,6 @@ export default function Header() {
               <a href="/services" className="font-medium text-gray-700 py-2 px-2 rounded-lg hover:bg-gray-50">Services</a>
               <a href="/portfolio" className="font-medium text-gray-700 py-2 px-2 rounded-lg hover:bg-gray-50">Réalisations</a>
               
-              {/* Mobile tools submenu */}
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="font-medium text-gray-600 text-sm mb-2 flex items-center">
-                  <i className="ri-tools-line mr-2"></i>
-                  Outils
-                </div>
-                <div className="space-y-2 pl-4">
-                  <a href="/quote-calculator" className="block text-gray-700 text-sm py-1 hover:text-orange-600">
-                    <i className="ri-calculator-line mr-2 text-xs"></i>
-                    Calculateur de Devis
-                  </a>
-                  <a href="/before-after" className="block text-gray-700 text-sm py-1 hover:text-orange-600">
-                    <i className="ri-image-line mr-2 text-xs"></i>
-                    Avant/Après
-                  </a>
-                  <a href="/interactive-map" className="block text-gray-700 text-sm py-1 hover:text-orange-600">
-                    <i className="ri-map-pin-line mr-2 text-xs"></i>
-                    Carte Interactive
-                  </a>
-                  <a href="/color-simulator" className="block text-gray-700 text-sm py-1 hover:text-orange-600">
-                    <i className="ri-palette-line mr-2 text-xs"></i>
-                    Simulateur Couleurs
-                  </a>
-                </div>
-              </div>
               
               <a href="/booking" className="font-medium text-gray-700 py-2 px-2 rounded-lg hover:bg-gray-50">Rendez-vous</a>
               <a href="/client-dashboard" className="font-medium text-gray-700 py-2 px-2 rounded-lg hover:bg-gray-50">Espace Client</a>

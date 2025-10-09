@@ -118,6 +118,10 @@ export default function Footer() {
             <a href="/blog" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Blog</a>
             <a href="/careers" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Carrières</a>
             <a href="/contact" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Contact</a>
+            <a href="/admin" className="text-gray-400 hover:text-orange-400 transition-colors text-sm flex items-center">
+              <i className="ri-settings-3-line mr-1"></i>
+              Admin
+            </a>
           </div>
         </div>
 

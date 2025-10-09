@@ -9,6 +9,7 @@ interface ButtonProps {
   onClick?: () => void;
   href?: string;
   type?: 'button' | 'submit';
+  disabled?: boolean;
 }
 
 export default function Button({ 
@@ -18,9 +19,14 @@ export default function Button({
   className = '',
   onClick,
   href,
-  type = 'button'
+  type = 'button',
+  disabled = false
 }: ButtonProps) {
-  const baseClasses = 'font-semibold transition-all duration-300 transform hover:scale-105 cursor-pointer whitespace-nowrap';
+  const baseClasses = `font-semibold transition-all duration-300 transform whitespace-nowrap ${
+    disabled 
+      ? 'opacity-50 cursor-not-allowed' 
+      : 'hover:scale-105 cursor-pointer'
+  }`;
   
   const variantClasses = {
     primary: 'bg-orange-600 text-white hover:bg-orange-700',
@@ -45,7 +51,7 @@ export default function Button({
   }
   
   return (
-    <button type={type} onClick={onClick} className={classes}>
+    <button type={type} onClick={onClick} disabled={disabled} className={classes}>
       {children}
     </button>
   );

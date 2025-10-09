@@ -1,8 +1,10 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../../components/feature/Header';
 import Footer from '../../components/feature/Footer';
 import Button from '../../components/base/Button';
+import { BookingService, type BookingData } from '../../lib/booking';
+import { BookingEmailService } from '../../lib/booking-email';
+import { SiteConfigService, type BookingConfig, type ContactConfig } from '../../lib/site-config';
 
 interface TimeSlot {
   time: string;
@@ -20,302 +22,426 @@ export default function Booking() {
     address: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [bookingConfig, setBookingConfig] = useState<BookingConfig | null>(null);
+  const [contactConfig, setContactConfig] = useState<ContactConfig | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const services = [
-    { id: 'consultation', name: 'Consultation gratuite', duration: '1h' },
-    { id: 'devis', name: 'Visite pour devis', duration: '1h30' },
-    { id: 'expertise', name: 'Expertise technique', duration: '2h' },
-    { id: 'suivi', name: 'Suivi de chantier', duration: '30min' }
-  ];
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
 
-  const timeSlots: TimeSlot[] = [
-    { time: '08:00', available: true },
-    { time: '09:00', available: true },
-    { time: '10:00', available: false },
-    { time: '11:00', available: true },
-    { time: '14:00', available: true },
-    { time: '15:00', available: true },
-    { time: '16:00', available: false },
-    { time: '17:00', available: true }
-  ];
+  // Charger la configuration au montage du composant
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const [booking, contact] = await Promise.all([
+          SiteConfigService.getBookingConfig(),
+          SiteConfigService.getContactConfig()
+        ]);
+        setBookingConfig(booking);
+        setContactConfig(contact);
+      } catch (error) {
+        console.error('Error loading config:', error);
+        setError('Erreur lors du chargement de la configuration');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadConfig();
+  }, []);
 
   const generateCalendarDays = () => {
     const days = [];
     const today = new Date();
+    const maxDays = bookingConfig?.maxAdvanceDays || 30;
     
-    for (let i = 1; i <= 30; i++) {
+    for (let i = 0; i < maxDays; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      // Skip weekends
-      if (date.getDay() !== 0 && date.getDay() !== 6) {
-        days.push({
-          date: date.toISOString().split('T')[0],
-          day: date.getDate(),
-          month: date.toLocaleDateString('fr-FR', { month: 'short' }),
-          weekday: date.toLocaleDateString('fr-FR', { weekday: 'short' })
-        });
-      }
+      const dayOfWeek = date.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isWorkingDay = bookingConfig ? 
+        dayOfWeek >= bookingConfig.workingDays.start && dayOfWeek <= bookingConfig.workingDays.end : 
+        !isWeekend;
+      const isPast = i === 0 && today.getHours() >= 17;
+      
+      days.push({
+        date: date.toISOString().split('T')[0],
+        day: date.getDate(),
+        month: date.toLocaleDateString('fr-FR', { month: 'short' }),
+        weekday: date.toLocaleDateString('fr-FR', { weekday: 'short' }),
+        available: isWorkingDay && !isPast
+      });
     }
     
-    return days.slice(0, 14); // Show next 14 working days
+    return days;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Charger les créneaux disponibles quand la date change
+  useEffect(() => {
+    if (selectedDate) {
+      loadAvailableTimeSlots();
+    }
+  }, [selectedDate]);
+
+  const loadAvailableTimeSlots = async () => {
+    try {
+      console.log('Loading time slots for date:', selectedDate);
+      const slots = await BookingService.getAvailableTimeSlots(selectedDate);
+      console.log('Available slots from database:', slots);
+      
+      // Utiliser les créneaux de la configuration
+      const allSlots = bookingConfig?.timeSlots || ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+      const slotsWithAvailability = allSlots.map(time => ({
+        time,
+        available: slots.includes(time)
+      }));
+      
+      console.log('Time slots with availability:', slotsWithAvailability);
+      setTimeSlots(slotsWithAvailability);
+    } catch (error) {
+      console.error('Error loading time slots:', error);
+      setError('Erreur lors du chargement des créneaux disponibles');
+      
+      // En cas d'erreur, afficher tous les créneaux comme disponibles
+      const allSlots = bookingConfig?.timeSlots || ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+      const slotsWithAvailability = allSlots.map(time => ({
+        time,
+        available: true
+      }));
+      setTimeSlots(slotsWithAvailability);
+    }
+  };
+
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
+    setSelectedTime('');
+  };
+
+  const handleTimeSelect = (time: string) => {
+    setSelectedTime(time);
+  };
+
+  const handleServiceSelect = (service: string) => {
+    setServiceType(service);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simulate booking confirmation
-    alert(`Rendez-vous confirmé pour le ${selectedDate} à ${selectedTime}. Vous recevrez une confirmation par email.`);
-    
-    // Reset form
-    setSelectedDate('');
-    setSelectedTime('');
-    setServiceType('');
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      address: '',
-      message: ''
-    });
+    if (!selectedDate || !selectedTime || !serviceType) {
+      setError('Veuillez sélectionner une date, une heure et un service');
+      return;
+    }
+
+    if (!formData.name || !formData.email || !formData.phone) {
+      setError('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // Créer le rendez-vous
+      const selectedService = bookingConfig?.services.find(s => s.id === serviceType);
+      const bookingData: BookingData = {
+        clientName: formData.name,
+        clientEmail: formData.email,
+        clientPhone: formData.phone,
+        serviceType: selectedService?.name || serviceType,
+        date: selectedDate,
+        time: selectedTime,
+        duration: selectedService?.duration || 60,
+        address: formData.address,
+        notes: formData.message
+      };
+
+      const booking = await BookingService.createBooking(bookingData);
+
+      // Envoyer les emails de confirmation
+      await BookingEmailService.sendBookingEmails({
+        ...bookingData,
+        bookingId: booking.id
+      });
+
+      setBookingSuccess(true);
+      
+      // Réinitialiser le formulaire
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        message: ''
+      });
+      setSelectedDate('');
+      setSelectedTime('');
+      setServiceType('');
+
+    } catch (error: any) {
+      console.error('Error creating booking:', error);
+      setError(error.message || 'Erreur lors de la création du rendez-vous');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const calendarDays = generateCalendarDays();
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement de la configuration...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (bookingSuccess) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-8">
+              <div className="flex items-center justify-center space-x-2">
+                <i className="ri-check-circle-line text-2xl"></i>
+                <h2 className="text-xl font-semibold">Rendez-vous confirmé !</h2>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Merci pour votre confiance !
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Votre rendez-vous a été enregistré avec succès. Vous allez recevoir un email de confirmation 
+                dans les prochaines minutes.
+              </p>
+              
+              <div className="space-y-4">
+                <Button
+                  onClick={() => setBookingSuccess(false)}
+                  className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Prendre un autre rendez-vous
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <main className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Réserver un Rendez-vous
+              Prendre rendez-vous
             </h1>
             <p className="text-xl text-gray-600">
-              Planifiez facilement votre consultation ou visite technique
+              Réservez votre consultation gratuite ou votre devis personnalisé
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Service Selection */}
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Type de rendez-vous
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {services.map((service) => (
-                  <button
-                    key={service.id}
-                    type="button"
-                    onClick={() => setServiceType(service.id)}
-                    className={`p-6 rounded-xl border-2 text-left transition-all ${
-                      serviceType === service.id
-                        ? 'border-orange-600 bg-orange-50'
-                        : 'border-gray-200 hover:border-orange-300'
-                    }`}
-                  >
-                    <h3 className="font-semibold text-lg mb-2">{service.name}</h3>
-                    <p className="text-gray-600">Durée: {service.duration}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <form onSubmit={handleSubmit} className="p-8">
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                  <div className="flex items-center space-x-2">
+                    <i className="ri-error-warning-line"></i>
+                    <span>{error}</span>
+                  </div>
+                </div>
+              )}
 
-            {/* Date Selection */}
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Choisir une date
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                {calendarDays.map((day) => (
-                  <button
-                    key={day.date}
-                    type="button"
-                    onClick={() => setSelectedDate(day.date)}
-                    className={`p-4 rounded-xl border-2 text-center transition-all ${
-                      selectedDate === day.date
-                        ? 'border-orange-600 bg-orange-50'
-                        : 'border-gray-200 hover:border-orange-300'
-                    }`}
-                  >
-                    <div className="text-sm text-gray-500 mb-1">{day.weekday}</div>
-                    <div className="text-lg font-semibold">{day.day}</div>
-                    <div className="text-sm text-gray-500">{day.month}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Time Selection */}
-            {selectedDate && (
-              <div className="bg-white rounded-2xl shadow-xl p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Choisir un horaire
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {timeSlots.map((slot) => (
+              {/* Sélection du service */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez votre service</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {bookingConfig?.services.map((service) => (
                     <button
-                      key={slot.time}
+                      key={service.id}
                       type="button"
-                      onClick={() => slot.available && setSelectedTime(slot.time)}
-                      disabled={!slot.available}
-                      className={`p-4 rounded-xl border-2 text-center transition-all ${
-                        !slot.available
-                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : selectedTime === slot.time
-                          ? 'border-orange-600 bg-orange-50'
+                      onClick={() => handleServiceSelect(service.id)}
+                      className={`p-4 border-2 rounded-lg text-left transition-colors ${
+                        serviceType === service.id
+                          ? 'border-orange-500 bg-orange-50'
                           : 'border-gray-200 hover:border-orange-300'
                       }`}
                     >
-                      {slot.time}
-                      {!slot.available && (
-                        <div className="text-xs text-gray-400 mt-1">Occupé</div>
+                      <div className="font-medium text-gray-900">{service.name}</div>
+                      <div className="text-sm text-gray-500">Durée : {service.duration} min</div>
+                      {service.description && (
+                        <div className="text-xs text-gray-400 mt-1">{service.description}</div>
                       )}
                     </button>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Contact Information */}
-            {selectedDate && selectedTime && (
-              <div className="bg-white rounded-2xl shadow-xl p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Vos informations
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Sélection de la date */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez une date</h3>
+                <div className="grid grid-cols-7 gap-2">
+                  {calendarDays.map((day) => (
+                    <button
+                      key={day.date}
+                      type="button"
+                      onClick={() => handleDateSelect(day.date)}
+                      disabled={!day.available}
+                      className={`p-3 text-center rounded-lg border transition-colors ${
+                        selectedDate === day.date
+                          ? 'bg-orange-500 text-white border-orange-500'
+                          : day.available
+                          ? 'bg-white text-gray-900 border-gray-200 hover:border-orange-300'
+                          : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="text-xs font-medium">{day.weekday}</div>
+                      <div className="text-lg font-bold">{day.day}</div>
+                      <div className="text-xs">{day.month}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sélection de l'heure */}
+              {selectedDate && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez une heure</h3>
+                  <div className="grid grid-cols-4 gap-3">
+                    {timeSlots.map((slot) => (
+                      <button
+                        key={slot.time}
+                        type="button"
+                        onClick={() => slot.available && handleTimeSelect(slot.time)}
+                        disabled={!slot.available}
+                        className={`p-3 text-center rounded-lg border transition-colors ${
+                          selectedTime === slot.time
+                            ? 'bg-orange-500 text-white border-orange-500'
+                            : slot.available
+                            ? 'bg-white text-gray-900 border-gray-200 hover:border-orange-300'
+                            : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                        }`}
+                      >
+                        {slot.time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Informations personnelles */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Vos informations</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Nom complet *
                     </label>
                     <input
                       type="text"
-                      required
+                      name="name"
                       value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Votre nom"
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Email *
                     </label>
                     <input
                       type="email"
-                      required
+                      name="email"
                       value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="votre@email.com"
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Téléphone *
                     </label>
                     <input
                       type="tel"
-                      required
+                      name="phone"
                       value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="06 12 34 56 78"
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Adresse du projet
+                      Adresse
                     </label>
                     <input
                       type="text"
+                      name="address"
                       value={formData.address}
-                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Adresse complète"
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
-                  
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description du projet
-                    </label>
-                    <textarea
-                      value={formData.message}
-                      onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                      rows={4}
-                      maxLength={500}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Décrivez brièvement votre projet..."
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      {formData.message.length}/500 caractères
-                    </p>
-                  </div>
+                </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Message (optionnel)
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Décrivez votre projet ou vos questions..."
+                  />
                 </div>
               </div>
-            )}
 
-            {/* Confirmation */}
-            {selectedDate && selectedTime && serviceType && (
-              <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl p-8">
-                <h3 className="text-xl font-bold mb-4">Récapitulatif de votre rendez-vous</h3>
-                <div className="space-y-2 mb-6">
-                  <p><strong>Service:</strong> {services.find(s => s.id === serviceType)?.name}</p>
-                  <p><strong>Date:</strong> {new Date(selectedDate).toLocaleDateString('fr-FR', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}</p>
-                  <p><strong>Heure:</strong> {selectedTime}</p>
-                </div>
-                
+              {/* Bouton de soumission */}
+              <div className="text-center">
                 <Button
                   type="submit"
-                  className="bg-white text-orange-600 hover:bg-gray-100"
-                  disabled={!formData.name || !formData.email || !formData.phone}
+                  disabled={isSubmitting || !selectedDate || !selectedTime || !serviceType}
+                  className="bg-orange-600 text-white px-8 py-3 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Confirmer le rendez-vous
+                  {isSubmitting ? 'Enregistrement...' : 'Confirmer le rendez-vous'}
                 </Button>
               </div>
-            )}
-          </form>
-
-          {/* Contact Info */}
-          <div className="mt-12 bg-gray-50 rounded-2xl p-8">
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                Besoin d'aide pour réserver ?
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Notre équipe est disponible pour vous accompagner
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="tel:+33139589015"
-                  className="flex items-center justify-center space-x-2 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors whitespace-nowrap"
-                >
-                  <i className="ri-phone-line"></i>
-                  <span>+33 1 39 58 90 15</span>
-                </a>
-                <button
-                  onClick={() => document.querySelector('#vapi-widget-floating-button')?.click()}
-                  className="flex items-center justify-center space-x-2 px-6 py-3 border border-orange-600 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors whitespace-nowrap"
-                >
-                  <i className="ri-chat-3-line"></i>
-                  <span>Chat en direct</span>
-                </button>
-              </div>
-            </div>
+            </form>
           </div>
         </div>
-      </main>
-
+      </div>
+      
       <Footer />
     </div>
   );

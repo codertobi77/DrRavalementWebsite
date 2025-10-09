@@ -9,7 +9,13 @@ const isPreview = process.env.IS_PREVIEW  ? true : false;
 export default defineConfig({
   define: {
    __BASE_PATH__: JSON.stringify(base),
-   __IS_PREVIEW__: JSON.stringify(isPreview)
+   __IS_PREVIEW__: JSON.stringify(isPreview),
+   global: 'globalThis',
+   process: JSON.stringify({
+     env: {
+       NODE_ENV: process.env.NODE_ENV || 'development'
+     }
+   })
   },
   plugins: [react(),
     AutoImport({
@@ -74,6 +80,9 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src')
     }
+  },
+  optimizeDeps: {
+    include: ['googleapis']
   },
   server: {
     port: 3000,

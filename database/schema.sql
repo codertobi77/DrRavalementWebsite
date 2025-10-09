@@ -71,6 +71,18 @@ CREATE TABLE team_members (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Table de configuration du site
+CREATE TABLE site_config (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  key TEXT UNIQUE NOT NULL,
+  value JSONB NOT NULL,
+  description TEXT,
+  category TEXT NOT NULL DEFAULT 'general',
+  is_public BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Table des devis
 CREATE TABLE quotes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -88,12 +100,16 @@ CREATE TABLE quotes (
 -- Table des réservations
 CREATE TABLE bookings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  client_id UUID REFERENCES users(id) NOT NULL,
+  client_name TEXT NOT NULL,
+  client_email TEXT NOT NULL,
+  client_phone TEXT NOT NULL,
   service_type TEXT NOT NULL,
-  date DATE NOT NULL,
-  time TIME NOT NULL,
-  status TEXT CHECK (status IN ('pending', 'confirmed', 'cancelled')) DEFAULT 'pending',
+  booking_date DATE NOT NULL,
+  booking_time TIME NOT NULL,
+  duration INTEGER NOT NULL DEFAULT 60,
+  address TEXT,
   notes TEXT,
+  status TEXT CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')) DEFAULT 'pending',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -174,6 +190,7 @@ ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE media_files ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_config ENABLE ROW LEVEL SECURITY;
 
 -- Policies pour les utilisateurs
 CREATE POLICY "Users can view own profile" ON users FOR SELECT USING (auth.uid() = id);
@@ -207,8 +224,9 @@ CREATE POLICY "Admins can view all quotes" ON quotes FOR SELECT USING (
 );
 
 -- Policies pour les réservations
-CREATE POLICY "Users can view own bookings" ON bookings FOR SELECT USING (auth.uid() = client_id);
-CREATE POLICY "Admins can view all bookings" ON bookings FOR SELECT USING (
+CREATE POLICY "Anyone can create bookings" ON bookings FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can view bookings" ON bookings FOR SELECT USING (true);
+CREATE POLICY "Admins can manage all bookings" ON bookings FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
 );
 
@@ -227,5 +245,14 @@ CREATE POLICY "Admins can manage pages" ON pages FOR ALL USING (
 -- Policies pour les médias
 CREATE POLICY "Media are viewable by everyone" ON media_files FOR SELECT USING (true);
 CREATE POLICY "Admins can manage media" ON media_files FOR ALL USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- Policies pour la configuration du site
+CREATE POLICY "Public config is viewable by everyone" ON site_config FOR SELECT USING (is_public = true);
+CREATE POLICY "Admins can view all config" ON site_config FOR SELECT USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+);
+CREATE POLICY "Admins can manage config" ON site_config FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
 );
