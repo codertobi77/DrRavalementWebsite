@@ -1,12 +1,16 @@
 import { BrowserRouter } from 'react-router-dom'
+import { ConvexProvider } from 'convex/react'
+import { convex } from './lib/convex'
 import { AppRoutes } from './router'
 
 
 function App() {
   return (
-    <BrowserRouter basename={__BASE_PATH__}>
-      <AppRoutes />
-    </BrowserRouter>
+    <ConvexProvider client={convex}>
+      <BrowserRouter basename={__BASE_PATH__}>
+        <AppRoutes />
+      </BrowserRouter>
+    </ConvexProvider>
   )
 }
 

@@ -18,6 +18,11 @@ const QuoteCalculator = lazy(() => import('../pages/quote-calculator/page'));
 const AdminDashboard = lazy(() => import('../pages/admin/dashboard/page'));
 const AdminConfig = lazy(() => import('../pages/admin/config/page'));
 const AdminBookings = lazy(() => import('../pages/admin/bookings/page'));
+const AdminProjects = lazy(() => import('../pages/admin/projects/page'));
+const AdminQuotes = lazy(() => import('../pages/admin/quotes/page'));
+const AdminUsers = lazy(() => import('../pages/admin/users/page'));
+const AdminAnalytics = lazy(() => import('../pages/admin/analytics/page'));
+const AdminContent = lazy(() => import('../pages/admin/content/page'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 
 const routes: RouteObject[] = [
@@ -73,22 +78,42 @@ const routes: RouteObject[] = [
     path: '/quote-calculator',
     element: <QuoteCalculator />
   },
-  {
-    path: '/admin',
-    element: <AdminDashboard />
-  },
-  {
-    path: '/admin/config',
-    element: <AdminConfig />
-  },
-  {
-    path: '/admin/bookings',
-    element: <AdminBookings />
-  },
-  {
-    path: '*',
-    element: <NotFound />
-  }
+        {
+          path: '/admin',
+          element: <AdminDashboard />
+        },
+        {
+          path: '/admin/config',
+          element: <AdminConfig />
+        },
+        {
+          path: '/admin/bookings',
+          element: <AdminBookings />
+        },
+        {
+          path: '/admin/projects',
+          element: <AdminProjects />
+        },
+        {
+          path: '/admin/quotes',
+          element: <AdminQuotes />
+        },
+        {
+          path: '/admin/users',
+          element: <AdminUsers />
+        },
+        {
+          path: '/admin/analytics',
+          element: <AdminAnalytics />
+        },
+        {
+          path: '/admin/content',
+          element: <AdminContent />
+        },
+        {
+          path: '*',
+          element: <NotFound />
+        }
 ];
 
 export default routes;

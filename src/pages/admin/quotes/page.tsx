@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 import Header from '../../../components/feature/Header';
 import Footer from '../../../components/feature/Footer';
 import Button from '../../../components/base/Button';
 
 interface Quote {
-  id: string;
+  _id: string;
   client_name: string;
   client_email: string;
   client_phone: string;
@@ -15,8 +17,6 @@ interface Quote {
   amount: number;
   status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
   valid_until: string;
-  created_at: string;
-  updated_at: string;
   items?: QuoteItem[];
 }
 
@@ -29,126 +29,30 @@ interface QuoteItem {
 }
 
 export default function QuoteManagement() {
-  const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'>('all');
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
 
-  useEffect(() => {
-    loadQuotes();
-  }, []);
+  // Hooks Convex
+  const allQuotes = useQuery(api.quotes.getAllQuotes);
+  const quotesByStatus = useQuery(
+    api.quotes.getQuotesByStatus,
+    filter !== 'all' ? { status: filter } : "skip"
+  );
 
-  const loadQuotes = async () => {
-    try {
-      setLoading(true);
-      // TODO: Remplacer par de vraies données de l'API
-      setTimeout(() => {
-        setQuotes([
-          {
-            id: '1',
-            client_name: 'Jean Dupont',
-            client_email: 'jean.dupont@email.com',
-            client_phone: '01 23 45 67 89',
-            address: '123 Rue de la Paix, 75001 Paris',
-            service_type: 'Ravalement de façade',
-            description: 'Ravalement complet d\'une façade de maison individuelle avec projection machine',
-            amount: 15000,
-            status: 'sent',
-            valid_until: '2024-02-15',
-            created_at: '2024-01-15T10:00:00Z',
-            updated_at: '2024-01-15T10:00:00Z',
-            items: [
-              {
-                id: '1',
-                description: 'Préparation de la façade',
-                quantity: 1,
-                unit_price: 2000,
-                total: 2000
-              },
-              {
-                id: '2',
-                description: 'Projection machine enduit',
-                quantity: 80,
-                unit_price: 120,
-                total: 9600
-              },
-              {
-                id: '3',
-                description: 'Peinture décorative',
-                quantity: 1,
-                unit_price: 3400,
-                total: 3400
-              }
-            ]
-          },
-          {
-            id: '2',
-            client_name: 'Marie Martin',
-            client_email: 'marie.martin@email.com',
-            client_phone: '01 98 76 54 32',
-            address: '456 Avenue des Champs, 75008 Paris',
-            service_type: 'Isolation thermique',
-            description: 'Pose d\'ITE avec enduit décoratif',
-            amount: 25000,
-            status: 'accepted',
-            valid_until: '2024-02-20',
-            created_at: '2024-01-10T14:30:00Z',
-            updated_at: '2024-01-18T11:15:00Z',
-            items: [
-              {
-                id: '1',
-                description: 'Pose isolant PSE 100mm',
-                quantity: 120,
-                unit_price: 45,
-                total: 5400
-              },
-              {
-                id: '2',
-                description: 'Enduit isolant',
-                quantity: 120,
-                unit_price: 80,
-                total: 9600
-              },
-              {
-                id: '3',
-                description: 'Enduit décoratif',
-                quantity: 120,
-                unit_price: 60,
-                total: 7200
-              }
-            ]
-          },
-          {
-            id: '3',
-            client_name: 'Pierre Durand',
-            client_email: 'pierre.durand@email.com',
-            client_phone: '01 55 44 33 22',
-            address: '789 Boulevard Saint-Germain, 75006 Paris',
-            service_type: 'Maçonnerie générale',
-            description: 'Réparation de fissures et rejointoiement',
-            amount: 3500,
-            status: 'draft',
-            valid_until: '2024-02-10',
-            created_at: '2024-01-20T09:00:00Z',
-            updated_at: '2024-01-20T09:00:00Z'
-          }
-        ]);
-        setLoading(false);
-      }, 1000);
-    } catch (error) {
-      console.error('Error loading quotes:', error);
-      setError('Erreur lors du chargement des devis');
-      setLoading(false);
-    }
-  };
+  // Mutations
+  const createQuote = useMutation(api.quotes.createQuote);
+  const updateQuote = useMutation(api.quotes.updateQuote);
+  const deleteQuote = useMutation(api.quotes.deleteQuote);
+
+  // Utiliser les données filtrées ou toutes les devis
+  const quotes = filter === 'all' ? allQuotes : quotesByStatus;
+  const loading = quotes === undefined;
 
   const updateQuoteStatus = async (quoteId: string, status: Quote['status']) => {
     try {
-      // TODO: Implémenter la mise à jour réelle
-      setQuotes(quotes.map(quote => 
-        quote.id === quoteId ? { ...quote, status } : quote
-      ));
+      await updateQuote({ id: quoteId as any, status });
+      setSelectedQuote(null);
     } catch (error) {
       console.error('Error updating quote status:', error);
       setError('Erreur lors de la mise à jour du statut');
@@ -315,7 +219,7 @@ export default function QuoteManagement() {
             ) : (
               filteredQuotes.map((quote) => (
                 <QuoteCard
-                  key={quote.id}
+                  key={quote._id}
                   quote={quote}
                   onView={() => setSelectedQuote(quote)}
                   onUpdateStatus={updateQuoteStatus}
@@ -375,7 +279,7 @@ function QuoteCard({
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
               <h3 className="text-xl font-semibold text-gray-900">
-                Devis #{quote.id}
+                Devis #{quote._id}
               </h3>
               <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(quote.status)}`}>
                 {getStatusLabel(quote.status)}
@@ -437,7 +341,7 @@ function QuoteCard({
           <div className="flex items-center space-x-2">
             {quote.status === 'draft' && (
               <Button
-                onClick={() => onSend(quote.id)}
+                onClick={() => onSend(quote._id)}
                 className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
                 <i className="ri-send-plane-line mr-1"></i>
@@ -447,14 +351,14 @@ function QuoteCard({
             {quote.status === 'sent' && (
               <>
                 <Button
-                  onClick={() => onUpdateStatus(quote.id, 'accepted')}
+                  onClick={() => onUpdateStatus(quote._id, 'accepted')}
                   className="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition-colors text-sm"
                 >
                   <i className="ri-check-line mr-1"></i>
                   Accepter
                 </Button>
                 <Button
-                  onClick={() => onUpdateStatus(quote.id, 'rejected')}
+                  onClick={() => onUpdateStatus(quote._id, 'rejected')}
                   className="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition-colors text-sm"
                 >
                   <i className="ri-close-line mr-1"></i>
@@ -498,7 +402,7 @@ function QuoteDetailsModal({
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
-              Devis #{quote.id}
+              Devis #{quote._id}
             </h3>
             <button
               onClick={onClose}
@@ -638,7 +542,7 @@ function QuoteDetailsModal({
           <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
             {quote.status === 'draft' && (
               <Button
-                onClick={() => onSend(quote.id)}
+                onClick={() => onSend(quote._id)}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <i className="ri-send-plane-line mr-2"></i>
@@ -648,14 +552,14 @@ function QuoteDetailsModal({
             {quote.status === 'sent' && (
               <>
                 <Button
-                  onClick={() => onUpdateStatus(quote.id, 'accepted')}
+                  onClick={() => onUpdateStatus(quote._id, 'accepted')}
                   className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                 >
                   <i className="ri-check-line mr-2"></i>
                   Marquer comme accepté
                 </Button>
                 <Button
-                  onClick={() => onUpdateStatus(quote.id, 'rejected')}
+                  onClick={() => onUpdateStatus(quote._id, 'rejected')}
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                 >
                   <i className="ri-close-line mr-2"></i>

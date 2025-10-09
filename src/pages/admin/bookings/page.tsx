@@ -1,40 +1,48 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 import Header from '../../../components/feature/Header';
 import Footer from '../../../components/feature/Footer';
 import Button from '../../../components/base/Button';
-import { BookingService, type Booking } from '../../../lib/booking';
+
+interface Booking {
+  _id: string;
+  client_name: string;
+  client_email: string;
+  client_phone: string;
+  service_type: string;
+  booking_date: string;
+  booking_time: string;
+  duration: number;
+  address?: string;
+  notes?: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+}
 
 export default function BookingManagement() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled' | 'completed'>('all');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
-  useEffect(() => {
-    loadBookings();
-  }, []);
+  // Hooks Convex
+  const allBookings = useQuery(api.bookings.getBookings);
+  const bookingsByStatus = useQuery(
+    api.bookings.getBookingsByStatus, 
+    filter !== 'all' ? { status: filter } : "skip"
+  );
+  const bookingStats = useQuery(api.bookings.getBookingStats);
 
-  const loadBookings = async () => {
-    try {
-      setLoading(true);
-      const data = await BookingService.getBookings();
-      setBookings(data);
-    } catch (error) {
-      console.error('Error loading bookings:', error);
-      setError('Erreur lors du chargement des réservations');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Mutations
+  const updateBooking = useMutation(api.bookings.updateBooking);
+  const deleteBooking = useMutation(api.bookings.deleteBooking);
+
+  // Utiliser les données filtrées ou toutes les réservations
+  const bookings = filter === 'all' ? allBookings : bookingsByStatus;
 
   const updateBookingStatus = async (bookingId: string, status: Booking['status']) => {
     try {
-      await BookingService.updateBookingStatus(bookingId, status);
-      setBookings(bookings.map(booking => 
-        booking.id === bookingId ? { ...booking, status } : booking
-      ));
+      await updateBooking({ id: bookingId as any, status });
       setSelectedBooking(null);
     } catch (error) {
       console.error('Error updating booking status:', error);
@@ -42,14 +50,13 @@ export default function BookingManagement() {
     }
   };
 
-  const deleteBooking = async (bookingId: string) => {
+  const deleteBookingHandler = async (bookingId: string) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
       return;
     }
 
     try {
-      await BookingService.deleteBooking(bookingId);
-      setBookings(bookings.filter(booking => booking.id !== bookingId));
+      await deleteBooking({ id: bookingId as any });
       setSelectedBooking(null);
     } catch (error) {
       console.error('Error deleting booking:', error);
@@ -57,9 +64,8 @@ export default function BookingManagement() {
     }
   };
 
-  const filteredBookings = bookings.filter(booking => 
-    filter === 'all' || booking.status === filter
-  );
+  // Les données sont déjà filtrées par Convex
+  const filteredBookings = bookings || [];
 
   const getStatusColor = (status: Booking['status']) => {
     switch (status) {
@@ -81,7 +87,8 @@ export default function BookingManagement() {
     }
   };
 
-  if (loading) {
+  // Loading state
+  if (bookings === undefined || bookingStats === undefined) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -145,11 +152,11 @@ export default function BookingManagement() {
               <span className="text-sm font-medium text-gray-700">Filtrer par statut :</span>
               <div className="flex space-x-2">
                 {[
-                  { key: 'all', label: 'Tous', count: bookings.length },
-                  { key: 'pending', label: 'En attente', count: bookings.filter(b => b.status === 'pending').length },
-                  { key: 'confirmed', label: 'Confirmés', count: bookings.filter(b => b.status === 'confirmed').length },
-                  { key: 'cancelled', label: 'Annulés', count: bookings.filter(b => b.status === 'cancelled').length },
-                  { key: 'completed', label: 'Terminés', count: bookings.filter(b => b.status === 'completed').length }
+                  { key: 'all', label: 'Tous', count: bookingStats?.total || 0 },
+                  { key: 'pending', label: 'En attente', count: bookingStats?.pending || 0 },
+                  { key: 'confirmed', label: 'Confirmés', count: bookingStats?.confirmed || 0 },
+                  { key: 'cancelled', label: 'Annulés', count: bookingStats?.cancelled || 0 },
+                  { key: 'completed', label: 'Terminés', count: bookingStats?.completed || 0 }
                 ].map(({ key, label, count }) => (
                   <button
                     key={key}
@@ -206,7 +213,7 @@ export default function BookingManagement() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredBookings.map((booking) => (
-                      <tr key={booking.id} className="hover:bg-gray-50">
+                      <tr key={booking._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className="text-sm font-medium text-gray-900">
@@ -250,21 +257,21 @@ export default function BookingManagement() {
                               <i className="ri-eye-line"></i>
                             </button>
                             <button
-                              onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                              onClick={() => updateBookingStatus(booking._id, 'confirmed')}
                               disabled={booking.status === 'confirmed'}
                               className="text-green-600 hover:text-green-900 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <i className="ri-check-line"></i>
                             </button>
                             <button
-                              onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                              onClick={() => updateBookingStatus(booking._id, 'cancelled')}
                               disabled={booking.status === 'cancelled'}
                               className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <i className="ri-close-line"></i>
                             </button>
                             <button
-                              onClick={() => deleteBooking(booking.id)}
+                              onClick={() => deleteBookingHandler(booking._id)}
                               className="text-gray-600 hover:text-gray-900"
                             >
                               <i className="ri-delete-bin-line"></i>
@@ -424,7 +431,7 @@ function BookingDetailsModal({
           <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
             {booking.status === 'pending' && (
               <Button
-                onClick={() => onUpdateStatus(booking.id, 'confirmed')}
+                onClick={() => onUpdateStatus(booking._id, 'confirmed')}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
                 <i className="ri-check-line mr-2"></i>
@@ -433,7 +440,7 @@ function BookingDetailsModal({
             )}
             {booking.status === 'confirmed' && (
               <Button
-                onClick={() => onUpdateStatus(booking.id, 'completed')}
+                onClick={() => onUpdateStatus(booking._id, 'completed')}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <i className="ri-check-double-line mr-2"></i>
@@ -442,7 +449,7 @@ function BookingDetailsModal({
             )}
             {booking.status !== 'cancelled' && (
               <Button
-                onClick={() => onUpdateStatus(booking.id, 'cancelled')}
+                onClick={() => onUpdateStatus(booking._id, 'cancelled')}
                 className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
               >
                 <i className="ri-close-line mr-2"></i>
@@ -450,7 +457,7 @@ function BookingDetailsModal({
               </Button>
             )}
             <Button
-              onClick={() => onDelete(booking.id)}
+              onClick={() => onDelete(booking._id)}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
             >
               <i className="ri-delete-bin-line mr-2"></i>

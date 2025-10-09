@@ -1,15 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import Header from '../../components/feature/Header';
 import Footer from '../../components/feature/Footer';
 import Button from '../../components/base/Button';
-import { BookingService, type BookingData } from '../../lib/booking';
 import { BookingEmailService } from '../../lib/booking-email';
-import { SiteConfigService, type BookingConfig, type ContactConfig } from '../../lib/site-config';
-
-interface TimeSlot {
-  time: string;
-  available: boolean;
-}
 
 export default function Booking() {
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -25,32 +20,17 @@ export default function Booking() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [bookingConfig, setBookingConfig] = useState<BookingConfig | null>(null);
-  const [contactConfig, setContactConfig] = useState<ContactConfig | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  // Hooks Convex
+  const bookingConfig = useQuery(api.siteConfig.getConfigByKey, { key: "booking_config" });
+  const contactConfig = useQuery(api.siteConfig.getConfigByKey, { key: "contact_config" });
+  const availableTimeSlots = useQuery(
+    api.bookings.getAvailableTimeSlots, 
+    selectedDate ? { date: selectedDate } : "skip"
+  );
 
-  // Charger la configuration au montage du composant
-  useEffect(() => {
-    const loadConfig = async () => {
-      try {
-        const [booking, contact] = await Promise.all([
-          SiteConfigService.getBookingConfig(),
-          SiteConfigService.getContactConfig()
-        ]);
-        setBookingConfig(booking);
-        setContactConfig(contact);
-      } catch (error) {
-        console.error('Error loading config:', error);
-        setError('Erreur lors du chargement de la configuration');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadConfig();
-  }, []);
+  // Mutations
+  const createBooking = useMutation(api.bookings.createBooking);
 
   const generateCalendarDays = () => {
     const days = [];
@@ -80,41 +60,13 @@ export default function Booking() {
     return days;
   };
 
-  // Charger les créneaux disponibles quand la date change
-  useEffect(() => {
-    if (selectedDate) {
-      loadAvailableTimeSlots();
-    }
-  }, [selectedDate]);
+  // Les créneaux disponibles sont maintenant gérés par Convex
 
-  const loadAvailableTimeSlots = async () => {
-    try {
-      console.log('Loading time slots for date:', selectedDate);
-      const slots = await BookingService.getAvailableTimeSlots(selectedDate);
-      console.log('Available slots from database:', slots);
-      
-      // Utiliser les créneaux de la configuration
-      const allSlots = bookingConfig?.timeSlots || ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
-      const slotsWithAvailability = allSlots.map(time => ({
-        time,
-        available: slots.includes(time)
-      }));
-      
-      console.log('Time slots with availability:', slotsWithAvailability);
-      setTimeSlots(slotsWithAvailability);
-    } catch (error) {
-      console.error('Error loading time slots:', error);
-      setError('Erreur lors du chargement des créneaux disponibles');
-      
-      // En cas d'erreur, afficher tous les créneaux comme disponibles
-      const allSlots = bookingConfig?.timeSlots || ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
-      const slotsWithAvailability = allSlots.map(time => ({
-        time,
-        available: true
-      }));
-      setTimeSlots(slotsWithAvailability);
-    }
-  };
+  // Les créneaux disponibles sont maintenant gérés par Convex
+  const timeSlots = availableTimeSlots?.map(time => ({
+    time,
+    available: true
+  })) || [];
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
@@ -154,9 +106,23 @@ export default function Booking() {
     setError(null);
 
     try {
-      // Créer le rendez-vous
-      const selectedService = bookingConfig?.services.find(s => s.id === serviceType);
-      const bookingData: BookingData = {
+      // Créer le rendez-vous avec Convex
+      const selectedService = bookingConfig?.services.find((s: { id: string; }) => s.id === serviceType);
+      const booking = await createBooking({
+        client_name: formData.name,
+        client_email: formData.email,
+        client_phone: formData.phone,
+        service_type: selectedService?.name || serviceType,
+        booking_date: selectedDate,
+        booking_time: selectedTime,
+        duration: selectedService?.duration || 60,
+        address: formData.address,
+        notes: formData.message,
+        status: 'pending'
+      });
+
+      // Envoyer les emails de confirmation
+      await BookingEmailService.sendBookingEmails({
         clientName: formData.name,
         clientEmail: formData.email,
         clientPhone: formData.phone,
@@ -165,15 +131,8 @@ export default function Booking() {
         time: selectedTime,
         duration: selectedService?.duration || 60,
         address: formData.address,
-        notes: formData.message
-      };
-
-      const booking = await BookingService.createBooking(bookingData);
-
-      // Envoyer les emails de confirmation
-      await BookingEmailService.sendBookingEmails({
-        ...bookingData,
-        bookingId: booking.id
+        notes: formData.message,
+        bookingId: booking
       });
 
       setBookingSuccess(true);
@@ -200,7 +159,8 @@ export default function Booking() {
 
   const calendarDays = generateCalendarDays();
 
-  if (loading) {
+  // Loading state
+  if (bookingConfig === undefined || contactConfig === undefined) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -283,7 +243,7 @@ export default function Booking() {
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez votre service</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {bookingConfig?.services.map((service) => (
+                  {bookingConfig?.services.map((service: any) => (
                     <button
                       key={service.id}
                       type="button"

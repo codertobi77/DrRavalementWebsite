@@ -1,5 +1,6 @@
 
 import Button from '../../../components/base/Button';
+import StatisticsSection from '../../../components/cms/StatisticsSection';
 
 export default function HeroSection() {
   return (
@@ -36,24 +37,7 @@ export default function HeroSection() {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 max-w-5xl mx-auto px-4">
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">500+</div>
-            <div className="text-orange-200 font-medium text-xs sm:text-sm lg:text-base">Façades Rénovées</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">15+</div>
-            <div className="text-orange-200 font-medium text-xs sm:text-sm lg:text-base">Années d'Expérience</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">98%</div>
-            <div className="text-orange-200 font-medium text-xs sm:text-sm lg:text-base">Clients Satisfaits</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">25+</div>
-            <div className="text-orange-200 font-medium text-xs sm:text-sm lg:text-base">Communes Servies</div>
-          </div>
-        </div>
+        <StatisticsSection />
       </div>
     </section>
   );
