@@ -6,6 +6,7 @@ import AboutValuesSection from '../../components/cms/AboutValuesSection';
 import AboutTeamSection from '../../components/cms/AboutTeamSection';
 import AboutCertificationsSection from '../../components/cms/AboutCertificationsSection';
 import TestCMSConnection from '../../components/cms/TestCMSConnection';
+import CTALinksSection from '../../components/cms/CTALinksSection';
 
 export default function About() {
   return (
@@ -95,32 +96,14 @@ export default function About() {
 
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-r from-orange-900 to-red-900">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-4xl font-bold text-white mb-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <CTALinksSection variant="hero">
               Prêt à Démarrer Votre Projet ?
-            </h2>
-            <p className="text-xl text-orange-100 mb-8">
-              Contactez-nous dès aujourd'hui pour un devis gratuit et personnalisé
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="/contact" 
-                className="bg-white text-orange-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-orange-50 transition-all duration-300 transform hover:scale-105 whitespace-nowrap"
-              >
-                Devis Gratuit
-              </a>
-              <a 
-                href="/portfolio" 
-                className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-orange-900 transition-all duration-300 whitespace-nowrap"
-              >
-                Voir Nos Réalisations
-              </a>
-            </div>
+            </CTALinksSection>
           </div>
         </section>
       </main>
       <Footer />
-      <TestCMSConnection />
     </div>
   );
 }

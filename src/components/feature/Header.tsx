@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import Button from '../base/Button';
+import ContactInfoSection from '../cms/ContactInfoSection';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,21 +12,7 @@ export default function Header() {
       <div className="bg-orange-600 text-white py-2">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center text-xs sm:text-sm">
-            <div className="flex items-center space-x-2 sm:space-x-6">
-              <div className="flex items-center space-x-1 sm:space-x-2">
-                <i className="ri-phone-line text-xs sm:text-sm"></i>
-                <span className="hidden sm:inline">+33 1 39 58 90 15</span>
-                <span className="sm:hidden">01 39 58 90 15</span>
-              </div>
-              <div className="hidden sm:flex items-center space-x-2">
-                <i className="ri-mail-line"></i>
-                <span>contact@dr-ravalement.fr</span>
-              </div>
-              <div className="hidden lg:flex items-center space-x-2">
-                <i className="ri-map-pin-line"></i>
-                <span>Seine-et-Marne & Île-de-France</span>
-              </div>
-            </div>
+            <ContactInfoSection variant="header" />
             <div className="hidden md:block text-xs lg:text-sm">
               <span>Ravalement • Maçonnerie • Couverture</span>
             </div>

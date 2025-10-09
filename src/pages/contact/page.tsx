@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import Header from '../../components/feature/Header';
 import Footer from '../../components/feature/Footer';
+import ContactInfoSection from '../../components/cms/ContactInfoSection';
+import CompanyInfoSection from '../../components/cms/CompanyInfoSection';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -70,9 +72,7 @@ export default function Contact() {
           </div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                Contactez <span className="text-orange-400">DR RAVALEMENT</span>
-              </h1>
+              <CompanyInfoSection variant="about" />
               <p className="text-xl text-orange-100 max-w-3xl mx-auto">
                 Devis gratuit sous 24h • Intervention en Seine-et-Marne et Île-de-France
               </p>
@@ -83,47 +83,7 @@ export default function Contact() {
         {/* Contact rapide */}
         <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <i className="ri-phone-line text-3xl text-orange-600"></i>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Appelez-nous</h3>
-                <p className="text-lg text-orange-600 font-semibold mb-2">+33 1 39 58 90 15</p>
-                <p className="text-gray-600">Lun-Ven: 8h-18h | Sam: 9h-12h</p>
-                <a 
-                  href="tel:+33139589015" 
-                  className="inline-block mt-4 bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors whitespace-nowrap"
-                >
-                  Appeler Maintenant
-                </a>
-              </div>
-              <div className="text-center">
-                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <i className="ri-mail-line text-3xl text-orange-600"></i>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Écrivez-nous</h3>
-                <p className="text-lg text-orange-600 font-semibold mb-2">contact@dr-ravalement.fr</p>
-                <p className="text-gray-600">Réponse sous 24h</p>
-                <a 
-                  href="mailto:contact@dr-ravalement.fr" 
-                  className="inline-block mt-4 bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors whitespace-nowrap"
-                >
-                  Envoyer un Email
-                </a>
-              </div>
-              <div className="text-center">
-                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <i className="ri-map-pin-line text-3xl text-orange-600"></i>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Zone d'intervention</h3>
-                <p className="text-lg text-orange-600 font-semibold mb-2">Seine-et-Marne</p>
-                <p className="text-gray-600">& Île-de-France</p>
-                <button className="inline-block mt-4 bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors whitespace-nowrap">
-                  Voir la Carte
-                </button>
-              </div>
-            </div>
+            <ContactInfoSection variant="page" className="mb-16" />
           </div>
         </section>
 

@@ -6,14 +6,31 @@ export default defineSchema({
   users: defineTable({
     email: v.string(),
     name: v.optional(v.string()),
+    password_hash: v.optional(v.string()), // Hash du mot de passe (optionnel pour migration)
     role: v.union(v.literal("admin"), v.literal("editor"), v.literal("viewer")),
     status: v.union(v.literal("active"), v.literal("inactive"), v.literal("pending")),
     last_login: v.optional(v.string()),
     avatar: v.optional(v.string()),
+    created_at: v.optional(v.string()),
+    updated_at: v.optional(v.string()),
   })
     .index("by_email", ["email"])
     .index("by_role", ["role"])
     .index("by_status", ["status"]),
+
+  // Table des sessions d'authentification
+  auth_sessions: defineTable({
+    user_id: v.id("users"),
+    token: v.string(),
+    expires_at: v.string(),
+    created_at: v.string(),
+    last_used: v.string(),
+    ip_address: v.optional(v.string()),
+    user_agent: v.optional(v.string()),
+  })
+    .index("by_user_id", ["user_id"])
+    .index("by_token", ["token"])
+    .index("by_expires_at", ["expires_at"]),
 
   // Table de configuration du site
   site_config: defineTable({

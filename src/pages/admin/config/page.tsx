@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import Header from '../../../components/feature/Header';
 import Footer from '../../../components/feature/Footer';
 import Button from '../../../components/base/Button';
-import { SiteConfigService, type BookingConfig, type ContactConfig, type EmailConfig } from '../../../lib/site-config';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+import type { BookingConfig, ContactConfig, EmailConfig } from '../../../lib/site-config-convex';
 
 interface ConfigSection {
   id: string;
@@ -56,29 +58,26 @@ export default function ConfigManagement() {
     }
   ];
 
-  useEffect(() => {
-    loadConfigurations();
-  }, []);
 
-  const loadConfigurations = async () => {
-    try {
-      setLoading(true);
-      const [booking, contact, email] = await Promise.all([
-        SiteConfigService.getBookingConfig(),
-        SiteConfigService.getContactConfig(),
-        SiteConfigService.getEmailConfig()
-      ]);
-      
-      setBookingConfig(booking);
-      setContactConfig(contact);
-      setEmailConfig(email);
-    } catch (error) {
-      console.error('Error loading configurations:', error);
-      setError('Erreur lors du chargement des configurations');
-    } finally {
+  // Hooks Convex pour charger les configurations
+  const bookingConfigData = useQuery(api.siteConfig.getConfigByKey, { key: "booking_config" });
+  const contactConfigData = useQuery(api.siteConfig.getConfigByKey, { key: "contact_config" });
+  const emailConfigData = useQuery(api.siteConfig.getConfigByKey, { key: "email_config" });
+
+  // Mutations pour sauvegarder
+  const updateBookingConfig = useMutation(api.siteConfig.setConfig);
+  const updateContactConfig = useMutation(api.siteConfig.setConfig);
+  const updateEmailConfig = useMutation(api.siteConfig.setConfig);
+
+  // Effet pour charger les configurations
+  useEffect(() => {
+    if (bookingConfigData !== undefined && contactConfigData !== undefined && emailConfigData !== undefined) {
+      setBookingConfig(bookingConfigData as BookingConfig);
+      setContactConfig(contactConfigData as ContactConfig);
+      setEmailConfig(emailConfigData as EmailConfig);
       setLoading(false);
     }
-  };
+  }, [bookingConfigData, contactConfigData, emailConfigData]);
 
   const handleSave = async () => {
     try {
@@ -90,17 +89,35 @@ export default function ConfigManagement() {
       switch (activeSection) {
         case 'booking':
           if (bookingConfig) {
-            await SiteConfigService.updateConfig('booking', bookingConfig, 'Configuration des réservations et créneaux', 'booking');
+            await updateBookingConfig({ 
+              key: 'booking_config', 
+              value: bookingConfig,
+              description: 'Configuration des réservations et créneaux',
+              category: 'booking',
+              is_public: true
+            });
           }
           break;
         case 'contact':
           if (contactConfig) {
-            await SiteConfigService.updateConfig('contact', contactConfig, 'Informations de contact de l\'entreprise', 'contact');
+            await updateContactConfig({ 
+              key: 'contact_config', 
+              value: contactConfig,
+              description: 'Informations de contact de l\'entreprise',
+              category: 'contact',
+              is_public: true
+            });
           }
           break;
         case 'email':
           if (emailConfig) {
-            await SiteConfigService.updateConfig('email', emailConfig, 'Configuration des emails et notifications', 'email');
+            await updateEmailConfig({ 
+              key: 'email_config', 
+              value: emailConfig,
+              description: 'Configuration des emails et notifications',
+              category: 'email',
+              is_public: true
+            });
           }
           break;
       }

@@ -15,6 +15,7 @@ const ClientDashboard = lazy(() => import('../pages/client-dashboard/page'));
 const ColorSimulator = lazy(() => import('../pages/color-simulator/page'));
 const InteractiveMap = lazy(() => import('../pages/interactive-map/page'));
 const QuoteCalculator = lazy(() => import('../pages/quote-calculator/page'));
+const AdminLogin = lazy(() => import('../pages/admin/login/page'));
 const AdminDashboard = lazy(() => import('../pages/admin/dashboard/page'));
 const AdminConfig = lazy(() => import('../pages/admin/config/page'));
 const AdminBookings = lazy(() => import('../pages/admin/bookings/page'));
@@ -78,6 +79,10 @@ const routes: RouteObject[] = [
     path: '/quote-calculator',
     element: <QuoteCalculator />
   },
+        {
+          path: '/admin/login',
+          element: <AdminLogin />
+        },
         {
           path: '/admin',
           element: <AdminDashboard />

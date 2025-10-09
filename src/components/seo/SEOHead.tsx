@@ -73,9 +73,8 @@ export default function SEOHead({
 
 // Composant pour les métadonnées de base
 export function BaseSEOHead() {
-  const baseStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
+  // Utilisation des données de configuration dynamique
+  const companyInfo = {
     name: 'DR RAVALEMENT',
     description: 'Expert en ravalement de façades, maçonnerie générale et couverture en Seine-et-Marne et Île-de-France',
     url: 'https://dr-ravalement.fr',
@@ -113,6 +112,12 @@ export function BaseSEOHead() {
       'Isolation thermique',
       'Rénovation extérieure'
     ]
+  };
+
+  const baseStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    ...companyInfo
   }
 
   return (

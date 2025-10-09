@@ -1,4 +1,7 @@
 
+import ContactInfoSection from '../cms/ContactInfoSection';
+import CompanyInfoSection from '../cms/CompanyInfoSection';
+
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
@@ -15,9 +18,7 @@ export default function Footer() {
                 <p className="text-orange-400 text-xs sm:text-sm">Expert Façades & Maçonnerie</p>
               </div>
             </div>
-            <p className="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
-              Spécialiste du ravalement de façades par projection machine et maçonnerie générale en Seine-et-Marne depuis 2008.
-            </p>
+            <CompanyInfoSection variant="footer" />
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors">
                 <i className="ri-facebook-fill text-lg sm:text-xl"></i>
@@ -87,24 +88,7 @@ export default function Footer() {
           {/* Contact */}
           <div>
             <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">Contact</h4>
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center space-x-3">
-                <i className="ri-phone-line text-orange-400 flex-shrink-0"></i>
-                <span className="text-gray-300 text-xs sm:text-sm">+33 1 39 58 90 15</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <i className="ri-mail-line text-orange-400 flex-shrink-0"></i>
-                <span className="text-gray-300 text-xs sm:text-sm break-all">contact@dr-ravalement.fr</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <i className="ri-map-pin-line text-orange-400 flex-shrink-0"></i>
-                <span className="text-gray-300 text-xs sm:text-sm">Seine-et-Marne & Île-de-France</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <i className="ri-time-line text-orange-400 flex-shrink-0"></i>
-                <span className="text-gray-300 text-xs sm:text-sm">Lun-Ven: 8h-18h | Sam: 9h-12h</span>
-              </div>
-            </div>
+            <ContactInfoSection variant="footer" showHours={true} showSocial={true} />
           </div>
         </div>
 
