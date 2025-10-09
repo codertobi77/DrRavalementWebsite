@@ -68,7 +68,7 @@ async function initializeAdminUsers() {
         }
 
         // Créer l'utilisateur
-        const result = await convexClient.action("auth-actions:createAdminUser", {
+        const result = await convexClient.action("authActions:createAdminUser", {
           email: userData.email,
           password: userData.password,
           name: userData.name

@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   // Mutations et actions
-  const loginAction = useMutation(api["auth-actions"].authenticateUser);
+  const loginAction = useMutation(api.authActions.authenticateUser);
   const logoutMutation = useMutation(api.auth.logout);
 
   // Effet pour gérer les données de session
