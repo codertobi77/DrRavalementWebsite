@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -81,7 +81,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginAction = useMutation(api.auth.authenticateUserSimple);
   const logoutMutation = useMutation(api.auth.logout);
 
-  // Effet pour initialiser l'état d'authentification (approche simplifiée)
+  // Query pour valider la session
+  const validateSessionQuery = useQuery(api.auth.validateSession, 
+    getStoredToken() ? { token: getStoredToken()! } : "skip"
+  );
+
+  // Effet pour initialiser l'état d'authentification
   useEffect(() => {
     const storedToken = getStoredToken();
     
@@ -91,26 +96,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(null);
       setIsLoading(false);
     } else {
-      // Token présent, simuler une session valide
-      // Pour éviter les états de chargement infinis, on considère que si un token existe, l'utilisateur est connecté
-      setUser({
-        _id: 'temp' as Id<"users">,
-        email: 'admin@dr-ravalement.fr',
-        name: 'Administrateur',
-        role: 'admin',
-        status: 'active'
-      });
-      setSession({
-        _id: 'temp' as Id<"auth_sessions">,
-        user_id: 'temp' as Id<"users">,
-        token: storedToken,
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        created_at: new Date().toISOString(),
-        last_used: new Date().toISOString()
-      });
-      setIsLoading(false);
+      // Token présent, vérifier la validité avec l'API
+      if (validateSessionQuery !== undefined) {
+        if (validateSessionQuery) {
+          // Session valide
+          setUser(validateSessionQuery.user);
+          setSession(validateSessionQuery.session);
+        } else {
+          // Session invalide ou expirée
+          setUser(null);
+          setSession(null);
+          removeStoredToken();
+        }
+        setIsLoading(false);
+      }
     }
-  }, []);
+  }, [validateSessionQuery]);
 
   // Fonction de connexion
   const login = async (email: string, password: string) => {

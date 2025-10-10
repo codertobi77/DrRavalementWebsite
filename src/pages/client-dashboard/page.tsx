@@ -1,11 +1,10 @@
 
 import { useState, useEffect } from 'react';
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import Header from '../../components/feature/Header';
 import Footer from '../../components/feature/Footer';
-import { useAuth } from '../../lib/auth';
-import { ProjectService } from '../../lib/projects';
-import { QuoteService } from '../../lib/quotes';
-import { BookingService } from '../../lib/quotes';
+import { useAuth } from '../../lib/auth-context';
 
 interface ClientProject {
   id: string;
@@ -65,31 +64,25 @@ export default function ClientDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
-  const { user, loading: authLoading, signIn, signOut } = useAuth();
+  const { user, isLoading: authLoading, login, logout } = useAuth();
 
-  // Charger les projets du client
+  // Charger les projets du client via Convex
+  const clientProjects = useQuery(api.projects.getClientProjects, 
+    user?._id ? { clientId: user._id } : "skip"
+  );
+
+  // Convertir les projets Convex vers le format ClientProject
   useEffect(() => {
-    if (user?.id) {
-      loadClientProjects();
-    }
-  }, [user]);
-
-  const loadClientProjects = async () => {
-    if (!user?.id) return;
-    
-    setLoading(true);
-    try {
-      const clientProjects = await ProjectService.getClientProjects(user.id);
-      // Convertir les projets Supabase vers le format ClientProject
+    if (clientProjects) {
       const formattedProjects = clientProjects.map(project => ({
-        id: project.id,
-        clientName: user.first_name + ' ' + user.last_name,
+        id: project._id,
+        clientName: user?.name || 'Client',
         projectTitle: project.title,
         status: project.status as 'planning' | 'in-progress' | 'completed' | 'on-hold',
-        progress: project.progress,
-        startDate: project.start_date,
-        endDate: project.end_date,
-        budget: project.budget,
+        progress: project.progress || 0,
+        startDate: project.start_date || new Date().toISOString(),
+        endDate: project.end_date || new Date().toISOString(),
+        budget: project.budget || 0,
         nextSteps: [], // À implémenter
         team: [], // À implémenter
         photos: [], // À implémenter
@@ -97,13 +90,8 @@ export default function ClientDashboard() {
         timeline: [] // À implémenter
       }));
       setProjects(formattedProjects);
-    } catch (err) {
-      setError('Erreur lors du chargement des projets');
-      console.error('Error loading projects:', err);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [clientProjects, user]);
 
   // Fonction de connexion réelle
   const handleLogin = async (e: React.FormEvent) => {
@@ -112,7 +100,10 @@ export default function ClientDashboard() {
     setError('');
     
     try {
-      await signIn(loginForm.email, loginForm.password);
+      const result = await login(loginForm.email, loginForm.password);
+      if (!result.success) {
+        setError(result.error || 'Erreur de connexion');
+      }
     } catch (err: any) {
       setError(err.message || 'Erreur de connexion');
     } finally {
@@ -122,7 +113,7 @@ export default function ClientDashboard() {
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      await logout();
       setProjects([]);
     } catch (err) {
       console.error('Error logging out:', err);

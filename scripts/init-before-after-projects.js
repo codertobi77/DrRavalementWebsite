@@ -10,7 +10,6 @@ const beforeAfterProjects = [
   {
     title: "Ravalement Façade Moderne - Paris 15ème",
     category: "ravalement",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     before_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     after_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     description: "Transformation complète d'une façade ancienne en style moderne avec enduit gratté et couleurs contemporaines.",
@@ -22,7 +21,6 @@ const beforeAfterProjects = [
   {
     title: "Rénovation Maçonnerie - Maison de Ville",
     category: "maconnerie",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     before_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     after_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     description: "Restauration complète de la maçonnerie avec remplacement des pierres endommagées et rejointoiement.",
@@ -34,7 +32,6 @@ const beforeAfterProjects = [
   {
     title: "Ravalement Couleur - Immeuble Haussmannien",
     category: "ravalement",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     before_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     after_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     description: "Mise en couleur d'un immeuble haussmannien avec respect de l'architecture d'origine.",
@@ -46,7 +43,6 @@ const beforeAfterProjects = [
   {
     title: "Rénovation Toiture - Villa Individuelle",
     category: "couverture",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     before_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     after_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     description: "Refaire complètement la toiture avec des tuiles modernes et isolation renforcée.",
@@ -58,7 +54,6 @@ const beforeAfterProjects = [
   {
     title: "Ravalement Enduit Décoratif - Maison de Campagne",
     category: "ravalement",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     before_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     after_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     description: "Application d'un enduit décoratif avec effet de relief pour une maison de campagne.",
@@ -70,7 +65,6 @@ const beforeAfterProjects = [
   {
     title: "Restauration Pierre de Taille - Château",
     category: "maconnerie",
-    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     before_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     after_image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     description: "Restauration complète de la pierre de taille d'un château historique.",

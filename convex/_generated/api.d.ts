@@ -17,6 +17,7 @@ import type * as auth from "../auth.js";
 import type * as authActions from "../authActions.js";
 import type * as bookings from "../bookings.js";
 import type * as cms from "../cms.js";
+import type * as email from "../email.js";
 import type * as initData from "../initData.js";
 import type * as notifications from "../notifications.js";
 import type * as projects from "../projects.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   authActions: typeof authActions;
   bookings: typeof bookings;
   cms: typeof cms;
+  email: typeof email;
   initData: typeof initData;
   notifications: typeof notifications;
   projects: typeof projects;

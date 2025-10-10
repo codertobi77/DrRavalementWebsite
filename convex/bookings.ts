@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, action } from "./_generated/server";
 import { v } from "convex/values";
 
 // Récupérer toutes les réservations
@@ -192,5 +192,56 @@ export const getBookingStats = query({
     };
 
     return stats;
+  },
+});
+
+// Confirmer une réservation et envoyer un email de confirmation
+export const confirmBooking = action({
+  args: {
+    bookingId: v.id("bookings"),
+    adminNotes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Récupérer la réservation
+    const booking = await ctx.runQuery("bookings:getBookingById", { id: args.bookingId });
+    
+    if (!booking) {
+      throw new Error("Réservation non trouvée");
+    }
+
+    if (booking.status !== "pending") {
+      throw new Error("Cette réservation ne peut pas être confirmée");
+    }
+
+    // Mettre à jour le statut de la réservation
+    await ctx.runMutation("bookings:updateBooking", {
+      id: args.bookingId,
+      status: "confirmed",
+    });
+
+    // Envoyer l'email de confirmation au client
+    await ctx.runAction("email:sendBookingConfirmationEmail", {
+      clientName: booking.client_name,
+      clientEmail: booking.client_email,
+      clientPhone: booking.client_phone,
+      serviceType: booking.service_type,
+      date: booking.booking_date,
+      time: booking.booking_time,
+      duration: booking.duration,
+      address: booking.address,
+      notes: booking.notes,
+      bookingId: args.bookingId,
+      adminNotes: args.adminNotes,
+    });
+
+    return { success: true, message: "Réservation confirmée et email envoyé" };
+  },
+});
+
+// Récupérer une réservation par ID
+export const getBookingById = query({
+  args: { id: v.id("bookings") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
   },
 });

@@ -160,13 +160,9 @@ export class ServiceManager {
   static validateConfig(): { valid: boolean; errors: string[] } {
     const errors: string[] = []
     
-    // Vérifier les variables d'environnement requises
-    if (!import.meta.env.VITE_SUPABASE_URL) {
-      errors.push('VITE_SUPABASE_URL est requise')
-    }
-    
-    if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      errors.push('VITE_SUPABASE_ANON_KEY est requise')
+    // Vérifier les variables d'environnement requises pour Convex
+    if (!import.meta.env.VITE_CONVEX_URL) {
+      errors.push('VITE_CONVEX_URL est requise')
     }
     
     // Vérifier les services optionnels

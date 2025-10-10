@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import Header from '../../../components/feature/Header';
 import Footer from '../../../components/feature/Footer';
@@ -33,9 +33,10 @@ export default function BookingManagement() {
   );
   const bookingStats = useQuery(api.bookings.getBookingStats);
 
-  // Mutations
+  // Mutations et Actions
   const updateBooking = useMutation(api.bookings.updateBooking);
   const deleteBooking = useMutation(api.bookings.deleteBooking);
+  const confirmBooking = useAction(api.bookings.confirmBooking);
 
   // Utiliser les données filtrées ou toutes les réservations
   const bookings = filter === 'all' ? allBookings : bookingsByStatus;
@@ -47,6 +48,20 @@ export default function BookingManagement() {
     } catch (error) {
       console.error('Error updating booking status:', error);
       setError('Erreur lors de la mise à jour du statut');
+    }
+  };
+
+  const confirmBookingWithEmail = async (bookingId: string, adminNotes?: string) => {
+    try {
+      await confirmBooking({ 
+        bookingId: bookingId as any, 
+        adminNotes 
+      });
+      setSelectedBooking(null);
+      setError(null);
+    } catch (error) {
+      console.error('Error confirming booking:', error);
+      setError('Erreur lors de la confirmation de la réservation');
     }
   };
 
@@ -294,6 +309,7 @@ export default function BookingManagement() {
           booking={selectedBooking}
           onClose={() => setSelectedBooking(null)}
           onUpdateStatus={updateBookingStatus}
+          onConfirmWithEmail={confirmBookingWithEmail}
           onDelete={deleteBooking}
         />
       )}
@@ -308,11 +324,13 @@ function BookingDetailsModal({
   booking, 
   onClose, 
   onUpdateStatus, 
+  onConfirmWithEmail,
   onDelete 
 }: {
   booking: Booking;
   onClose: () => void;
   onUpdateStatus: (id: string, status: Booking['status']) => void;
+  onConfirmWithEmail: (id: string, adminNotes?: string) => void;
   onDelete: (id: string) => void;
 }) {
   const getStatusColor = (status: Booking['status']) => {
@@ -431,11 +449,11 @@ function BookingDetailsModal({
           <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
             {booking.status === 'pending' && (
               <Button
-                onClick={() => onUpdateStatus(booking._id, 'confirmed')}
+                onClick={() => onConfirmWithEmail(booking._id)}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
-                <i className="ri-check-line mr-2"></i>
-                Confirmer
+                <i className="ri-mail-send-line mr-2"></i>
+                Confirmer et envoyer email
               </Button>
             )}
             {booking.status === 'confirmed' && (

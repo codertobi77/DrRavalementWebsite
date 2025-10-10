@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import Header from '../../components/feature/Header';
 import Footer from '../../components/feature/Footer';
 import Button from '../../components/base/Button';
-import { BookingEmailService } from '../../lib/booking-email';
 
 export default function Booking() {
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -106,7 +105,7 @@ export default function Booking() {
     setError(null);
 
     try {
-      // Créer le rendez-vous avec Convex
+      // Créer le rendez-vous avec Convex (statut "pending" en attente de confirmation)
       const selectedService = bookingConfig?.services.find((s: { id: string; }) => s.id === serviceType);
       const booking = await createBooking({
         client_name: formData.name,
@@ -119,20 +118,6 @@ export default function Booking() {
         address: formData.address,
         notes: formData.message,
         status: 'pending'
-      });
-
-      // Envoyer les emails de confirmation
-      await BookingEmailService.sendBookingEmails({
-        clientName: formData.name,
-        clientEmail: formData.email,
-        clientPhone: formData.phone,
-        serviceType: selectedService?.name || serviceType,
-        date: selectedDate,
-        time: selectedTime,
-        duration: selectedService?.duration || 60,
-        address: formData.address,
-        notes: formData.message,
-        bookingId: booking
       });
 
       setBookingSuccess(true);
@@ -181,21 +166,35 @@ export default function Booking() {
         <Header />
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-8">
+            <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-8">
               <div className="flex items-center justify-center space-x-2">
-                <i className="ri-check-circle-line text-2xl"></i>
-                <h2 className="text-xl font-semibold">Rendez-vous confirmé !</h2>
+                <i className="ri-time-line text-2xl"></i>
+                <h2 className="text-xl font-semibold">Demande de rendez-vous envoyée !</h2>
               </div>
             </div>
             
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Merci pour votre confiance !
+                Merci pour votre demande !
               </h3>
               <p className="text-gray-600 mb-6">
-                Votre rendez-vous a été enregistré avec succès. Vous allez recevoir un email de confirmation 
-                dans les prochaines minutes.
+                Votre demande de rendez-vous a été enregistrée avec succès. Notre équipe va examiner votre demande 
+                et vous confirmer le rendez-vous par email dans les plus brefs délais.
               </p>
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start space-x-3">
+                  <i className="ri-information-line text-yellow-600 text-xl mt-1"></i>
+                  <div>
+                    <h4 className="font-semibold text-yellow-800 mb-1">Prochaines étapes</h4>
+                    <ul className="text-sm text-yellow-700 space-y-1">
+                      <li>• Notre équipe examine votre demande</li>
+                      <li>• Vous recevrez un email de confirmation</li>
+                      <li>• Un SMS de rappel sera envoyé 24h avant</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
               
               <div className="space-y-4">
                 <Button

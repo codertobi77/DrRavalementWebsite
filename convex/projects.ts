@@ -33,6 +33,17 @@ export const getProjectsByClient = query({
   },
 });
 
+// Récupérer les projets d'un client (avec ID Convex)
+export const getClientProjects = query({
+  args: { clientId: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("projects")
+      .withIndex("by_client_id", (q) => q.eq("client_id", args.clientId))
+      .collect();
+  },
+});
+
 // Récupérer les projets actifs
 export const getActiveProjects = query({
   handler: async (ctx) => {
