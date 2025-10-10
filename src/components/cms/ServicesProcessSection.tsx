@@ -1,9 +1,8 @@
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateByKey, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { useCachedProcessSteps } from "../../lib/cms-cache";
 
 export default function ServicesProcessSection() {
-  const rawProcessSteps = useQuery(api.cms.getProcessSteps);
+  const { data: rawProcessSteps, isLoading, isCached } = useCachedProcessSteps();
 
   // Validation et déduplication des données
   const processSteps = validateCmsData(
@@ -12,7 +11,7 @@ export default function ServicesProcessSection() {
     "Aucune étape de processus disponible"
   );
 
-  if (!processSteps) {
+  if (!processSteps || isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {createLoadingState(4).map((item, index) => (
@@ -22,6 +21,12 @@ export default function ServicesProcessSection() {
             <div className="h-4 bg-gray-300 rounded"></div>
           </div>
         ))}
+        {isCached && (
+          <div className="col-span-full text-center text-sm text-gray-500 mt-4">
+            <i className="ri-database-line mr-1"></i>
+            Données chargées depuis le cache
+          </div>
+        )}
       </div>
     );
   }

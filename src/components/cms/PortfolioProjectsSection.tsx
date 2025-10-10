@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateByKey, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { useCachedPortfolioProjects, useCachedProjectFilters } from "../../lib/cms-cache";
 
 export default function PortfolioProjectsSection() {
   const [activeFilter, setActiveFilter] = useState('tous');
-  const rawProjects = useQuery(api.cms.getPortfolioProjects);
-  const rawFilters = useQuery(api.cms.getProjectFilters);
+  const { data: rawProjects, isLoading: projectsLoading, isCached: projectsCached } = useCachedPortfolioProjects();
+  const { data: rawFilters, isLoading: filtersLoading, isCached: filtersCached } = useCachedProjectFilters();
 
   // Validation et déduplication des données
   const projects = validateCmsData(
@@ -25,7 +24,7 @@ export default function PortfolioProjectsSection() {
     activeFilter === 'tous' || project.category === activeFilter
   ) || [];
 
-  if (!projects || !filters) {
+  if (!projects || !filters || projectsLoading || filtersLoading) {
     return (
       <div className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,6 +51,14 @@ export default function PortfolioProjectsSection() {
               </div>
             ))}
           </div>
+          
+          {/* Indicateurs de cache */}
+          {(projectsCached || filtersCached) && (
+            <div className="text-center text-sm text-gray-500 mt-4">
+              <i className="ri-database-line mr-1"></i>
+              Données chargées depuis le cache
+            </div>
+          )}
         </div>
       </div>
     );

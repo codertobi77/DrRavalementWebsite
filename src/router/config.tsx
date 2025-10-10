@@ -1,6 +1,7 @@
 
-import { RouteObject } from 'react-router-dom';
+import { type RouteObject, Navigate } from 'react-router-dom';
 import { lazy } from 'react';
+import AdminRouteProtection from '../components/admin/AdminRouteProtection';
 
 const Home = lazy(() => import('../pages/home/page'));
 const About = lazy(() => import('../pages/about/page'));
@@ -85,35 +86,71 @@ const routes: RouteObject[] = [
         },
         {
           path: '/admin',
-          element: <AdminDashboard />
+          element: <Navigate to="/admin/dashboard" replace />
+        },
+        {
+          path: '/admin/dashboard',
+          element: (
+            <AdminRouteProtection>
+              <AdminDashboard />
+            </AdminRouteProtection>
+          )
         },
         {
           path: '/admin/config',
-          element: <AdminConfig />
+          element: (
+            <AdminRouteProtection>
+              <AdminConfig />
+            </AdminRouteProtection>
+          )
         },
         {
           path: '/admin/bookings',
-          element: <AdminBookings />
+          element: (
+            <AdminRouteProtection>
+              <AdminBookings />
+            </AdminRouteProtection>
+          )
         },
         {
           path: '/admin/projects',
-          element: <AdminProjects />
+          element: (
+            <AdminRouteProtection>
+              <AdminProjects />
+            </AdminRouteProtection>
+          )
         },
         {
           path: '/admin/quotes',
-          element: <AdminQuotes />
+          element: (
+            <AdminRouteProtection>
+              <AdminQuotes />
+            </AdminRouteProtection>
+          )
         },
         {
           path: '/admin/users',
-          element: <AdminUsers />
+          element: (
+            <AdminRouteProtection>
+              <AdminUsers />
+            </AdminRouteProtection>
+          )
         },
         {
           path: '/admin/analytics',
-          element: <AdminAnalytics />
+          element: (
+            <AdminRouteProtection>
+              <AdminAnalytics />
+            </AdminRouteProtection>
+          )
         },
         {
           path: '/admin/content',
-          element: <AdminContent />
+          element: (
+            <AdminRouteProtection>
+              <AdminContent />
+            </AdminRouteProtection>
+          )
         },
         {
           path: '*',

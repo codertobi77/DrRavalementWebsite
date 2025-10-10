@@ -1,9 +1,8 @@
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateStatistics, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { useCachedStatistics } from "../../lib/cms-cache";
 
 export default function PortfolioStatsSection() {
-  const rawStatistics = useQuery(api.cms.getStatistics);
+  const { data: rawStatistics, isLoading, isCached } = useCachedStatistics();
 
   // Validation et déduplication des données
   const statistics = validateCmsData(
@@ -12,7 +11,7 @@ export default function PortfolioStatsSection() {
     "Aucune statistique disponible"
   );
 
-  if (!statistics) {
+  if (!statistics || isLoading) {
     return (
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,6 +23,12 @@ export default function PortfolioStatsSection() {
               </div>
             ))}
           </div>
+          {isCached && (
+            <div className="text-center text-sm text-gray-500 mt-4">
+              <i className="ri-database-line mr-1"></i>
+              Données chargées depuis le cache
+            </div>
+          )}
         </div>
       </section>
     );

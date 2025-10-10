@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateTestimonials, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { useCachedTestimonials } from "../../lib/cms-cache";
 
 export default function TestimonialsSection() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const rawTestimonials = useQuery(api.cms.getTestimonials);
+  const { data: rawTestimonials, isLoading, isCached } = useCachedTestimonials();
 
   // Validation et déduplication des données
   const testimonials = validateCmsData(
@@ -26,7 +25,7 @@ export default function TestimonialsSection() {
     }
   };
 
-  if (!testimonials || testimonials.length === 0) {
+  if (!testimonials || testimonials.length === 0 || isLoading) {
     return (
       <div className="relative max-w-4xl mx-auto">
         <div className="relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-sm p-8 animate-pulse">
@@ -46,6 +45,12 @@ export default function TestimonialsSection() {
             </div>
           </div>
         </div>
+        {isCached && (
+          <div className="text-center text-sm text-white/70 mt-4">
+            <i className="ri-database-line mr-1"></i>
+            Données chargées depuis le cache
+          </div>
+        )}
       </div>
     );
   }

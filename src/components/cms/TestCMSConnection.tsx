@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateStatistics, deduplicateServices, deduplicateZones, deduplicateReasons, deduplicateTestimonials } from "../../lib/cms-utils";
+import { useCachedStatistics, useCachedServices, useCachedZones, useCachedReasons, useCachedTestimonials } from "../../lib/cms-cache";
 
 export default function TestCMSConnection() {
   const [isExpanded, setIsExpanded] = useState(false);
   
-  // Récupérer toutes les données CMS
-  const rawStatistics = useQuery(api.cms.getStatistics);
-  const rawServices = useQuery(api.cms.getServices);
-  const rawZones = useQuery(api.cms.getZones);
-  const rawReasons = useQuery(api.cms.getReasons);
-  const rawTestimonials = useQuery(api.cms.getTestimonials);
+  // Récupérer toutes les données CMS avec cache
+  const { data: rawStatistics, isCached: statsCached } = useCachedStatistics();
+  const { data: rawServices, isCached: servicesCached } = useCachedServices();
+  const { data: rawZones, isCached: zonesCached } = useCachedZones();
+  const { data: rawReasons, isCached: reasonsCached } = useCachedReasons();
+  const { data: rawTestimonials, isCached: testimonialsCached } = useCachedTestimonials();
 
   // Appliquer la déduplication
   const statistics = validateCmsData(rawStatistics, deduplicateStatistics);
@@ -20,23 +19,24 @@ export default function TestCMSConnection() {
   const reasons = validateCmsData(rawReasons, deduplicateReasons);
   const testimonials = validateCmsData(rawTestimonials, deduplicateTestimonials);
 
-  const getDuplicationInfo = (raw: any[], processed: any[], name: string) => {
+  const getDuplicationInfo = (raw: any[], processed: any[], name: string, isCached: boolean) => {
     const duplicates = raw ? raw.length - (processed?.length || 0) : 0;
     return {
       name,
       total: raw?.length || 0,
       unique: processed?.length || 0,
       duplicates,
-      hasDuplicates: duplicates > 0
+      hasDuplicates: duplicates > 0,
+      isCached
     };
   };
 
   const dataInfo = [
-    getDuplicationInfo(rawStatistics, statistics, "Statistiques"),
-    getDuplicationInfo(rawServices, services, "Services"),
-    getDuplicationInfo(rawZones, zones, "Zones"),
-    getDuplicationInfo(rawReasons, reasons, "Raisons"),
-    getDuplicationInfo(rawTestimonials, testimonials, "Témoignages"),
+    getDuplicationInfo(rawStatistics, statistics, "Statistiques", statsCached),
+    getDuplicationInfo(rawServices, services, "Services", servicesCached),
+    getDuplicationInfo(rawZones, zones, "Zones", zonesCached),
+    getDuplicationInfo(rawReasons, reasons, "Raisons", reasonsCached),
+    getDuplicationInfo(rawTestimonials, testimonials, "Témoignages", testimonialsCached),
   ];
 
   const totalDuplicates = dataInfo.reduce((sum, info) => sum + info.duplicates, 0);
@@ -80,7 +80,12 @@ export default function TestCMSConnection() {
       <div className="space-y-2">
         {dataInfo.map((info) => (
           <div key={info.name} className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">{info.name}:</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-600">{info.name}:</span>
+              {info.isCached && (
+                <i className="ri-database-line text-blue-500 text-xs" title="Données en cache"></i>
+              )}
+            </div>
             <div className="flex items-center space-x-2">
               <span className={`px-2 py-1 rounded text-xs ${
                 info.hasDuplicates ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
@@ -104,9 +109,15 @@ export default function TestCMSConnection() {
         </div>
       )}
 
-      <div className="mt-3 text-xs text-gray-500">
-        <i className="ri-check-line mr-1"></i>
-        Déduplication automatique active
+      <div className="mt-3 space-y-1">
+        <div className="text-xs text-gray-500">
+          <i className="ri-check-line mr-1"></i>
+          Déduplication automatique active
+        </div>
+        <div className="text-xs text-blue-500">
+          <i className="ri-database-line mr-1"></i>
+          Cache localStorage activé
+        </div>
       </div>
     </div>
   );

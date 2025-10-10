@@ -1,9 +1,8 @@
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateZones, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { useCachedZones } from "../../lib/cms-cache";
 
 export default function ZonesSection() {
-  const rawZones = useQuery(api.cms.getZones);
+  const { data: rawZones, isLoading, isCached } = useCachedZones();
 
   // Validation et déduplication des données
   const zones = validateCmsData(
@@ -12,12 +11,18 @@ export default function ZonesSection() {
     "Aucune zone d'intervention disponible"
   );
 
-  if (!zones) {
+  if (!zones || isLoading) {
     return (
       <div className="flex flex-wrap justify-center gap-4">
         {createLoadingState(6).map((item) => (
           <div key={item._id} className="bg-gray-300 rounded-full px-4 py-2 h-8 w-24 animate-pulse"></div>
         ))}
+        {isCached && (
+          <div className="w-full text-center text-sm text-gray-500 mt-2">
+            <i className="ri-database-line mr-1"></i>
+            Données chargées depuis le cache
+          </div>
+        )}
       </div>
     );
   }

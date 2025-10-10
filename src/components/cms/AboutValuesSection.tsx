@@ -1,9 +1,8 @@
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateByKey, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { useCachedValues } from "../../lib/cms-cache";
 
 export default function AboutValuesSection() {
-  const rawValues = useQuery(api.cms.getValues);
+  const { data: rawValues, isLoading, isCached } = useCachedValues();
 
   // Validation et déduplication des données
   const values = validateCmsData(
@@ -12,7 +11,7 @@ export default function AboutValuesSection() {
     "Aucune valeur disponible"
   );
 
-  if (!values) {
+  if (!values || isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {createLoadingState(3).map((item) => (
@@ -22,6 +21,12 @@ export default function AboutValuesSection() {
             <div className="h-4 bg-gray-300 rounded"></div>
           </div>
         ))}
+        {isCached && (
+          <div className="col-span-full text-center text-sm text-gray-500 mt-4">
+            <i className="ri-database-line mr-1"></i>
+            Données chargées depuis le cache
+          </div>
+        )}
       </div>
     );
   }

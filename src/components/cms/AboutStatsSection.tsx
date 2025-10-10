@@ -1,9 +1,8 @@
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateStatistics, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { useCachedStatistics } from "../../lib/cms-cache";
 
 export default function AboutStatsSection() {
-  const rawStatistics = useQuery(api.cms.getStatistics);
+  const { data: rawStatistics, isLoading, isCached } = useCachedStatistics();
 
   // Validation et déduplication des données
   const statistics = validateCmsData(
@@ -12,7 +11,7 @@ export default function AboutStatsSection() {
     "Aucune statistique disponible"
   );
 
-  if (!statistics) {
+  if (!statistics || isLoading) {
     return (
       <div className="grid grid-cols-2 gap-6">
         {createLoadingState(2).map((item) => (
@@ -21,6 +20,12 @@ export default function AboutStatsSection() {
             <div className="h-5 bg-gray-300 rounded"></div>
           </div>
         ))}
+        {isCached && (
+          <div className="col-span-2 text-center text-sm text-gray-500 mt-2">
+            <i className="ri-database-line mr-1"></i>
+            Données chargées depuis le cache
+          </div>
+        )}
       </div>
     );
   }

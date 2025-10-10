@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useQuery, useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -77,15 +77,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Récupérer les informations de session depuis Convex
+  // Récupérer le token stocké
   const storedToken = getStoredToken();
+  
+  // Query pour valider la session côté serveur
   const sessionData = useQuery(
     api.auth.validateSession,
     storedToken ? { token: storedToken } : "skip"
   );
 
-  // Mutations et actions
-  const loginAction = useMutation(api.authActions.authenticateUser);
+  // Mutations
+  const loginAction = useMutation(api.auth.authenticateUserSimple);
   const logoutMutation = useMutation(api.auth.logout);
 
   // Effet pour gérer les données de session
@@ -111,16 +113,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      
-      // Récupérer les informations du navigateur
-      const ip_address = await getClientIP();
-      const user_agent = navigator.userAgent;
 
       const result = await loginAction({
         email,
-        password,
-        ip_address,
-        user_agent
+        password
       });
 
       // Sauvegarder le token
@@ -215,17 +211,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return userPermissions.includes(permission);
   };
 
-  // Fonction pour obtenir l'IP du client (simplifiée)
-  const getClientIP = async (): Promise<string> => {
-    try {
-      // Utiliser un service externe pour obtenir l'IP
-      const response = await fetch('https://api.ipify.org?format=json');
-      const data = await response.json();
-      return data.ip || 'unknown';
-    } catch {
-      return 'unknown';
-    }
-  };
 
   const value: AuthContextType = {
     user,

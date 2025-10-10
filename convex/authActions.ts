@@ -108,12 +108,13 @@ export const authenticateUser = action({
   },
 });
 
-// Action pour créer un utilisateur admin
+// Action pour créer un utilisateur
 export const createAdminUser = action({
   args: {
     email: v.string(),
     password: v.string(),
-    name: v.optional(v.string())
+    name: v.optional(v.string()),
+    role: v.optional(v.union(v.literal("admin"), v.literal("editor"), v.literal("viewer")))
   },
   handler: async (ctx, args) => {
     // Vérifier si l'utilisateur existe déjà
@@ -128,9 +129,9 @@ export const createAdminUser = action({
 
     const userId = await ctx.runMutation("auth:insertUser", {
       email: args.email,
-      name: args.name || "Administrateur",
+      name: args.name || "Utilisateur",
       password_hash: hashedPassword,
-      role: "admin",
+      role: args.role || "admin",
       status: "active",
       created_at: now,
       updated_at: now

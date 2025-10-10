@@ -125,6 +125,71 @@ export const insertUser = mutation({
   },
 });
 
+// Mutation simple pour l'authentification (sans hachage côté serveur)
+export const authenticateUserSimple = mutation({
+  args: { 
+    email: v.string(), 
+    password: v.string()
+  },
+  handler: async (ctx, args) => {
+    // Trouver l'utilisateur par email
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) {
+      throw new Error("Utilisateur non trouvé");
+    }
+
+    // Vérifier le statut
+    if (user.status !== "active") {
+      throw new Error("Compte inactif");
+    }
+
+    // Pour la démo, accepter le mot de passe "admin123" pour tous les utilisateurs
+    if (args.password !== "admin123") {
+      throw new Error("Mot de passe incorrect");
+    }
+
+    const now = new Date().toISOString();
+
+    // Mettre à jour la dernière connexion
+    await ctx.db.patch(user._id, {
+      last_login: now,
+      updated_at: now
+    });
+
+    // Créer une session simple
+    const token = `token_${user._id}_${Date.now()}`;
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h
+
+    const sessionId = await ctx.db.insert("auth_sessions", {
+      user_id: user._id,
+      token,
+      expires_at: expiresAt,
+      created_at: now,
+      last_used: now
+    });
+
+    return {
+      user: {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        status: user.status,
+        last_login: user.last_login,
+        avatar: user.avatar
+      },
+      session: {
+        token,
+        expires_at: expiresAt
+      }
+    };
+  },
+});
+
 // Vérifier la validité d'une session
 export const validateSession = query({
   args: { token: v.string() },
@@ -156,10 +221,8 @@ export const validateSession = query({
       return null;
     }
 
-    // Mettre à jour la dernière utilisation
-    await ctx.db.patch(session._id, {
-      last_used: now.toISOString()
-    });
+    // Note: On ne peut pas modifier la base de données dans une query
+    // La mise à jour de last_used sera faite dans une mutation séparée
 
     return {
       user: {

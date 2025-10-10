@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../lib/auth-context';
 import Button from '../../../components/base/Button';
+import AuthTest from '../../../components/admin/AuthTest';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -191,7 +192,7 @@ export default function AdminLogin() {
         {/* Footer */}
         <div className="text-center">
           <p className="text-xs text-gray-500">
-            © 2024 DR RAVALEMENT. Tous droits réservés.
+            © 2025 DR RAVALEMENT. Tous droits réservés.
           </p>
         </div>
       </div>

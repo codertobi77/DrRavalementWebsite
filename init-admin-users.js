@@ -71,7 +71,8 @@ async function initializeAdminUsers() {
         const result = await convexClient.action("authActions:createAdminUser", {
           email: userData.email,
           password: userData.password,
-          name: userData.name
+          name: userData.name,
+          role: userData.role
         });
 
         console.log(`  ✅ ${userData.email} créé avec succès (ID: ${result.userId})`);

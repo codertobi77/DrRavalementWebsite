@@ -1,9 +1,8 @@
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { validateCmsData, deduplicateServices, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { useCachedServices } from "../../lib/cms-cache";
 
 export default function ServicesSection() {
-  const rawServices = useQuery(api.cms.getServices);
+  const { data: rawServices, isLoading, error, isCached } = useCachedServices();
 
   // Validation et déduplication des données
   const services = validateCmsData(
@@ -12,7 +11,7 @@ export default function ServicesSection() {
     "Aucun service disponible"
   );
 
-  if (!services) {
+  if (!services || isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {createLoadingState(3).map((item) => (
@@ -29,6 +28,12 @@ export default function ServicesSection() {
             </div>
           </div>
         ))}
+        {isCached && (
+          <div className="col-span-full text-center text-sm text-gray-500 mt-2">
+            <i className="ri-database-line mr-1"></i>
+            Données chargées depuis le cache
+          </div>
+        )}
       </div>
     );
   }
