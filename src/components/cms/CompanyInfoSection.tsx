@@ -97,11 +97,46 @@ export default function CompanyInfoSection({
         <div className={className}>
           <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">À Propos</h4>
           <p className="text-gray-300 text-xs sm:text-sm mb-4">
-            {contactConfig.companyName} - Expert en ravalement de façades, maçonnerie générale et couverture.
+            Expert en ravalement de façades, maçonnerie générale et couverture.
           </p>
-          <p className="text-gray-300 text-xs sm:text-sm">
-            Intervention en {contactConfig.city} et {contactConfig.country}.
+          <p className="text-gray-300 text-xs sm:text-sm mb-4">
+            Intervention en {contactConfig.address}.
           </p>
+          
+          {/* Informations juridiques */}
+          <div className="space-y-2 text-xs text-gray-400">
+            {contactConfig.legalForm && (
+              <p>
+                <span className="font-medium">Forme juridique :</span> {contactConfig.legalForm}
+              </p>
+            )}
+            {contactConfig.creationDate && (
+              <p>
+                <span className="font-medium">Créée le :</span> {new Date(contactConfig.creationDate).toLocaleDateString('fr-FR')}
+              </p>
+            )}
+            {contactConfig.siren && (
+              <p>
+                <span className="font-medium">SIREN :</span> {contactConfig.siren}
+              </p>
+            )}
+            {contactConfig.apeCode && (
+              <p>
+                <span className="font-medium">Code APE :</span> {contactConfig.apeCode}
+              </p>
+            )}
+            {contactConfig.vatNumber && (
+              <p>
+                <span className="font-medium">TVA :</span> {contactConfig.vatNumber}
+              </p>
+            )}
+            {contactConfig.fullAddress && (
+              <p className="mt-2">
+                <span className="font-medium">Siège social :</span><br />
+                {contactConfig.fullAddress}
+              </p>
+            )}
+          </div>
         </div>
       );
     }

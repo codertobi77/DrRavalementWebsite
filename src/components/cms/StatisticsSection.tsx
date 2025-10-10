@@ -1,31 +1,48 @@
-import { validateCmsData, deduplicateStatistics, logCmsError, createLoadingState } from "../../lib/cms-utils";
+import { validateCmsData, deduplicateStatistics, logCmsError, useOptimizedCmsData } from "../../lib/cms-utils";
 import { useCachedStatistics } from "../../lib/cms-cache";
+import OptimizedLoader, { CardSkeleton } from "../base/OptimizedLoader";
 
 export default function StatisticsSection() {
   const { data: rawStatistics, isLoading, isCached } = useCachedStatistics();
 
-  // Validation et déduplication des données
+  // Utilisation du hook optimisé avec cache de 15 secondes
+  const { data: optimizedStatistics, isLoading: isOptimizedLoading, error } = useOptimizedCmsData(
+    () => rawStatistics,
+    'statistics-section',
+    deduplicateStatistics
+  );
+
+  // Validation des données
   const statistics = validateCmsData(
-    rawStatistics ?? undefined,
+    optimizedStatistics ?? undefined,
     deduplicateStatistics,
     "Aucune statistique disponible"
   );
 
-  if (!statistics || isLoading) {
+  if (!statistics || isLoading || isOptimizedLoading) {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 max-w-5xl mx-auto px-4">
-        {createLoadingState(4).map((item) => (
-          <div key={item._id} className="text-center animate-pulse">
-            <div className="h-8 bg-gray-300 rounded mb-2"></div>
-            <div className="h-4 bg-gray-300 rounded"></div>
-          </div>
-        ))}
+        <CardSkeleton className="col-span-1" />
+        <CardSkeleton className="col-span-1" />
+        <CardSkeleton className="col-span-1" />
+        <CardSkeleton className="col-span-1" />
         {isCached && (
           <div className="col-span-full text-center text-sm text-orange-200 mt-2">
             <i className="ri-database-line mr-1"></i>
-            Données chargées depuis le cache
+            Données chargées depuis le cache (15s)
           </div>
         )}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-red-500 mb-2">
+          <i className="ri-error-warning-line text-2xl"></i>
+        </div>
+        <p className="text-gray-600">Erreur lors du chargement des statistiques</p>
       </div>
     );
   }

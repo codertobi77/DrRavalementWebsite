@@ -55,6 +55,13 @@ export interface ContactConfig {
   phone: string;
   address: string;
   hours: string;
+  // Informations juridiques
+  legalForm?: string;
+  creationDate?: string;
+  fullAddress?: string;
+  siren?: string;
+  apeCode?: string;
+  vatNumber?: string;
 }
 
 export interface EmailConfig {

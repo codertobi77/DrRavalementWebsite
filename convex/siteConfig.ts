@@ -120,9 +120,16 @@ export const initializeDefaultConfigs = mutation({
           email: "contact@dr-ravalement.fr",
           phone: "+33 1 39 58 90 15",
           address: "Seine-et-Marne & Île-de-France",
-          hours: "Lun-Ven: 8h-18h | Sam: 9h-12h"
+          hours: "Lun-Ven: 8h-18h | Sam: 9h-12h",
+          // Informations juridiques
+          legalForm: "SARL",
+          creationDate: "2015-03-15",
+          fullAddress: "123 Rue de la Maçonnerie, 77000 Melun, France",
+          siren: "123456789",
+          apeCode: "4391A",
+          vatNumber: "FR12345678901"
         },
-        description: "Informations de contact",
+        description: "Informations de contact et juridiques",
         category: "contact",
         is_public: true,
       },

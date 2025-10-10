@@ -490,88 +490,140 @@ function BookingConfigForm({
 // Composant pour la configuration des contacts
 function ContactConfigForm({ config, onChange }: { config: ContactConfig; onChange: (config: ContactConfig) => void }) {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nom de l'entreprise
-          </label>
-          <input
-            type="text"
-            value={config.companyName}
-            onChange={(e) => onChange({ ...config, companyName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            value={config.email}
-            onChange={(e) => onChange({ ...config, email: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Téléphone
-          </label>
-          <input
-            type="tel"
-            value={config.phone}
-            onChange={(e) => onChange({ ...config, phone: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Site web
-          </label>
-          <input
-            type="url"
-            value={config.website || ''}
-            onChange={(e) => onChange({ ...config, website: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-
+    <div className="space-y-8">
+      {/* Informations de contact de base */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Adresse</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations de Contact</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Adresse
+              Email
+            </label>
+            <input
+              type="email"
+              value={config.email}
+              onChange={(e) => onChange({ ...config, email: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Téléphone
+            </label>
+            <input
+              type="tel"
+              value={config.phone}
+              onChange={(e) => onChange({ ...config, phone: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Adresse (zone de service)
             </label>
             <input
               type="text"
               value={config.address}
               onChange={(e) => onChange({ ...config, address: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Ex: Seine-et-Marne & Île-de-France"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Horaires d'ouverture
+            </label>
+            <input
+              type="text"
+              value={config.hours}
+              onChange={(e) => onChange({ ...config, hours: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Ex: Lun-Ven: 8h-18h | Sam: 9h-12h"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Informations juridiques */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations Juridiques</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Forme juridique
+            </label>
+            <select
+              value={config.legalForm || ''}
+              onChange={(e) => onChange({ ...config, legalForm: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            >
+              <option value="">Sélectionner...</option>
+              <option value="SARL">SARL</option>
+              <option value="SAS">SAS</option>
+              <option value="EURL">EURL</option>
+              <option value="SASU">SASU</option>
+              <option value="Auto-entrepreneur">Auto-entrepreneur</option>
+              <option value="Micro-entreprise">Micro-entreprise</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date de création
+            </label>
+            <input
+              type="date"
+              value={config.creationDate || ''}
+              onChange={(e) => onChange({ ...config, creationDate: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Adresse complète du siège social
+            </label>
+            <input
+              type="text"
+              value={config.fullAddress || ''}
+              onChange={(e) => onChange({ ...config, fullAddress: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Ex: 123 Rue de la Maçonnerie, 77000 Melun, France"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ville
+              SIREN
             </label>
             <input
               type="text"
-              value={config.city}
-              onChange={(e) => onChange({ ...config, city: e.target.value })}
+              value={config.siren || ''}
+              onChange={(e) => onChange({ ...config, siren: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Ex: 123456789"
+              maxLength={9}
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Code postal
+              Code APE
             </label>
             <input
               type="text"
-              value={config.postalCode}
-              onChange={(e) => onChange({ ...config, postalCode: e.target.value })}
+              value={config.apeCode || ''}
+              onChange={(e) => onChange({ ...config, apeCode: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Ex: 4391A"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Numéro de TVA intracommunautaire
+            </label>
+            <input
+              type="text"
+              value={config.vatNumber || ''}
+              onChange={(e) => onChange({ ...config, vatNumber: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Ex: FR12345678901"
             />
           </div>
         </div>
