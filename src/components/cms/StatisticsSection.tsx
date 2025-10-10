@@ -1,6 +1,6 @@
 import { validateCmsData, deduplicateStatistics, logCmsError, useOptimizedCmsData } from "../../lib/cms-utils";
 import { useCachedStatistics } from "../../lib/cms-cache";
-import OptimizedLoader, { CardSkeleton } from "../base/OptimizedLoader";
+import { CardSkeleton } from "../base/OptimizedLoader";
 
 export default function StatisticsSection() {
   const { data: rawStatistics, isLoading, isCached } = useCachedStatistics();
