@@ -1211,16 +1211,40 @@ export default function ContentManagement() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {portfolioProjects?.map((project) => (
                 <div key={project._id} className="responsive-card bg-gray-50 rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  {/* Images avant-après */}
                   <div className="relative h-40 sm:h-48 overflow-hidden">
-                    <ImageWithFallback
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                      fallbackText="Image non disponible"
-                      onError={() => console.error('Erreur chargement image projet:', project.title)}
-                      onLoad={() => console.log('Image projet chargée:', project.title)}
-                    />
-                    <div className="absolute top-2 left-2 sm:top-4 sm:left-4">
+                    <div className="absolute inset-0 flex">
+                      {/* Image avant */}
+                      <div className="w-1/2 border-r border-white">
+                        <ImageWithFallback
+                          src={project.before_image}
+                          alt={`${project.title} - Avant`}
+                          className="w-full h-full object-cover"
+                          fallbackText="Avant"
+                          onError={() => console.error('Erreur chargement image avant:', project.title)}
+                          onLoad={() => console.log('Image avant chargée:', project.title)}
+                        />
+                        <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs font-medium">
+                          Avant
+                        </div>
+                      </div>
+                      {/* Image après */}
+                      <div className="w-1/2">
+                        <ImageWithFallback
+                          src={project.after_image}
+                          alt={`${project.title} - Après`}
+                          className="w-full h-full object-cover"
+                          fallbackText="Après"
+                          onError={() => console.error('Erreur chargement image après:', project.title)}
+                          onLoad={() => console.log('Image après chargée:', project.title)}
+                        />
+                        <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs font-medium">
+                          Après
+                        </div>
+                      </div>
+                    </div>
+                    {/* Badge de catégorie */}
+                    <div className="absolute bottom-2 left-2">
                       <span className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium ${
                         project.category === 'ravalement' ? 'bg-blue-100 text-blue-800' :
                         project.category === 'maconnerie' ? 'bg-green-100 text-green-800' :

@@ -95,16 +95,11 @@ export default function CompanyInfoSection({
     if (variant === 'footer') {
       return (
         <div className={className}>
-          <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">À Propos</h4>
-          <p className="text-gray-300 text-xs sm:text-sm mb-4">
-            Expert en ravalement de façades, maçonnerie générale et couverture.
-          </p>
-          <p className="text-gray-300 text-xs sm:text-sm mb-4">
-            Intervention en {contactConfig.address}.
-          </p>
+          <h4 className="text-base sm:text-lg font-semibold mb-2 sm:mb-4">À Propos</h4>
+          
           
           {/* Informations juridiques */}
-          <div className="space-y-2 text-xs text-gray-400">
+          <div className="text-sm text-gray-200">
             {contactConfig.legalForm && (
               <p>
                 <span className="font-medium">Forme juridique :</span> {contactConfig.legalForm}

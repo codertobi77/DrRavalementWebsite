@@ -6,11 +6,14 @@ interface PortfolioProject {
   _id?: string;
   title: string;
   category: string;
-  image: string;
   description: string;
   details: string;
   order_index: number;
   is_active: boolean;
+  // Champs pour les images avant-après
+  before_image: string;
+  after_image: string;
+  is_before_after: boolean;
 }
 
 interface PortfolioProjectEditModalProps {
@@ -42,33 +45,42 @@ export default function PortfolioProjectEditModal({
   const [formData, setFormData] = useState<PortfolioProject>({
     title: '',
     category: 'ravalement',
-    image: '',
     description: '',
     details: '',
     order_index: 0,
-    is_active: true
+    is_active: true,
+    before_image: '',
+    after_image: '',
+    is_before_after: true
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [beforeImagePreview, setBeforeImagePreview] = useState<string>('');
+  const [afterImagePreview, setAfterImagePreview] = useState<string>('');
+  const [isUploadingBefore, setIsUploadingBefore] = useState(false);
+  const [isUploadingAfter, setIsUploadingAfter] = useState(false);
+  const beforeFileInputRef = useRef<HTMLInputElement>(null);
+  const afterFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (project) {
       setFormData(project);
-      setImagePreview(project.image);
+      setBeforeImagePreview(project.before_image || '');
+      setAfterImagePreview(project.after_image || '');
     } else {
       setFormData({
         title: '',
         category: 'ravalement',
-        image: '',
         description: '',
         details: '',
         order_index: 0,
-        is_active: true
+        is_active: true,
+        before_image: '',
+        after_image: '',
+        is_before_after: true
       });
-      setImagePreview('');
+      setBeforeImagePreview('');
+      setAfterImagePreview('');
     }
     setErrors({});
   }, [project, isOpen]);
@@ -84,10 +96,6 @@ export default function PortfolioProjectEditModal({
       newErrors.category = 'La catégorie est requise';
     }
 
-    if (!formData.image.trim()) {
-      newErrors.image = 'L\'image est requise';
-    }
-
     if (!formData.description.trim()) {
       newErrors.description = 'La description est requise';
     }
@@ -98,6 +106,14 @@ export default function PortfolioProjectEditModal({
 
     if (formData.order_index < 0) {
       newErrors.order_index = 'L\'ordre doit être positif';
+    }
+
+    // Validation pour les images avant-après (maintenant obligatoires)
+    if (!formData.before_image?.trim()) {
+      newErrors.before_image = 'L\'image "avant" est requise';
+    }
+    if (!formData.after_image?.trim()) {
+      newErrors.after_image = 'L\'image "après" est requise';
     }
 
     setErrors(newErrors);
@@ -124,43 +140,75 @@ export default function PortfolioProjectEditModal({
     }
   };
 
-  const handleImageUrlChange = (url: string) => {
-    handleInputChange('image', url);
-    setImagePreview(url);
+  const handleBeforeImageUrlChange = (url: string) => {
+    handleInputChange('before_image', url);
+    setBeforeImagePreview(url);
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAfterImageUrlChange = (url: string) => {
+    handleInputChange('after_image', url);
+    setAfterImagePreview(url);
+  };
+
+
+  const handleBeforeFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
+    setIsUploadingBefore(true);
 
     try {
-      // Créer un aperçu local immédiatement
       const previewUrl = await imageUploadService.createImagePreview(file);
-      setImagePreview(previewUrl);
+      setBeforeImagePreview(previewUrl);
 
-      // Utiliser le service d'upload pour générer l'URL finale
-      const result = await imageUploadService.uploadImage(file, 'projets');
+      const result = await imageUploadService.uploadImage(file, 'projets-avant');
       
       if (result.success && result.url) {
-        // Mettre à jour l'image avec l'URL finale
-        handleInputChange('image', result.url);
+        handleInputChange('before_image', result.url);
       } else {
-        alert(result.error || 'Erreur lors de l\'upload de l\'image');
-        // Garder l'aperçu local même en cas d'erreur
+        alert(result.error || 'Erreur lors de l\'upload de l\'image avant');
       }
       
     } catch (error) {
-      console.error('Erreur upload:', error);
-      alert('Erreur lors de l\'upload de l\'image');
+      console.error('Erreur upload image avant:', error);
+      alert('Erreur lors de l\'upload de l\'image avant');
     } finally {
-      setIsUploading(false);
+      setIsUploadingBefore(false);
     }
   };
 
-  const triggerFileUpload = () => {
-    fileInputRef.current?.click();
+  const handleAfterFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAfter(true);
+
+    try {
+      const previewUrl = await imageUploadService.createImagePreview(file);
+      setAfterImagePreview(previewUrl);
+
+      const result = await imageUploadService.uploadImage(file, 'projets-apres');
+      
+      if (result.success && result.url) {
+        handleInputChange('after_image', result.url);
+      } else {
+        alert(result.error || 'Erreur lors de l\'upload de l\'image après');
+      }
+      
+    } catch (error) {
+      console.error('Erreur upload image après:', error);
+      alert('Erreur lors de l\'upload de l\'image après');
+    } finally {
+      setIsUploadingAfter(false);
+    }
+  };
+
+  const triggerBeforeFileUpload = () => {
+    beforeFileInputRef.current?.click();
+  };
+
+  const triggerAfterFileUpload = () => {
+    afterFileInputRef.current?.click();
   };
 
   return (
@@ -211,42 +259,43 @@ export default function PortfolioProjectEditModal({
           {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
         </div>
 
+        {/* Image Avant */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Image *
+            Image "Avant" *
           </label>
           
-          {/* Aperçu de l'image */}
-          {imagePreview && (
+          {/* Aperçu de l'image avant */}
+          {beforeImagePreview && (
             <div className="mb-4">
               <img 
-                src={imagePreview} 
-                alt="Aperçu" 
+                src={beforeImagePreview} 
+                alt="Aperçu avant" 
                 className="w-32 h-24 object-cover rounded-lg border"
               />
             </div>
           )}
 
-          {/* URL de l'image */}
+          {/* URL de l'image avant */}
           <input
             type="url"
-            value={formData.image}
-            onChange={(e) => handleImageUrlChange(e.target.value)}
+            value={formData.before_image}
+            onChange={(e) => handleBeforeImageUrlChange(e.target.value)}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 mb-2 ${
-              errors.image ? 'border-red-500' : 'border-gray-300'
+              errors.before_image ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder="https://example.com/project.jpg"
+            placeholder="https://example.com/avant.jpg"
           />
 
-          {/* Upload de fichier */}
+          {/* Upload de fichier avant */}
           <div className="flex items-center space-x-2">
             <button
               type="button"
-              onClick={triggerFileUpload}
-              disabled={isUploading}
+              onClick={triggerBeforeFileUpload}
+              disabled={isUploadingBefore}
               className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isUploading ? (
+              {isUploadingBefore ? (
                 <>
                   <i className="ri-loader-4-line animate-spin mr-2"></i>
                   Upload...
@@ -254,7 +303,7 @@ export default function PortfolioProjectEditModal({
               ) : (
                 <>
                   <i className="ri-upload-line mr-2"></i>
-                  Upload Image
+                  Upload Image Avant
                 </>
               )}
             </button>
@@ -262,14 +311,76 @@ export default function PortfolioProjectEditModal({
           </div>
 
           <input
-            ref={fileInputRef}
+            ref={beforeFileInputRef}
             type="file"
             accept="image/*"
-            onChange={handleFileUpload}
+            onChange={handleBeforeFileUpload}
             className="hidden"
           />
 
-          {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
+          {errors.before_image && <p className="text-red-500 text-sm mt-1">{errors.before_image}</p>}
+        </div>
+
+        {/* Image Après */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Image "Après" *
+          </label>
+          
+          {/* Aperçu de l'image après */}
+          {afterImagePreview && (
+            <div className="mb-4">
+              <img 
+                src={afterImagePreview} 
+                alt="Aperçu après" 
+                className="w-32 h-24 object-cover rounded-lg border"
+              />
+            </div>
+          )}
+
+          {/* URL de l'image après */}
+          <input
+            type="url"
+            value={formData.after_image}
+            onChange={(e) => handleAfterImageUrlChange(e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 mb-2 ${
+              errors.after_image ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="https://example.com/apres.jpg"
+          />
+
+          {/* Upload de fichier après */}
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={triggerAfterFileUpload}
+              disabled={isUploadingAfter}
+              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUploadingAfter ? (
+                <>
+                  <i className="ri-loader-4-line animate-spin mr-2"></i>
+                  Upload...
+                </>
+              ) : (
+                <>
+                  <i className="ri-upload-line mr-2"></i>
+                  Upload Image Après
+                </>
+              )}
+            </button>
+            <span className="text-sm text-gray-500">ou entrez une URL</span>
+          </div>
+
+          <input
+            ref={afterFileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleAfterFileUpload}
+            className="hidden"
+          />
+
+          {errors.after_image && <p className="text-red-500 text-sm mt-1">{errors.after_image}</p>}
         </div>
 
         <div>

@@ -94,7 +94,7 @@ export default function ContactInfoSection({
           </div>
           <div className="hidden lg:flex items-center space-x-2">
             <i className="ri-map-pin-line"></i>
-            <span className="text-xs sm:text-sm">{contactConfig.city} & {contactConfig.country}</span>
+            <span className="text-xs sm:text-sm">{contactConfig.fullAddress || contactConfig.address}</span>
           </div>
         </div>
       );
@@ -124,7 +124,7 @@ export default function ContactInfoSection({
           <div className="flex items-center space-x-3">
             <i className="ri-map-pin-line text-orange-400 flex-shrink-0"></i>
             <span className="text-gray-300 text-xs sm:text-sm">
-              {contactConfig.address}, {contactConfig.postalCode} {contactConfig.city}
+              {contactConfig.fullAddress || contactConfig.address}
             </span>
           </div>
           {showHours && (
@@ -196,9 +196,9 @@ export default function ContactInfoSection({
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Zone d'intervention</h3>
             <p className="text-lg text-orange-600 font-semibold mb-2">
-              {contactConfig.city} & {contactConfig.country}
+              {contactConfig.address}
             </p>
-            <p className="text-gray-600 mb-4">{contactConfig.address}</p>
+            <p className="text-gray-600 mb-4">{contactConfig.fullAddress || contactConfig.address}</p>
             <a 
               href="/contact" 
               className="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors whitespace-nowrap"

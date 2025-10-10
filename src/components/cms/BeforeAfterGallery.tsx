@@ -2,48 +2,41 @@ import { useState } from 'react';
 import { validateCmsData, deduplicateByKey, logCmsError, createLoadingState } from "../../lib/cms-utils";
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-import { useCachedProjectFilters } from "../../lib/cms-cache";
 
-export default function PortfolioProjectsSection() {
-  const [activeFilter, setActiveFilter] = useState('tous');
-  
+export default function BeforeAfterGallery() {
   // Utiliser directement la fonction getBeforeAfterProjects
   const rawProjects = useQuery(api.cms.getBeforeAfterProjects);
   const isLoading = rawProjects === undefined;
-  
-  const { data: rawFilters, isLoading: filtersLoading, isCached: filtersCached } = useCachedProjectFilters();
+
+  // Debug logs
+  console.log('🔍 BeforeAfterGallery Debug:');
+  console.log('- rawProjects:', rawProjects?.length || 0);
+  console.log('- isLoading:', isLoading);
 
   // Validation et déduplication des données
-  const projects = validateCmsData(
+  const beforeAfterProjects = validateCmsData(
     rawProjects,
     (items) => deduplicateByKey(items, 'title'),
-    "Aucun projet disponible"
-  );
-
-  const filters = validateCmsData(
-    rawFilters,
-    (items) => deduplicateByKey(items, 'key'),
-    "Aucun filtre disponible"
-  );
-
-  const filteredProjects = projects?.filter(project => 
-    activeFilter === 'tous' || project.category === activeFilter
+    "Aucun projet avant-après disponible"
   ) || [];
 
-  if (isLoading || filtersLoading) {
+  console.log('- beforeAfterProjects after validation:', beforeAfterProjects.length);
+  console.log('- beforeAfterProjects details:', beforeAfterProjects.map(p => ({
+    title: p.title,
+    is_before_after: p.is_before_after,
+    has_before: !!p.before_image,
+    has_after: !!p.after_image
+  })));
+
+  if (!rawProjects || isLoading) {
     return (
       <div className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Filtres de chargement */}
-          <div className="py-8 bg-gray-50">
-            <div className="flex flex-wrap justify-center gap-4">
-              {createLoadingState(4).map((item) => (
-                <div key={item._id} className="bg-gray-300 rounded-full px-6 py-3 h-12 w-32 animate-pulse"></div>
-              ))}
-            </div>
+          <div className="text-center mb-12">
+            <div className="h-8 bg-gray-300 rounded w-64 mx-auto mb-4 animate-pulse"></div>
+            <div className="h-4 bg-gray-300 rounded w-96 mx-auto animate-pulse"></div>
           </div>
-
-          {/* Projets de chargement */}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {createLoadingState(6).map((item) => (
               <div key={item._id} className="bg-white rounded-2xl overflow-hidden shadow-lg animate-pulse">
@@ -51,39 +44,12 @@ export default function PortfolioProjectsSection() {
                 <div className="p-6">
                   <div className="h-6 bg-gray-300 rounded mb-3"></div>
                   <div className="h-4 bg-gray-300 rounded mb-4"></div>
-                  <div className="h-4 bg-gray-300 rounded mb-4"></div>
-                  <div className="h-8 bg-gray-300 rounded"></div>
+                  <div className="h-4 bg-gray-300 rounded"></div>
                 </div>
               </div>
             ))}
           </div>
           
-          {/* Indicateurs de cache */}
-          {filtersCached && (
-            <div className="text-center text-sm text-gray-500 mt-4">
-              <i className="ri-database-line mr-1"></i>
-              Données chargées depuis le cache
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Vérifier s'il n'y a pas de projets
-  if (!projects || projects.length === 0) {
-    return (
-      <div className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center py-12">
-            <i className="ri-image-line text-6xl text-gray-300 mb-4"></i>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Aucun projet de réalisation disponible
-            </h3>
-            <p className="text-gray-600">
-              Les projets avant-après seront bientôt disponibles
-            </p>
-          </div>
         </div>
       </div>
     );
@@ -93,40 +59,37 @@ export default function PortfolioProjectsSection() {
     return (
       <div className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Filtres */}
-          <div className="py-8 bg-gray-50">
-            <div className="flex flex-wrap justify-center gap-4">
-              {filters?.map((filter) => (
-                <button
-                  key={filter._id}
-                  onClick={() => setActiveFilter(filter.key)}
-                  className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
-                    activeFilter === filter.key
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-orange-100'
-                  }`}
-                >
-                  {filter.label}
-                </button>
-              ))}
+          {/* En-tête */}
+          <div className="text-center mb-12">
+            <div className="mx-auto w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mb-8">
+              <i className="ri-image-line text-4xl text-orange-600"></i>
             </div>
+            
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Galerie Avant/Après
+            </h2>
+            
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Découvrez la transformation de nos réalisations. 
+              Glissez sur les images pour voir l'effet avant/après.
+            </p>
           </div>
 
           {/* Galerie Avant/Après */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project) => (
-              <BeforeAfterCard key={project._id} project={project} />
-            ))}
-          </div>
-
-          {filteredProjects.length === 0 && (
+          {beforeAfterProjects.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {beforeAfterProjects.map((project) => (
+                <BeforeAfterCard key={project._id} project={project} />
+              ))}
+            </div>
+          ) : (
             <div className="text-center py-12">
               <i className="ri-image-line text-6xl text-gray-300 mb-4"></i>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Aucun projet trouvé
+                Aucune réalisation avant/après disponible
               </h3>
               <p className="text-gray-600">
-                Aucun projet ne correspond au filtre sélectionné
+                Les réalisations avant/après seront bientôt disponibles
               </p>
             </div>
           )}
@@ -134,10 +97,10 @@ export default function PortfolioProjectsSection() {
       </div>
     );
   } catch (error) {
-    logCmsError("PortfolioProjectsSection", error, projects);
+    logCmsError("BeforeAfterGallery", error, beforeAfterProjects);
     return (
       <div className="text-center py-12 text-gray-600">
-        <p>Erreur lors du chargement des projets</p>
+        <p>Erreur lors du chargement de la galerie avant/après</p>
       </div>
     );
   }

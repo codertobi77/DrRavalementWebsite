@@ -587,16 +587,20 @@ export const createPortfolioProject = mutation({
   args: {
     title: v.string(),
     category: v.string(),
-    image: v.string(),
     description: v.string(),
     details: v.string(),
     order_index: v.number(),
     is_active: v.optional(v.boolean()),
+    // Champs pour les images avant-après
+    before_image: v.string(),
+    after_image: v.string(),
+    is_before_after: v.boolean(),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("portfolio_projects", {
       ...args,
       is_active: args.is_active ?? true,
+      is_before_after: true, // Toujours true maintenant
     });
   },
 });
@@ -606,11 +610,14 @@ export const updatePortfolioProject = mutation({
     id: v.id("portfolio_projects"),
     title: v.optional(v.string()),
     category: v.optional(v.string()),
-    image: v.optional(v.string()),
     description: v.optional(v.string()),
     details: v.optional(v.string()),
     order_index: v.optional(v.number()),
     is_active: v.optional(v.boolean()),
+    // Champs pour les images avant-après
+    before_image: v.optional(v.string()),
+    after_image: v.optional(v.string()),
+    is_before_after: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
@@ -622,5 +629,20 @@ export const deletePortfolioProject = mutation({
   args: { id: v.id("portfolio_projects") },
   handler: async (ctx, args) => {
     return await ctx.db.delete(args.id);
+  },
+});
+
+// ===== PROJETS AVANT/APRÈS =====
+export const getBeforeAfterProjects = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("portfolio_projects")
+      .filter((q) => q.and(
+        q.eq(q.field("is_active"), true),
+        q.eq(q.field("is_before_after"), true)
+      ))
+      .order("asc")
+      .collect();
   },
 });

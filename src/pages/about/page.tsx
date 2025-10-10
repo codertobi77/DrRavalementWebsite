@@ -1,7 +1,7 @@
 
 import Header from '../../components/feature/Header';
 import Footer from '../../components/feature/Footer';
-import AboutStatsSection from '../../components/cms/AboutStatsSection';
+import CompanyHistorySection from '../../components/cms/CompanyHistorySection';
 import AboutValuesSection from '../../components/cms/AboutValuesSection';
 import AboutTeamSection from '../../components/cms/AboutTeamSection';
 import AboutCertificationsSection from '../../components/cms/AboutCertificationsSection';
@@ -31,29 +31,7 @@ export default function About() {
         </section>
 
         {/* Notre Histoire */}
-        <section className="py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-6">Notre Histoire</h2>
-                <p className="text-lg text-gray-600 mb-6">
-                  Fondée en 2008, DR RAVALEMENT est née de la passion de son dirigeant pour les métiers du bâtiment et de la rénovation. Spécialisés dans le ravalement de façades par projection machine, nous avons développé notre expertise pour devenir une référence en Seine-et-Marne.
-                </p>
-                <p className="text-lg text-gray-600 mb-6">
-                  Au fil des années, nous avons élargi nos compétences à la maçonnerie générale et à la couverture, permettant à nos clients de bénéficier d'un service complet pour tous leurs projets de rénovation.
-                </p>
-                <AboutStatsSection />
-              </div>
-              <div className="relative">
-                <img 
-                  src="https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=800" 
-                  alt="Équipe DR RAVALEMENT au travail" 
-                  className="rounded-2xl shadow-2xl"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
+        <CompanyHistorySection />
 
         {/* Nos Valeurs */}
         <section className="py-20 bg-gray-50">

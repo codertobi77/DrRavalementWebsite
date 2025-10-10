@@ -70,3 +70,4 @@ async function testResponsiveUI() {
 // Exécuter le test
 testResponsiveUI();
 
+

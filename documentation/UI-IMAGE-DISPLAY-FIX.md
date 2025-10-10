@@ -192,3 +192,4 @@ const testImageDataUrl = "data:image/svg+xml;base64," + Buffer.from(`
 
 **Les images s'affichent maintenant correctement dans l'UI admin avec une gestion d'erreur robuste ! 🎉**
 
+

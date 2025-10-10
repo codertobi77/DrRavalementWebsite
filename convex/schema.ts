@@ -286,13 +286,17 @@ export default defineSchema({
   portfolio_projects: defineTable({
     title: v.string(),
     category: v.string(), // "ravalement", "maconnerie", "couverture"
-    image: v.string(),
     description: v.string(),
     details: v.string(), // "Surface: 180m² • Durée: 2 semaines • Finition: Grattée"
     order_index: v.number(),
     is_active: v.boolean(),
+    // Champs pour les images avant-après
+    before_image: v.string(), // Maintenant obligatoire
+    after_image: v.string(), // Maintenant obligatoire
+    is_before_after: v.boolean(), // Maintenant obligatoire, toujours true
   })
     .index("by_category", ["category"])
     .index("by_order", ["order_index"])
-    .index("by_active", ["is_active"]),
+    .index("by_active", ["is_active"])
+    .index("by_before_after", ["is_before_after"]),
 });

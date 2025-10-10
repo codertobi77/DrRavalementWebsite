@@ -74,11 +74,7 @@ export default function Footer() {
             <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">Zones d'Intervention</h4>
             <ul className="space-y-2 sm:space-y-3">
               <li className="text-gray-300 text-xs sm:text-sm">Le Pecq</li>
-              <li className="text-gray-300 text-xs sm:text-sm">Seine-et-Marne</li>
-              <li className="text-gray-300 text-xs sm:text-sm">Meaux</li>
-              <li className="text-gray-300 text-xs sm:text-sm">Chelles</li>
-              <li className="text-gray-300 text-xs sm:text-sm">Torcy</li>
-              <li className="text-gray-300 text-xs sm:text-sm">Melun</li>
+              <li className="text-gray-300 text-xs sm:text-sm">Île-de-France</li>
             </ul>
             <a href="/contact" className="inline-block mt-3 sm:mt-4 text-orange-400 hover:text-orange-300 transition-colors text-xs sm:text-sm">
               Voir toutes les zones →
@@ -99,7 +95,6 @@ export default function Footer() {
             <a href="/about" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">À Propos</a>
             <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Services</a>
             <a href="/portfolio" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Réalisations</a>
-            <a href="/blog" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Blog</a>
             <a href="/careers" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Carrières</a>
             <a href="/contact" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Contact</a>
             <a href="/admin" className="text-gray-400 hover:text-orange-400 transition-colors text-sm flex items-center">
@@ -111,12 +106,11 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-400 text-xs sm:text-sm text-center md:text-left">© 2024 DR RAVALEMENT. Tous droits réservés.</p>
+          <p className="text-gray-400 text-xs sm:text-sm text-center md:text-left">© 2025 DR RAVALEMENT. Tous droits réservés.</p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-xs sm:text-sm">Mentions Légales</a>
             <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-xs sm:text-sm">Politique de Confidentialité</a>
             <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-xs sm:text-sm">CGV</a>
-            <a href="https://readdy.ai/?origin=logo" className="text-gray-400 hover:text-orange-400 transition-colors text-xs sm:text-sm">Website Builder</a>
           </div>
         </div>
       </div>

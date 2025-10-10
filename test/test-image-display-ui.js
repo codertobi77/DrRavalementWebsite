@@ -116,3 +116,4 @@ async function testImageDisplayUI() {
 // Exécuter le test
 testImageDisplayUI();
 
+
