@@ -1,11 +1,10 @@
+"use node"
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { Resend } from 'resend';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-if (!RESEND_API_KEY) {
-  throw new Error("RESEND_API_KEY n'est pas défini dans les variables d'environnement.");
-}
+const RESEND_API_KEY = "re_AxnLVB5n_CKXyxDBDmyBaTAnnkiJqCbHf";
+
 
 const resend = new Resend(RESEND_API_KEY);
 

@@ -271,17 +271,6 @@ export default function Contact() {
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="mt-8 pt-8 border-t border-orange-500">
-                    <h4 className="font-semibold mb-4">Urgence ?</h4>
-                    <a 
-                      href="tel:+33139589015" 
-                      className="flex items-center space-x-3 text-white hover:text-orange-200 transition-colors"
-                    >
-                      <i className="ri-phone-line text-xl"></i>
-                      <span className="font-semibold">+33 1 39 58 90 15</span>
-                    </a>
-                  </div>
                 </div>
               </div>
             </div>
@@ -332,7 +321,7 @@ export default function Contact() {
                 </p>
               </div>
               
-              <div className="relative">
+              {/* <div className="relative">
                 <iframe 
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d83998.9!2d2.6!3d48.8!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDjCsDQ4JzAwLjAiTiAywrAzNicwMC4wIkU!5e0!3m2!1sfr!2sfr!4v1234567890"
                   width="100%" 
@@ -343,7 +332,7 @@ export default function Contact() {
                   referrerPolicy="no-referrer-when-downgrade"
                   className="rounded-2xl shadow-lg"
                 ></iframe>
-              </div>
+              </div> */}
             </div>
           </div>
         </section>

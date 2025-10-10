@@ -173,8 +173,14 @@ export default defineSchema({
   services: defineTable({
     title: v.string(),
     description: v.string(),
+    detailedDescription: v.optional(v.string()),
     image: v.string(),
     features: v.array(v.string()),
+    benefits: v.optional(v.array(v.string())),
+    process: v.optional(v.array(v.string())),
+    materials: v.optional(v.array(v.string())),
+    duration: v.optional(v.string()),
+    price: v.optional(v.string()),
     order_index: v.number(),
     is_active: v.boolean(),
   })
