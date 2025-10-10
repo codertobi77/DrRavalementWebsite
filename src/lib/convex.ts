@@ -7,22 +7,8 @@ if (!convexUrl) {
   throw new Error("VITE_CONVEX_URL environment variable is required");
 }
 
-// Créer le client Convex avec optimisations de performance
-export const convex = new ConvexReactClient(convexUrl, {
-  // Réduire le temps de cache à 15 secondes
-  pollingInterval: 15000, // 15 secondes
-  // Optimisations de performance
-  optimisticUpdates: true,
-  // Désactiver le polling automatique pour les queries non utilisées
-  disableAutomaticReconnect: false,
-  // Configuration du cache
-  cache: {
-    // Cache plus agressif pour les données statiques
-    maxAge: 15000, // 15 secondes
-    // Invalidation automatique
-    staleWhileRevalidate: true
-  }
-});
+// Créer le client Convex
+export const convex = new ConvexReactClient(convexUrl);
 
 // Types pour les données
 export interface User {
