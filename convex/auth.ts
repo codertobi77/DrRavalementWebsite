@@ -190,7 +190,7 @@ export const authenticateUserSimple = mutation({
   },
 });
 
-// Vérifier la validité d'une session
+// Vérifier la validité d'une session (query en lecture seule)
 export const validateSession = query({
   args: { token: v.string() },
   handler: async (ctx, args) => {
@@ -208,21 +208,16 @@ export const validateSession = query({
     const expiresAt = new Date(session.expires_at);
     
     if (now > expiresAt) {
-      // Supprimer la session expirée
-      await ctx.db.delete(session._id);
+      // Retourner null pour une session expirée (nettoyage fait côté client)
       return null;
     }
 
     // Récupérer l'utilisateur
     const user = await ctx.db.get(session.user_id);
     if (!user || user.status !== "active") {
-      // Supprimer la session si l'utilisateur n'existe plus ou est inactif
-      await ctx.db.delete(session._id);
+      // Retourner null si l'utilisateur n'existe plus ou est inactif
       return null;
     }
-
-    // Note: On ne peut pas modifier la base de données dans une query
-    // La mise à jour de last_used sera faite dans une mutation séparée
 
     return {
       user: {
@@ -242,6 +237,39 @@ export const validateSession = query({
         last_used: session.last_used
       }
     };
+  },
+});
+
+// Nettoyer une session expirée (mutation)
+export const cleanupExpiredSession = mutation({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("auth_sessions")
+      .withIndex("by_token", (q) => q.eq("token", args.token))
+      .first();
+
+    if (!session) {
+      return { success: false, reason: "Session not found" };
+    }
+
+    // Vérifier si la session est expirée
+    const now = new Date();
+    const expiresAt = new Date(session.expires_at);
+    
+    if (now > expiresAt) {
+      await ctx.db.delete(session._id);
+      return { success: true, reason: "Expired session cleaned up" };
+    }
+
+    // Récupérer l'utilisateur pour vérifier son statut
+    const user = await ctx.db.get(session.user_id);
+    if (!user || user.status !== "active") {
+      await ctx.db.delete(session._id);
+      return { success: true, reason: "Invalid user session cleaned up" };
+    }
+
+    return { success: false, reason: "Session is still valid" };
   },
 });
 

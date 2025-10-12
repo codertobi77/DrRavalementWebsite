@@ -80,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Mutations
   const loginAction = useMutation(api.auth.authenticateUserSimple);
   const logoutMutation = useMutation(api.auth.logout);
+  const cleanupSessionMutation = useMutation(api.auth.cleanupExpiredSession);
 
   // Query pour valider la session
   const validateSessionQuery = useQuery(api.auth.validateSession, 
@@ -103,7 +104,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(validateSessionQuery.user);
           setSession(validateSessionQuery.session);
         } else {
-          // Session invalide ou expirée
+          // Session invalide ou expirée - nettoyer côté serveur
+          cleanupSessionMutation({ token: storedToken }).catch(console.error);
           setUser(null);
           setSession(null);
           removeStoredToken();
@@ -111,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     }
-  }, [validateSessionQuery]);
+  }, [validateSessionQuery, cleanupSessionMutation]);
 
   // Fonction de connexion
   const login = async (email: string, password: string) => {

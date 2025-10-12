@@ -1,14 +1,12 @@
 
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '../../lib/auth-context';
 import Button from '../base/Button';
 import ContactInfoSection from '../cms/ContactInfoSection';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, isAuthenticated } = useAuth();
 
   // Fonction pour déterminer si un lien est actif
   const isActiveLink = (path: string) => {
@@ -118,19 +116,17 @@ export default function Header() {
             >
               Contact
             </a>
-            {isAuthenticated && user?.role === 'admin' && (
-              <a 
-                href="/admin" 
-                className={`font-medium transition-colors duration-200 text-sm ${
-                  isActiveLink('/admin') 
-                    ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
-                    : 'text-gray-700 hover:text-orange-600'
-                }`}
-              >
-                <i className="ri-settings-3-line mr-1"></i>
-                Admin
-              </a>
-            )}
+            <a 
+              href="/admin" 
+              className={`font-medium transition-colors duration-200 text-sm ${
+                isActiveLink('/admin') 
+                  ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
+                  : 'text-gray-700 hover:text-orange-600'
+              }`}
+            >
+              <i className="ri-settings-3-line mr-1"></i>
+              Admin
+            </a>
           </nav>
 
           {/* CTA Button */}
@@ -223,18 +219,17 @@ export default function Header() {
               >
                 Contact
               </a>
-              {isAuthenticated && user?.role === 'admin' && (
-                <a 
-                  href="/admin" 
-                  className={`font-medium py-2 px-2 rounded-lg ${
-                    isActiveLink('/admin') 
-                      ? 'text-orange-600 bg-orange-50' 
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  Admin
-                </a>
-              )}
+              <a 
+                href="/admin" 
+                className={`font-medium py-2 px-2 rounded-lg ${
+                  isActiveLink('/admin') 
+                    ? 'text-orange-600 bg-orange-50' 
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <i className="ri-settings-3-line mr-1"></i>
+                Admin
+              </a>
               
               <div className="pt-3 border-t">
                 <Button href="/contact" className="w-full text-center">
