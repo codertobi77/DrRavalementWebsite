@@ -72,6 +72,12 @@ export default function ServicesSection() {
               <div className="p-6">
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">{service.title}</h3>
                 <p className="text-gray-600 mb-4">{service.description}</p>
+                {service.objective && (
+                  <div className="mb-4 p-3 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                    <h4 className="text-sm font-semibold text-orange-800 mb-1">Objectif</h4>
+                    <p className="text-sm text-orange-700">{service.objective}</p>
+                  </div>
+                )}
                 <ul className="space-y-2 mb-6">
                   {service.features?.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center space-x-2">

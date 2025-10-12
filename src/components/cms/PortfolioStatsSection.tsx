@@ -50,20 +50,6 @@ export default function PortfolioStatsSection() {
               </div>
             ))}
           </div>
-          
-          {/* Lien vers la galerie Avant-Après */}
-          <div className="text-center mt-12">
-            <p className="text-lg text-gray-600 mb-4">
-              Vous voulez voir notre galerie avant/après ?
-            </p>
-            <a 
-              href="/before-after"
-              className="inline-flex items-center px-6 py-3 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition-colors duration-200 shadow-md hover:shadow-lg"
-            >
-              <i className="ri-image-line mr-2"></i>
-              Découvrir nos transformations
-            </a>
-          </div>
         </div>
       </section>
     );

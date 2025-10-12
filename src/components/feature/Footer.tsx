@@ -1,6 +1,7 @@
 
 import ContactInfoSection from '../cms/ContactInfoSection';
 import CompanyInfoSection from '../cms/CompanyInfoSection';
+import FooterServicesSection from '../cms/FooterServicesSection';
 
 export default function Footer() {
   return (
@@ -34,39 +35,7 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">Nos Services</h4>
-            <ul className="space-y-2 sm:space-y-3">
-              <li>
-                <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-xs sm:text-sm">
-                  Ravalement de Façades
-                </a>
-              </li>
-              <li>
-                <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-xs sm:text-sm">
-                  Projection Machine
-                </a>
-              </li>
-              <li>
-                <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-xs sm:text-sm">
-                  Maçonnerie Générale
-                </a>
-              </li>
-              <li>
-                <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-xs sm:text-sm">
-                  Couverture
-                </a>
-              </li>
-              <li>
-                <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-xs sm:text-sm">
-                  Clôtures Parpaing
-                </a>
-              </li>
-              <li>
-                <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-xs sm:text-sm">
-                  Isolation Thermique
-                </a>
-              </li>
-            </ul>
+            <FooterServicesSection />
           </div>
 
           {/* Zones */}
@@ -76,9 +45,6 @@ export default function Footer() {
               <li className="text-gray-300 text-xs sm:text-sm">Le Pecq</li>
               <li className="text-gray-300 text-xs sm:text-sm">Île-de-France</li>
             </ul>
-            <a href="/contact" className="inline-block mt-3 sm:mt-4 text-orange-400 hover:text-orange-300 transition-colors text-xs sm:text-sm">
-              Voir toutes les zones →
-            </a>
           </div>
 
           {/* Contact */}

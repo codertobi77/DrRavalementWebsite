@@ -173,6 +173,7 @@ export default defineSchema({
   services: defineTable({
     title: v.string(),
     description: v.string(),
+    objective: v.optional(v.string()),
     detailedDescription: v.optional(v.string()),
     image: v.string(),
     features: v.array(v.string()),

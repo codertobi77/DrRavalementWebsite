@@ -61,6 +61,11 @@ node scripts/start-before-after-demo.js
 - ✅ **fix-existing-images.js** - Correction des images existantes
 - ✅ **clear-cache.js** - Nettoyage du cache
 
+### Gestion des Objectifs des Services
+- ✅ **update-services-objectives.js** - Mise à jour automatique des objectifs
+- ✅ **add-objective-manual.js** - Ajout manuel d'objectifs
+- ✅ **check-services-objectives.js** - Vérification des objectifs existants
+
 ### Démonstration
 - ✅ **start-before-after-demo.js** - Démonstration galerie avant-après
 
@@ -93,7 +98,22 @@ node scripts/init-site-config-convex.js
 node scripts/init-legal-info-config.js
 ```
 
-### 4. Maintenance (si nécessaire)
+### 4. Gestion des Objectifs des Services
+```bash
+# Vérifier l'état actuel des objectifs
+npm run check-objectives
+
+# Prévisualiser les objectifs proposés
+npm run update-objectives preview
+
+# Mettre à jour automatiquement les objectifs
+npm run update-objectives update
+
+# Ajouter un objectif manuellement
+npm run add-objective "Titre du service" "Objectif du service"
+```
+
+### 5. Maintenance (si nécessaire)
 ```bash
 node scripts/clean-duplicate-cms-data.js
 node scripts/fix-existing-images.js

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import EditModal from './EditModal';
+import { imageUploadService } from '../../../lib/upload-image';
 
 interface CompanyHistory {
   _id?: string;
@@ -40,10 +41,17 @@ export default function CompanyHistoryEditModal({
   const [newParagraph, setNewParagraph] = useState('');
   const [newStatValue, setNewStatValue] = useState('');
   const [newStatLabel, setNewStatLabel] = useState('');
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (history) {
-      setFormData(history);
+      setFormData({
+        ...history,
+        image: typeof history.image === 'string' ? history.image : ''
+      });
+      setImagePreview(history.image || '');
     } else {
       setFormData({
         title: '',
@@ -52,6 +60,7 @@ export default function CompanyHistoryEditModal({
         image: '',
         is_active: true
       });
+      setImagePreview('');
     }
     setErrors({});
     setNewParagraph('');
@@ -74,7 +83,7 @@ export default function CompanyHistoryEditModal({
       newErrors.statistics = 'Au moins une statistique valide est requise';
     }
 
-    if (!formData.image.trim()) {
+    if (!formData.image?.trim()) {
       newErrors.image = 'L\'image est requise';
     }
 
@@ -125,6 +134,51 @@ export default function CompanyHistoryEditModal({
   const removeStatistic = (index: number) => {
     const newStatistics = formData.statistics.filter((_, i) => i !== index);
     handleInputChange('statistics', newStatistics);
+  };
+
+  const handleImageUrlChange = (url: string) => {
+    // Vérifier si c'est une data URL trop volumineuse
+    if (url.startsWith('data:image/') && url.length > 1024 * 1024) {
+      alert('Image trop volumineuse. Veuillez utiliser une image plus petite (max 1MB) ou une URL d\'image externe.');
+      return;
+    }
+    
+    handleInputChange('image', url);
+    setImagePreview(url);
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+
+    try {
+      // Créer un aperçu local immédiatement
+      const previewUrl = await imageUploadService.createImagePreview(file);
+      setImagePreview(previewUrl);
+
+      // Utiliser le service d'upload pour générer l'URL finale
+      const result = await imageUploadService.uploadImage(file, 'histoire');
+      
+      if (result.success && result.url) {
+        // Mettre à jour l'image avec l'URL finale
+        handleInputChange('image', result.url);
+      } else {
+        alert(result.error || 'Erreur lors de l\'upload de l\'image');
+        // Garder l'aperçu local même en cas d'erreur
+      }
+      
+    } catch (error) {
+      console.error('Erreur upload:', error);
+      alert('Erreur lors de l\'upload de l\'image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -241,17 +295,62 @@ export default function CompanyHistoryEditModal({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            URL de l'image *
+            Image de l'histoire *
           </label>
+          
+          {/* Aperçu de l'image */}
+          {imagePreview && (
+            <div className="mb-4">
+              <img 
+                src={imagePreview} 
+                alt="Aperçu" 
+                className="w-24 h-24 object-cover rounded-lg border"
+              />
+            </div>
+          )}
+
+          {/* URL de l'image */}
           <input
             type="url"
             value={formData.image}
-            onChange={(e) => handleInputChange('image', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+            onChange={(e) => handleImageUrlChange(e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 mb-2 ${
               errors.image ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder="https://example.com/history.jpg"
+            placeholder="https://example.com/history-image.jpg"
           />
+
+          {/* Upload de fichier */}
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={triggerFileUpload}
+              disabled={isUploading}
+              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUploading ? (
+                <>
+                  <i className="ri-loader-4-line animate-spin mr-2"></i>
+                  Upload...
+                </>
+              ) : (
+                <>
+                  <i className="ri-upload-line mr-2"></i>
+                  Upload Image
+                </>
+              )}
+            </button>
+            <span className="text-sm text-gray-500">ou entrez une URL</span>
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+
           {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
         </div>
 

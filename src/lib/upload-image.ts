@@ -48,12 +48,20 @@ export class ImageUploadService {
       // Créer une URL de données à partir du fichier pour l'affichage
       const dataUrl = await this.createImagePreview(file);
       
+      // Vérifier si la data URL est trop volumineuse pour Convex (1MB max)
+      if (dataUrl.length > 1024 * 1024) {
+        return {
+          success: false,
+          error: 'Image trop volumineuse. Veuillez choisir une image plus petite (max 1MB)'
+        };
+      }
+      
       // Simuler un délai d'upload
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       return {
         success: true,
-        url: dataUrl, // Utiliser l'URL de données au lieu d'une URL simulée
+        url: dataUrl, // Utiliser l'URL de données pour l'affichage
         fileName: fileName,
         size: file.size,
         type: file.type
@@ -95,14 +103,49 @@ export class ImageUploadService {
   }
 
   /**
-   * Crée un aperçu d'image à partir d'un fichier
+   * Crée un aperçu d'image à partir d'un fichier avec compression
    */
   createImagePreview(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculer les nouvelles dimensions (max 800px de largeur)
+        const maxWidth = 800;
+        const maxHeight = 600;
+        let { width, height } = img;
+        
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
+        if (height > maxHeight) {
+          width = (width * maxHeight) / height;
+          height = maxHeight;
+        }
+        
+        // Redimensionner le canvas
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Dessiner l'image redimensionnée
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Convertir en base64 avec compression JPEG (qualité 0.8)
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        resolve(dataUrl);
+      };
+      
+      img.onerror = () => reject(new Error('Erreur de chargement de l\'image'));
+      
+      // Lire le fichier et charger l'image
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          resolve(e.target.result as string);
+          img.src = e.target.result as string;
         } else {
           reject(new Error('Impossible de lire le fichier'));
         }

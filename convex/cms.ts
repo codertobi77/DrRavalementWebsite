@@ -67,6 +67,7 @@ export const createService = mutation({
   args: {
     title: v.string(),
     description: v.string(),
+    objective: v.optional(v.string()),
     detailedDescription: v.optional(v.string()),
     image: v.string(),
     features: v.array(v.string()),
@@ -91,6 +92,7 @@ export const updateService = mutation({
     id: v.id("services"),
     title: v.optional(v.string()),
     description: v.optional(v.string()),
+    objective: v.optional(v.string()),
     image: v.optional(v.string()),
     features: v.optional(v.array(v.string())),
     order_index: v.optional(v.number()),

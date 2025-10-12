@@ -29,12 +29,12 @@ export default function HeroSection() {
           <Button variant="secondary" size="lg" href="/contact" className="shadow-xl flex items-center space-x-2 w-full sm:w-auto">
             <span className="text-sm sm:text-base">Devis Gratuit Immédiat</span>
           </Button>
-          <button className="flex items-center space-x-3 text-white hover:text-orange-200 transition-colors group w-full sm:w-auto justify-center">
+          <a href="/portfolio" className="flex items-center space-x-3 text-white hover:text-orange-200 transition-colors group w-full sm:w-auto justify-center">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center group-hover:bg-opacity-30 transition-all">
               <i className="ri-play-fill text-lg sm:text-xl"></i>
             </div>
             <span className="font-medium text-sm sm:text-base">Voir Nos Réalisations</span>
-          </button>
+          </a>
         </div>
 
         <StatisticsSection />

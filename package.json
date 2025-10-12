@@ -8,7 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "convex:dev": "convex dev",
-    "convex:deploy": "convex deploy"
+    "convex:deploy": "convex deploy",
+    "update-objectives": "node scripts/update-services-objectives.js",
+    "add-objective": "node scripts/add-objective-manual.js",
+    "check-objectives": "node scripts/check-services-objectives.js",
+    "test-convex": "node scripts/test-convex-connection.js",
+    "init-services": "node scripts/init-basic-services.js"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "4.0.2",

@@ -48,6 +48,18 @@ export default function ServiceDetailsModal({ service, isOpen, onClose }: Servic
           </p>
         </div>
 
+        {/* Objectif */}
+        {service.objective && (
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-3">Objectif</h4>
+            <div className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+              <p className="text-orange-800 leading-relaxed">
+                {service.objective}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Caractéristiques */}
         {service.features && service.features.length > 0 && (
           <div>

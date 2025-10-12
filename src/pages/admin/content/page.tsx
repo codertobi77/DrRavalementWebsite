@@ -655,6 +655,12 @@ export default function ContentManagement() {
                     </div>
                   </div>
                   <p className="text-sm sm:text-base text-gray-600 mb-4">{service.description}</p>
+                  {service.objective && (
+                    <div className="mb-4 p-3 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                      <h4 className="text-xs font-semibold text-orange-800 mb-1">Objectif</h4>
+                      <p className="text-xs text-orange-700">{service.objective}</p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <h4 className="font-medium text-gray-900 text-sm sm:text-base">Fonctionnalités:</h4>
                     <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
