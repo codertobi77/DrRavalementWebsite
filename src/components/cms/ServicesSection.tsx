@@ -78,14 +78,6 @@ export default function ServicesSection() {
                     <p className="text-sm text-orange-700">{service.objective}</p>
                   </div>
                 )}
-                <ul className="space-y-2 mb-6">
-                  {service.features?.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center space-x-2">
-                      <i className="ri-check-line text-orange-600"></i>
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  )) || []}
-                </ul>
                 <button 
                   onClick={() => handleServiceClick(service)}
                   className="inline-flex items-center text-orange-600 font-semibold hover:text-orange-700 transition-colors"
