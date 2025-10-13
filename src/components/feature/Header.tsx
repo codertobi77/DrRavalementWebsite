@@ -116,17 +116,6 @@ export default function Header() {
             >
               Contact
             </a>
-            <a 
-              href="/admin" 
-              className={`font-medium transition-colors duration-200 text-sm ${
-                isActiveLink('/admin') 
-                  ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
-                  : 'text-gray-700 hover:text-orange-600'
-              }`}
-            >
-              <i className="ri-settings-3-line mr-1"></i>
-              Admin
-            </a>
           </nav>
 
           {/* CTA Button */}
@@ -219,18 +208,6 @@ export default function Header() {
               >
                 Contact
               </a>
-              <a 
-                href="/admin" 
-                className={`font-medium py-2 px-2 rounded-lg ${
-                  isActiveLink('/admin') 
-                    ? 'text-orange-600 bg-orange-50' 
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <i className="ri-settings-3-line mr-1"></i>
-                Admin
-              </a>
-              
               <div className="pt-3 border-t">
                 <Button href="/contact" className="w-full text-center">
                   Devis Gratuit
