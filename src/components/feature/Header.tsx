@@ -97,16 +97,6 @@ export default function Header() {
               Rendez-vous
             </a>
             <a 
-              href="/client-dashboard" 
-              className={`font-medium transition-colors duration-200 text-sm ${
-                isActiveLink('/client-dashboard') 
-                  ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
-                  : 'text-gray-700 hover:text-orange-600'
-              }`}
-            >
-              Espace Client
-            </a>
-            <a 
               href="/contact" 
               className={`font-medium transition-colors duration-200 text-sm ${
                 isActiveLink('/contact') 
@@ -187,16 +177,6 @@ export default function Header() {
                 }`}
               >
                 Rendez-vous
-              </a>
-              <a 
-                href="/client-dashboard" 
-                className={`font-medium py-2 px-2 rounded-lg ${
-                  isActiveLink('/client-dashboard') 
-                    ? 'text-orange-600 bg-orange-50' 
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                Espace Client
               </a>
               <a 
                 href="/contact" 

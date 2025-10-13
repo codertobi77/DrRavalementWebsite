@@ -61,7 +61,6 @@ export default function Footer() {
             <a href="/about" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">À Propos</a>
             <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Services</a>
             <a href="/portfolio" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Réalisations</a>
-            <a href="/careers" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Carrières</a>
             <a href="/contact" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Contact</a>
           </div>
         </div>
