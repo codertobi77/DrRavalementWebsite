@@ -24,6 +24,25 @@ interface ServiceDetailsModalProps {
 export default function ServiceDetailsModal({ service, isOpen, onClose }: ServiceDetailsModalProps) {
   if (!service) return null;
 
+  // Fonction pour mapper le titre du service aux valeurs du formulaire de contact
+  const getServiceValue = (serviceTitle: string): string => {
+    const serviceMap: { [key: string]: string } = {
+      'Ravalement de Façades': 'ravalement',
+      'Maçonnerie Générale': 'maconnerie',
+      'Couverture & Étanchéité': 'couverture',
+      'Isolation Thermique': 'isolation',
+      'Réparations Urgentes': 'reparation',
+    };
+    
+    return serviceMap[serviceTitle] || 'autre';
+  };
+
+  // URL de redirection vers la page de contact avec le service pré-sélectionné
+  const getQuoteUrl = () => {
+    const serviceValue = getServiceValue(service.title);
+    return `/contact?service=${encodeURIComponent(serviceValue)}`;
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={service.title} size="xl">
       <div className="space-y-6">
@@ -149,7 +168,7 @@ export default function ServiceDetailsModal({ service, isOpen, onClose }: Servic
         {/* CTA */}
         <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">
           <a 
-            href="/quote-calculator" 
+            href={getQuoteUrl()} 
             className="flex-1 bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold text-center hover:bg-orange-700 transition-colors"
           >
             Demander un Devis
