@@ -21,7 +21,7 @@ export default function Services() {
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
                 Nos <span className="text-orange-400">Services</span>
               </h1>
-              <p className="text-xl text-orange-100 max-w-3xl mx-auto">
+              <p className="text-large text-orange-100 max-w-3xl mx-auto">
                 Découvrez notre gamme complète de services en ravalement, maçonnerie et couverture
               </p>
             </div>
@@ -32,8 +32,8 @@ export default function Services() {
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Nos Spécialités</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <h2 className="text-section-title text-gray-900 mb-4">Nos Spécialités</h2>
+              <p className="text-large text-gray-600 max-w-3xl mx-auto">
                 Des services complets pour tous vos projets de rénovation
               </p>
             </div>
@@ -45,8 +45,8 @@ export default function Services() {
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Services Complémentaires</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <h2 className="text-section-title text-gray-900 mb-4">Services Complémentaires</h2>
+              <p className="text-large text-gray-600 max-w-3xl mx-auto">
                 Une gamme étendue pour répondre à tous vos besoins
               </p>
             </div>
@@ -55,11 +55,11 @@ export default function Services() {
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
                   <i className="ri-paint-brush-line text-2xl text-orange-600"></i>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Peinture Extérieure</h3>
-                <p className="text-gray-600 mb-4">
+                <h3 className="text-card-title text-gray-900 mb-4">Peinture Extérieure</h3>
+                <p className="text-body text-gray-600 mb-4">
                   Application de peintures spécialisées pour façades avec protection longue durée.
                 </p>
-                <ul className="text-sm text-gray-600 space-y-2">
+                <ul className="text-small text-gray-600 space-y-2">
                   <li>• Peintures anti-mousse</li>
                   <li>• Revêtements hydrofuges</li>
                   <li>• Finitions décoratives</li>
@@ -69,11 +69,11 @@ export default function Services() {
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
                   <i className="ri-hammer-line text-2xl text-orange-600"></i>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Réparations Urgentes</h3>
-                <p className="text-gray-600 mb-4">
+                <h3 className="text-card-title text-gray-900 mb-4">Réparations Urgentes</h3>
+                <p className="text-body text-gray-600 mb-4">
                   Intervention rapide pour tous types de réparations d'urgence.
                 </p>
-                <ul className="text-sm text-gray-600 space-y-2">
+                <ul className="text-small text-gray-600 space-y-2">
                   <li>• Fissures façades</li>
                   <li>• Infiltrations d'eau</li>
                   <li>• Éléments détachés</li>

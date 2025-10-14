@@ -76,7 +76,7 @@ export default function Blog() {
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
                 Blog <span className="text-orange-400">DR RAVALEMENT</span>
               </h1>
-              <p className="text-xl text-orange-100 max-w-3xl mx-auto">
+              <p className="text-large text-orange-100 max-w-3xl mx-auto">
                 Conseils d'experts, actualités et guides pratiques pour tous vos projets de ravalement et rénovation
               </p>
             </div>
@@ -90,7 +90,7 @@ export default function Blog() {
               {categories.map((category) => (
                 <button
                   key={category}
-                  className="px-6 py-3 rounded-full font-medium transition-all duration-300 bg-white text-gray-700 hover:bg-orange-100 hover:text-orange-600"
+                  className="px-6 py-3 rounded-full font-medium transition-all duration-300 bg-white text-gray-700 hover:bg-orange-100 hover:text-orange-600 text-small"
                 >
                   {category}
                 </button>

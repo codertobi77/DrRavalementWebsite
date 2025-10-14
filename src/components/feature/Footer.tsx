@@ -16,10 +16,9 @@ export default function Footer() {
               </div>
               <div>
                 <h3 className="text-lg sm:text-xl font-bold">DR RAVALEMENT</h3>
-                <p className="text-orange-400 text-xs sm:text-sm">Expert Façades & Maçonnerie</p>
+                <p className="text-orange-400 text-caption">Expert Façades & Maçonnerie</p>
               </div>
             </div>
-            <CompanyInfoSection variant="footer" />
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors">
                 <i className="ri-facebook-fill text-lg sm:text-xl"></i>
@@ -40,16 +39,16 @@ export default function Footer() {
 
           {/* Zones */}
           <div>
-            <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">Zones d'Intervention</h4>
+            <h4 className="text-card-title mb-4 sm:mb-6">Zones d'Intervention</h4>
             <ul className="space-y-2 sm:space-y-3">
-              <li className="text-gray-300 text-xs sm:text-sm">Le Pecq</li>
-              <li className="text-gray-300 text-xs sm:text-sm">Île-de-France</li>
+              <li className="text-gray-300 text-caption">Le Pecq</li>
+              <li className="text-gray-300 text-caption">Île-de-France</li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">Contact</h4>
+            <h4 className="text-card-title mb-4 sm:mb-6">Contact</h4>
             <ContactInfoSection variant="footer" showHours={true} showSocial={true} />
           </div>
         </div>
@@ -57,21 +56,21 @@ export default function Footer() {
         {/* Navigation Links */}
         <div className="border-t border-gray-800 mt-8 sm:mt-12 pt-6 sm:pt-8">
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
-            <a href="/" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Accueil</a>
-            <a href="/about" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">À Propos</a>
-            <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Services</a>
-            <a href="/portfolio" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Réalisations</a>
-            <a href="/contact" className="text-gray-300 hover:text-orange-400 transition-colors text-sm">Contact</a>
+            <a href="/" className="text-gray-300 hover:text-orange-400 transition-colors text-small">Accueil</a>
+            <a href="/about" className="text-gray-300 hover:text-orange-400 transition-colors text-small">À Propos</a>
+            <a href="/services" className="text-gray-300 hover:text-orange-400 transition-colors text-small">Services</a>
+            <a href="/portfolio" className="text-gray-300 hover:text-orange-400 transition-colors text-small">Réalisations</a>
+            <a href="/contact" className="text-gray-300 hover:text-orange-400 transition-colors text-small">Contact</a>
           </div>
         </div>
 
         {/* Copyright */}
         <div className="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-400 text-xs sm:text-sm text-center md:text-left">© 2025 DR RAVALEMENT. Tous droits réservés.</p>
+          <p className="text-gray-400 text-caption text-center md:text-left">© 2025 DR RAVALEMENT. Tous droits réservés.</p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
-            <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-xs sm:text-sm">Mentions Légales</a>
-            <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-xs sm:text-sm">Politique de Confidentialité</a>
-            <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-xs sm:text-sm">CGV</a>
+            <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-caption">Mentions Légales</a>
+            <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-caption">Politique de Confidentialité</a>
+            <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors text-caption">CGV</a>
           </div>
         </div>
       </div>

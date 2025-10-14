@@ -23,7 +23,7 @@ export default function About() {
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
                 À Propos de <span className="text-orange-400">DR RAVALEMENT</span>
               </h1>
-              <p className="text-xl text-orange-100 max-w-3xl mx-auto">
+              <p className="text-large text-orange-100 max-w-3xl mx-auto">
                 Depuis 2008, nous sommes votre partenaire de confiance pour tous vos travaux de ravalement de façades et de maçonnerie en Seine-et-Marne et Île-de-France.
               </p>
             </div>
@@ -37,8 +37,8 @@ export default function About() {
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Nos Valeurs</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <h2 className="text-section-title text-gray-900 mb-4">Nos Valeurs</h2>
+              <p className="text-large text-gray-600 max-w-3xl mx-auto">
                 Des principes qui guident chacune de nos interventions
               </p>
             </div>
@@ -50,8 +50,8 @@ export default function About() {
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Notre Équipe</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <h2 className="text-section-title text-gray-900 mb-4">Notre Équipe</h2>
+              <p className="text-large text-gray-600 max-w-3xl mx-auto">
                 Des professionnels expérimentés à votre service
               </p>
             </div>
@@ -63,8 +63,8 @@ export default function About() {
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Certifications & Garanties</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <h2 className="text-section-title text-gray-900 mb-4">Certifications & Garanties</h2>
+              <p className="text-large text-gray-600 max-w-3xl mx-auto">
                 Votre sécurité et votre tranquillité d'esprit sont nos priorités
               </p>
             </div>

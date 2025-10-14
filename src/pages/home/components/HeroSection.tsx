@@ -14,13 +14,13 @@ export default function HeroSection() {
 
       <div className="relative w-full px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+          <h1 className="text-hero text-white mb-4 sm:mb-6">
             DR RAVALEMENT,
             <span className="block bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
               Votre partenaire de confiance
             </span>
           </h1>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-orange-100 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-4">
+          <p className="text-large text-orange-100 mb-6 sm:mb-8 max-w-4xl mx-auto px-4">
             Pour tous vos travaux de ravalement de façades, couverture, électricité, plomberie, serrurerie, carrelage, isolation et étude technique en Seine-et-Marne et en Île-de-France.
           </p>
         </div>

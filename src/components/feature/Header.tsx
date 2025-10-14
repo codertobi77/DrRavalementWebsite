@@ -39,8 +39,8 @@ export default function Header() {
               <span className="text-white font-bold text-lg sm:text-xl lg:text-2xl">DR</span>
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 leading-tight">DR RAVALEMENT</h1>
-              <p className="text-xs sm:text-sm text-orange-600 font-medium">Expert Façades & Maçonnerie</p>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">DR RAVALEMENT</h1>
+              <p className="text-caption text-orange-600 font-medium">Expert Façades & Maçonnerie</p>
             </div>
           </a>
 
@@ -108,20 +108,23 @@ export default function Header() {
             </a>
           </nav>
 
-          {/* CTA Button */}
-          <div className="hidden lg:flex items-center">
-            <Button href="/contact" className="text-sm px-4 py-2">
-              Devis Gratuit
-            </Button>
-          </div>
+          {/* CTA Button et Mobile menu button */}
+          <div className="flex items-center space-x-2">
+            {/* CTA Button - visible sur tablette et desktop */}
+            <div className="hidden md:flex items-center">
+              <Button href="/contact" className="text-sm px-4 py-2">
+                Devis Gratuit
+              </Button>
+            </div>
 
-          {/* Mobile menu button */}
-          <button 
-            className="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <i className={`ri-${isMenuOpen ? 'close' : 'menu'}-line text-xl sm:text-2xl`}></i>
-          </button>
+            {/* Mobile menu button */}
+            <button 
+              className="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <i className={`ri-${isMenuOpen ? 'close' : 'menu'}-line text-xl sm:text-2xl`}></i>
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
