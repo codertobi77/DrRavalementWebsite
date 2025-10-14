@@ -4,6 +4,7 @@ import { convex } from './lib/convex'
 import { AuthProvider } from './lib/auth-context'
 import { CmsCacheProvider } from './contexts/CmsCacheContext'
 import { AppRoutes } from './router'
+import { Analytics } from '@vercel/analytics/react'
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           </BrowserRouter>
         </CmsCacheProvider>
       </AuthProvider>
+      <Analytics />
     </ConvexProvider>
   )
 }
