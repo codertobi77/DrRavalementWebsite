@@ -21,10 +21,17 @@ export interface CacheConfig {
   version: string; // Version du cache pour invalidation
 }
 
-// Configuration par défaut
+// Configuration par défaut optimisée pour zones à faible couverture
 const DEFAULT_CONFIG: CacheConfig = {
-  ttl: 5 * 60 * 1000, // 5 minutes
-  maxSize: 100,
+  ttl: 30 * 60 * 1000, // 30 minutes (augmenté pour zones à faible couverture)
+  maxSize: 200, // Augmenté pour stocker plus de données
+  version: '1.0.0'
+};
+
+// Configuration spéciale pour zones à faible couverture
+const LOW_CONNECTIVITY_CONFIG: CacheConfig = {
+  ttl: 2 * 60 * 60 * 1000, // 2 heures pour zones à faible couverture
+  maxSize: 300,
   version: '1.0.0'
 };
 
@@ -50,6 +57,23 @@ class LocalStorageCache {
 
   constructor(config: CacheConfig = DEFAULT_CONFIG) {
     this.config = config;
+    this.detectLowConnectivity();
+  }
+
+  // Détecter si l'utilisateur est dans une zone à faible couverture
+  private detectLowConnectivity() {
+    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+    
+    if (connection) {
+      const isSlowConnection = connection.effectiveType === 'slow-2g' || 
+                              connection.effectiveType === '2g' ||
+                              connection.downlink < 0.5;
+      
+      if (isSlowConnection) {
+        this.config = { ...LOW_CONNECTIVITY_CONFIG };
+        console.log('Mode faible couverture détecté - TTL étendu à 2h');
+      }
+    }
   }
 
   // Obtenir une entrée du cache
@@ -180,27 +204,37 @@ export function useCachedCmsData<T>(
   // Récupérer les données depuis Convex
   const convexData = queryFn();
 
-  // Mémoriser les données avec cache
+  // Mémoriser les données avec cache - CACHE EN PRIORITÉ ABSOLUE
   const cachedData = useMemo(() => {
     if (!enabled) return convexData;
 
-    // Si on force le refetch, ignorer le cache
-    if (refetchOnMount) {
-      if (convexData) {
-        cache.set(cacheKey, convexData, ttl);
-        return convexData;
-      }
-      return null;
-    }
-
-    // Essayer de récupérer depuis le cache
+    // PRIORITÉ 1: Cache d'abord - NE JAMAIS ATTENDRE CONVEX
     const cached = cache.get<T>(cacheKey);
     if (cached) {
-      return cached;
+      // Mise à jour en arrière-plan SANS BLOQUER l'affichage
+      if (convexData && !refetchOnMount) {
+        // Utiliser requestIdleCallback pour ne pas bloquer l'UI
+        if (window.requestIdleCallback) {
+          window.requestIdleCallback(() => {
+            cache.set(cacheKey, convexData, ttl);
+          });
+        } else {
+          setTimeout(() => {
+            cache.set(cacheKey, convexData, ttl);
+          }, 0);
+        }
+      }
+      return cached; // RETOURNER IMMÉDIATEMENT
     }
 
-    // Si pas de cache et données Convex disponibles, les sauvegarder
+    // PRIORITÉ 2: Si pas de cache, utiliser Convex et sauvegarder
     if (convexData) {
+      cache.set(cacheKey, convexData, ttl);
+      return convexData;
+    }
+
+    // PRIORITÉ 3: Refetch forcé
+    if (refetchOnMount && convexData) {
       cache.set(cacheKey, convexData, ttl);
       return convexData;
     }
@@ -229,7 +263,7 @@ export function useCachedCmsData<T>(
 
   return {
     data: cachedData,
-    isLoading: convexData === undefined || isLoading,
+    isLoading: cachedData === null && convexData === undefined, // Ne pas attendre Convex si on a du cache
     error,
     refresh,
     invalidate,
@@ -237,72 +271,96 @@ export function useCachedCmsData<T>(
   };
 }
 
-// Hooks spécialisés pour chaque type de données CMS
+// Hooks spécialisés pour chaque type de données CMS avec TTL optimisé
 export function useCachedStatistics() {
   const convexData = useQuery(api.cms.getStatistics);
-  return useCachedCmsData('STATISTICS', () => convexData);
+  return useCachedCmsData('STATISTICS', () => convexData, {
+    ttl: 60 * 60 * 1000 // 1 heure pour les statistiques (changent rarement)
+  });
 }
 
 export function useCachedServices() {
   const convexData = useQuery(api.cms.getServices);
-  return useCachedCmsData('SERVICES', () => convexData);
+  return useCachedCmsData('SERVICES', () => convexData, {
+    ttl: 45 * 60 * 1000 // 45 minutes pour les services
+  });
 }
 
 export function useCachedZones() {
   const convexData = useQuery(api.cms.getZones);
-  return useCachedCmsData('ZONES', () => convexData);
+  return useCachedCmsData('ZONES', () => convexData, {
+    ttl: 2 * 60 * 60 * 1000 // 2 heures pour les zones (changent très rarement)
+  });
 }
 
 export function useCachedReasons() {
   const convexData = useQuery(api.cms.getReasons);
-  return useCachedCmsData('REASONS', () => convexData);
+  return useCachedCmsData('REASONS', () => convexData, {
+    ttl: 60 * 60 * 1000 // 1 heure pour les raisons
+  });
 }
 
 export function useCachedTestimonials() {
   const convexData = useQuery(api.cms.getTestimonials);
-  return useCachedCmsData('TESTIMONIALS', () => convexData);
+  return useCachedCmsData('TESTIMONIALS', () => convexData, {
+    ttl: 30 * 60 * 1000 // 30 minutes pour les témoignages
+  });
 }
 
 export function useCachedCompanyHistory() {
   const convexData = useQuery(api.cms.getCompanyHistory);
-  return useCachedCmsData('COMPANY_HISTORY', () => convexData);
+  return useCachedCmsData('COMPANY_HISTORY', () => convexData, {
+    ttl: 2 * 60 * 60 * 1000 // 2 heures pour l'historique (changent très rarement)
+  });
 }
 
 export function useCachedValues() {
   const convexData = useQuery(api.cms.getValues);
-  return useCachedCmsData('VALUES', () => convexData);
+  return useCachedCmsData('VALUES', () => convexData, {
+    ttl: 2 * 60 * 60 * 1000 // 2 heures pour les valeurs (changent très rarement)
+  });
 }
 
 export function useCachedTeamMembers() {
   const convexData = useQuery(api.cms.getTeamMembers);
-  return useCachedCmsData('TEAM_MEMBERS', () => convexData);
+  return useCachedCmsData('TEAM_MEMBERS', () => convexData, {
+    ttl: 60 * 60 * 1000 // 1 heure pour l'équipe
+  });
 }
 
 export function useCachedCertifications() {
   const convexData = useQuery(api.cms.getCertifications);
-  return useCachedCmsData('CERTIFICATIONS', () => convexData);
+  return useCachedCmsData('CERTIFICATIONS', () => convexData, {
+    ttl: 2 * 60 * 60 * 1000 // 2 heures pour les certifications (changent très rarement)
+  });
 }
 
 export function useCachedProcessSteps() {
   const convexData = useQuery(api.cms.getProcessSteps);
-  return useCachedCmsData('PROCESS_STEPS', () => convexData);
+  return useCachedCmsData('PROCESS_STEPS', () => convexData, {
+    ttl: 60 * 60 * 1000 // 1 heure pour les étapes de processus
+  });
 }
 
 export function useCachedProjectFilters() {
   const convexData = useQuery(api.cms.getProjectFilters);
-  return useCachedCmsData('PROJECT_FILTERS', () => convexData);
+  return useCachedCmsData('PROJECT_FILTERS', () => convexData, {
+    ttl: 30 * 60 * 1000 // 30 minutes pour les filtres
+  });
 }
 
 export function useCachedPortfolioProjects() {
   const convexData = useQuery(api.cms.getPortfolioProjects);
-  return useCachedCmsData('PORTFOLIO_PROJECTS', () => convexData);
+  return useCachedCmsData('PORTFOLIO_PROJECTS', () => convexData, {
+    ttl: 20 * 60 * 1000 // 20 minutes pour les projets (changent plus souvent)
+  });
 }
 
 // Hook pour les projets par catégorie avec cache
 export function useCachedPortfolioProjectsByCategory(category: string) {
   const convexData = useQuery(api.cms.getPortfolioProjectsByCategory, { category });
   return useCachedCmsData('PORTFOLIO_PROJECTS', () => convexData, {
-    ttl: 2 * 60 * 1000 // Cache plus court pour les filtres
+    ttl: 15 * 60 * 1000 // 15 minutes pour les filtres (plus court car plus dynamique)
   });
 }
 
