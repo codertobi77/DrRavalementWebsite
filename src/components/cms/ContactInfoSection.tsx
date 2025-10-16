@@ -182,6 +182,7 @@ export default function ContactInfoSection({
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Écrivez-nous</h3>
             <p className="text-lg text-orange-600 font-semibold mb-2">{contactConfig.email}</p>
+            <p className="text-lg text-orange-600 font-semibold mb-2">drravalements@gmail.com</p>
             <p className="text-gray-600 mb-4">Réponse sous 24h</p>
             <a 
               href={`mailto:${contactConfig.email}`}
