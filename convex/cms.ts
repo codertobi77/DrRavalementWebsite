@@ -58,7 +58,7 @@ export const getServices = query({
     return await ctx.db
       .query("services")
       .filter((q) => q.eq(q.field("is_active"), true))
-      .order("asc")
+      .order("asc", "order_index")
       .collect();
   },
 });

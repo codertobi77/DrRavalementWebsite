@@ -4,6 +4,7 @@ import { api } from "../../../convex/_generated/api";
 import Header from '../../components/feature/Header';
 import Footer from '../../components/feature/Footer';
 import Button from '../../components/base/Button';
+import { useConvexServices } from '../../hooks/useConvexServices';
 
 export default function Booking() {
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -22,6 +23,7 @@ export default function Booking() {
   // Hooks Convex
   const bookingConfig = useQuery(api.siteConfig.getConfigByKey, { key: "booking_config" });
   const contactConfig = useQuery(api.siteConfig.getConfigByKey, { key: "contact_config" });
+  const { services, isLoading: servicesLoading } = useConvexServices();
 
   // Mutations
   const createBooking = useMutation(api.bookings.createBooking);
@@ -88,12 +90,12 @@ export default function Booking() {
 
     try {
       // Créer le rendez-vous avec Convex (statut "pending" en attente de confirmation)
-      const selectedService = bookingConfig?.services.find((s: { id: string; }) => s.id === serviceType);
+      const selectedService = services.find((s) => s._id === serviceType);
       const booking = await createBooking({
         client_name: formData.name,
         client_email: formData.email,
         client_phone: formData.phone,
-        service_type: selectedService?.name || serviceType,
+        service_type: selectedService?.title || serviceType,
         booking_date: selectedDate,
         address: formData.address,
         notes: formData.message,
@@ -124,7 +126,7 @@ export default function Booking() {
   const calendarDays = generateCalendarDays();
 
   // Loading state
-  if (bookingConfig === undefined || contactConfig === undefined) {
+  if (bookingConfig === undefined || contactConfig === undefined || servicesLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -220,19 +222,19 @@ export default function Booking() {
               {/* Sélection du service */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez votre service</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {bookingConfig?.services.map((service: any) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {services.map((service) => (
                     <button
-                      key={service.id}
+                      key={service._id}
                       type="button"
-                      onClick={() => handleServiceSelect(service.id)}
+                      onClick={() => handleServiceSelect(service._id)}
                       className={`p-4 border-2 rounded-lg text-left transition-colors ${
-                        serviceType === service.id
+                        serviceType === service._id
                           ? 'border-orange-500 bg-orange-50'
                           : 'border-gray-200 hover:border-orange-300'
                       }`}
                     >
-                      <div className="font-medium text-gray-900">{service.name}</div>
+                      <div className="font-medium text-gray-900">{service.title}</div>
                       {service.description && (
                         <div className="text-sm text-gray-500 mt-1">{service.description}</div>
                       )}
