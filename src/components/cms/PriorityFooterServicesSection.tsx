@@ -44,12 +44,7 @@ export default function PriorityFooterServicesSection() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h4 className="text-base sm:text-lg font-semibold">Nos Services</h4>
-        {services.isCached && (
-          <span className="text-green-400 text-xs">✅ Cache</span>
-        )}
-      </div>
+      <h4 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">Nos Services</h4>
       <ul className="space-y-2 sm:space-y-3">
         {displayServices.map((service) => (
           <li key={service._id}>

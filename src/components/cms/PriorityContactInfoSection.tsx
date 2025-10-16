@@ -108,12 +108,6 @@ export default function PriorityContactInfoSection({
             <i className="ri-map-pin-line"></i>
             <span className="text-xs sm:text-sm">{contact.address}</span>
           </div>
-          {/* Indicateur de cache */}
-          {contactConfig.isCached && (
-            <div className="hidden xl:flex items-center">
-              <span className="text-green-400 text-xs">✅ Cache</span>
-            </div>
-          )}
         </div>
       );
     }
@@ -171,13 +165,6 @@ export default function PriorityContactInfoSection({
                   </a>
                 )}
               </div>
-            </div>
-          )}
-          {/* Indicateur de cache */}
-          {contactConfig.isCached && (
-            <div className="flex items-center space-x-3">
-              <i className="ri-database-line text-green-400 flex-shrink-0"></i>
-              <span className="text-green-400 text-xs">Données en cache</span>
             </div>
           )}
         </div>

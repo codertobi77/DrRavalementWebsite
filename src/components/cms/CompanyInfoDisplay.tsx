@@ -32,7 +32,6 @@ export default function CompanyInfoDisplay({
       <div className={`bg-white p-4 rounded-lg shadow ${className}`}>
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-semibold text-gray-800">Informations Entreprise</h3>
-          {isCached && <span className="text-green-600 text-sm">✅ Cache</span>}
         </div>
         <div className="text-sm space-y-1">
           <div><strong>Nom:</strong> {info.companyName}</div>
@@ -49,7 +48,6 @@ export default function CompanyInfoDisplay({
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
           <i className="ri-file-text-line mr-2 text-gray-600"></i>
           Informations Légales
-          {isCached && <span className="ml-2 text-green-600 text-sm">✅ Cache</span>}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
@@ -91,7 +89,6 @@ export default function CompanyInfoDisplay({
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
           <i className="ri-search-line mr-2 text-orange-600"></i>
           Données Structurées SEO
-          {isCached && <span className="ml-2 text-green-600 text-sm">✅ Cache</span>}
         </h3>
         <div className="space-y-4">
           <div>
@@ -154,8 +151,6 @@ export default function CompanyInfoDisplay({
           Informations de l'Entreprise
         </h3>
         <div className="flex items-center space-x-2">
-          {isCached && <span className="text-green-600 text-sm">✅ Cache</span>}
-          {isLoading && <span className="text-orange-600 text-sm">⏳ Chargement...</span>}
         </div>
       </div>
 
@@ -275,10 +270,6 @@ export function CompanyInfoSummary() {
     <div className="bg-white p-4 rounded-lg shadow">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold text-gray-800">Informations Entreprise</h3>
-        <div className="flex items-center space-x-2">
-          {companyInfo.isCached && <span className="text-green-600 text-sm">✅ Cache</span>}
-          {companyInfo.isLoading && <span className="text-orange-600 text-sm">⏳ Chargement...</span>}
-        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

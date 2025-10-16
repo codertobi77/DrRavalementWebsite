@@ -20,7 +20,7 @@ import {
   usePrioritySeoConfig,
   usePriorityCompanyInfo
 } from '../../lib/priority-cache';
-import { NetworkStatusIndicator, NetworkStatusBar } from '../network/NetworkStatusIndicator';
+import { NetworkStatusIndicator } from '../network/NetworkStatusIndicator';
 
 interface PriorityCmsSectionProps {
   children: React.ReactNode;
@@ -218,7 +218,6 @@ export function PriorityCmsTest() {
         <h2 className="text-xl font-semibold mb-4 flex items-center">
           <i className="ri-settings-3-line mr-2 text-blue-600"></i>
           Configuration du site
-          {siteConfig.isCached && <span className="ml-2 text-green-600 text-sm">✅ Cache</span>}
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -227,7 +226,6 @@ export function PriorityCmsTest() {
             <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
               <i className="ri-phone-line mr-2 text-green-600"></i>
               Contact
-              {contactConfig.isCached && <span className="ml-1 text-green-600 text-xs">✅</span>}
             </h3>
             {contactConfig.data && (
               <div className="text-sm space-y-1">
@@ -244,7 +242,6 @@ export function PriorityCmsTest() {
             <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
               <i className="ri-palette-line mr-2 text-purple-600"></i>
               Apparence
-              {appearanceConfig.isCached && <span className="ml-1 text-green-600 text-xs">✅</span>}
             </h3>
             {appearanceConfig.data && (
               <div className="text-sm space-y-1">
@@ -266,7 +263,6 @@ export function PriorityCmsTest() {
             <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
               <i className="ri-search-line mr-2 text-orange-600"></i>
               SEO
-              {seoConfig.isCached && <span className="ml-1 text-green-600 text-xs">✅</span>}
             </h3>
             {seoConfig.data && (
               <div className="text-sm space-y-1">
@@ -282,7 +278,6 @@ export function PriorityCmsTest() {
             <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
               <i className="ri-calendar-line mr-2 text-blue-600"></i>
               Réservation
-              {bookingConfig.isCached && <span className="ml-1 text-green-600 text-xs">✅</span>}
             </h3>
             {bookingConfig.data && (
               <div className="text-sm space-y-1">
@@ -299,7 +294,6 @@ export function PriorityCmsTest() {
             <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
               <i className="ri-mail-line mr-2 text-red-600"></i>
               Email
-              {emailConfig.isCached && <span className="ml-1 text-green-600 text-xs">✅</span>}
             </h3>
             {emailConfig.data && (
               <div className="text-sm space-y-1">
@@ -315,7 +309,6 @@ export function PriorityCmsTest() {
             <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
               <i className="ri-file-text-line mr-2 text-gray-600"></i>
               Légal
-              {legalConfig.isCached && <span className="ml-1 text-green-600 text-xs">✅</span>}
             </h3>
             {legalConfig.data && (
               <div className="text-sm space-y-1">
@@ -331,7 +324,6 @@ export function PriorityCmsTest() {
             <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
               <i className="ri-building-line mr-2 text-blue-600"></i>
               Informations Entreprise
-              {companyInfo.isCached && <span className="ml-1 text-green-600 text-xs">✅</span>}
             </h3>
             {companyInfo.data && (
               <div className="text-sm space-y-1">

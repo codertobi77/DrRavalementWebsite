@@ -37,7 +37,6 @@ export default function TestHeaderFooterCache() {
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <i className="ri-phone-line mr-2 text-green-600"></i>
               Informations de Contact
-              {contactConfig.isCached && <span className="ml-2 text-green-600 text-sm">✅ Cache</span>}
             </h2>
             
             <div className="space-y-4">
@@ -63,7 +62,6 @@ export default function TestHeaderFooterCache() {
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <i className="ri-tools-line mr-2 text-blue-600"></i>
               Services Footer
-              {services.isCached && <span className="ml-2 text-green-600 text-sm">✅ Cache</span>}
             </h2>
             <PriorityFooterServicesSection />
           </div>
@@ -95,7 +93,6 @@ export default function TestHeaderFooterCache() {
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <i className="ri-map-pin-line mr-2 text-orange-600"></i>
               Zones d'Intervention
-              {zones.isCached && <span className="ml-2 text-green-600 text-sm">✅ Cache</span>}
             </h2>
             <div className="space-y-2">
               {zones.data?.map((zone, index) => (
@@ -145,26 +142,26 @@ export default function TestHeaderFooterCache() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <span className="font-medium">Contact en cache:</span>
-              <span className="ml-2 text-green-600">
-                {contactConfig.isCached ? '✅ Oui' : '❌ Non'}
-              </span>
+            <span className="ml-2 text-gray-600">
+              {contactConfig.isCached ? 'Oui' : 'Non'}
+            </span>
             </div>
             <div>
               <span className="font-medium">Apparence en cache:</span>
-              <span className="ml-2 text-green-600">
-                {appearanceConfig.isCached ? '✅ Oui' : '❌ Non'}
+              <span className="ml-2 text-gray-600">
+                {appearanceConfig.isCached ? 'Oui' : 'Non'}
               </span>
             </div>
             <div>
               <span className="font-medium">Services en cache:</span>
-              <span className="ml-2 text-green-600">
-                {services.isCached ? '✅ Oui' : '❌ Non'}
+              <span className="ml-2 text-gray-600">
+                {services.isCached ? 'Oui' : 'Non'}
               </span>
             </div>
             <div>
               <span className="font-medium">Zones en cache:</span>
-              <span className="ml-2 text-green-600">
-                {zones.isCached ? '✅ Oui' : '❌ Non'}
+              <span className="ml-2 text-gray-600">
+                {zones.isCached ? 'Oui' : 'Non'}
               </span>
             </div>
           </div>
@@ -177,7 +174,7 @@ export default function TestHeaderFooterCache() {
             <li>• <strong>Premier chargement :</strong> Les données se chargent depuis Convex</li>
             <li>• <strong>Rechargement :</strong> Toutes les informations s'affichent instantanément depuis le cache</li>
             <li>• <strong>Navigation :</strong> Header et footer restent en cache entre les pages</li>
-            <li>• <strong>Indicateurs :</strong> ✅ = Données en cache, ⏳ = Chargement en cours</li>
+            <li>• <strong>Indicateurs :</strong> Les données en cache se chargent instantanément</li>
             <li>• <strong>Performance :</strong> Le chargement doit être instantané après le premier accès</li>
             <li>• <strong>Données testées :</strong> Téléphone, email, adresse, nom du site, services, zones</li>
           </ul>

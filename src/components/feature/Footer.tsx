@@ -46,12 +46,6 @@ export default function Footer() {
                 <i className="ri-linkedin-fill text-lg sm:text-xl"></i>
               </a>
             </div>
-            {/* Indicateur de cache pour l'apparence */}
-            {appearanceConfig.isCached && (
-              <div className="mt-3 text-xs text-green-400">
-                ✅ Apparence en cache
-              </div>
-            )}
           </div>
 
           {/* Services */}
@@ -61,12 +55,7 @@ export default function Footer() {
 
           {/* Zones */}
           <div>
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h4 className="text-card-title">Zones d'Intervention</h4>
-              {zones.isCached && (
-                <span className="text-green-400 text-xs">✅ Cache</span>
-              )}
-            </div>
+            <h4 className="text-card-title mb-4 sm:mb-6">Zones d'Intervention</h4>
             <ul className="space-y-2 sm:space-y-3">
               {interventionZones.map((zone, index) => (
                 <li key={index} className="text-gray-300 text-caption">
