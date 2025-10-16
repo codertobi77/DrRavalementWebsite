@@ -41,11 +41,10 @@ export function useInitializeDefaultConfigs() {
 export interface BookingConfig {
   maxAdvanceDays: number;
   workingDays: { start: number; end: number };
-  timeSlots: string[];
+  maxBookingsPerDay: number;
   services: Array<{
     id: string;
     name: string;
-    duration: number;
     description: string;
   }>;
 }

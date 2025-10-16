@@ -13,8 +13,6 @@ interface Booking {
   client_phone: string;
   service_type: string;
   booking_date: string;
-  booking_time: string;
-  duration: number;
   address?: string;
   notes?: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
@@ -216,7 +214,7 @@ export default function BookingManagement() {
                         Service
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date & Heure
+                        Date
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Statut
@@ -246,16 +244,15 @@ export default function BookingManagement() {
                           <div className="text-sm text-gray-900">
                             {booking.service_type}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {booking.duration} min
-                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {new Date(booking.booking_date).toLocaleDateString('fr-FR')}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {booking.booking_time}
+                            {new Date(booking.booking_date).toLocaleDateString('fr-FR', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -405,10 +402,6 @@ function BookingDetailsModal({
                 <p className="text-sm text-gray-900">{booking.service_type}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Durée</label>
-                <p className="text-sm text-gray-900">{booking.duration} minutes</p>
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-gray-700">Date</label>
                 <p className="text-sm text-gray-900">
                   {new Date(booking.booking_date).toLocaleDateString('fr-FR', {
@@ -418,10 +411,6 @@ function BookingDetailsModal({
                     day: 'numeric'
                   })}
                 </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Heure</label>
-                <p className="text-sm text-gray-900">{booking.booking_time}</p>
               </div>
             </div>
           </div>

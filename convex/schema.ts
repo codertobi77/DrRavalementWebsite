@@ -51,8 +51,6 @@ export default defineSchema({
     client_phone: v.string(),
     service_type: v.string(),
     booking_date: v.string(), // Date as string
-    booking_time: v.string(), // Time as string
-    duration: v.number(),
     address: v.optional(v.string()),
     notes: v.optional(v.string()),
     status: v.union(

@@ -7,7 +7,6 @@ import Button from '../../components/base/Button';
 
 export default function Booking() {
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedTime, setSelectedTime] = useState<string>('');
   const [serviceType, setServiceType] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
@@ -23,10 +22,6 @@ export default function Booking() {
   // Hooks Convex
   const bookingConfig = useQuery(api.siteConfig.getConfigByKey, { key: "booking_config" });
   const contactConfig = useQuery(api.siteConfig.getConfigByKey, { key: "contact_config" });
-  const availableTimeSlots = useQuery(
-    api.bookings.getAvailableTimeSlots, 
-    selectedDate ? { date: selectedDate } : "skip"
-  );
 
   // Mutations
   const createBooking = useMutation(api.bookings.createBooking);
@@ -59,21 +54,8 @@ export default function Booking() {
     return days;
   };
 
-  // Les créneaux disponibles sont maintenant gérés par Convex
-
-  // Les créneaux disponibles sont maintenant gérés par Convex
-  const timeSlots = availableTimeSlots?.map(time => ({
-    time,
-    available: true
-  })) || [];
-
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
-    setSelectedTime('');
-  };
-
-  const handleTimeSelect = (time: string) => {
-    setSelectedTime(time);
   };
 
   const handleServiceSelect = (service: string) => {
@@ -91,8 +73,8 @@ export default function Booking() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedDate || !selectedTime || !serviceType) {
-      setError('Veuillez sélectionner une date, une heure et un service');
+    if (!selectedDate || !serviceType) {
+      setError('Veuillez sélectionner une date et un service');
       return;
     }
 
@@ -113,8 +95,6 @@ export default function Booking() {
         client_phone: formData.phone,
         service_type: selectedService?.name || serviceType,
         booking_date: selectedDate,
-        booking_time: selectedTime,
-        duration: selectedService?.duration || 60,
         address: formData.address,
         notes: formData.message,
         status: 'pending'
@@ -131,7 +111,6 @@ export default function Booking() {
         message: ''
       });
       setSelectedDate('');
-      setSelectedTime('');
       setServiceType('');
 
     } catch (error: any) {
@@ -254,9 +233,8 @@ export default function Booking() {
                       }`}
                     >
                       <div className="font-medium text-gray-900">{service.name}</div>
-                      <div className="text-sm text-gray-500">Durée : {service.duration} min</div>
                       {service.description && (
-                        <div className="text-xs text-gray-400 mt-1">{service.description}</div>
+                        <div className="text-sm text-gray-500 mt-1">{service.description}</div>
                       )}
                     </button>
                   ))}
@@ -289,31 +267,6 @@ export default function Booking() {
                 </div>
               </div>
 
-              {/* Sélection de l'heure */}
-              {selectedDate && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Choisissez une heure</h3>
-                  <div className="grid grid-cols-4 gap-3">
-                    {timeSlots.map((slot) => (
-                      <button
-                        key={slot.time}
-                        type="button"
-                        onClick={() => slot.available && handleTimeSelect(slot.time)}
-                        disabled={!slot.available}
-                        className={`p-3 text-center rounded-lg border transition-colors ${
-                          selectedTime === slot.time
-                            ? 'bg-orange-500 text-white border-orange-500'
-                            : slot.available
-                            ? 'bg-white text-gray-900 border-gray-200 hover:border-orange-300'
-                            : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                        }`}
-                      >
-                        {slot.time}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Informations personnelles */}
               <div className="mb-8">
@@ -390,7 +343,7 @@ export default function Booking() {
               <div className="text-center">
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !selectedDate || !selectedTime || !serviceType}
+                  disabled={isSubmitting || !selectedDate || !serviceType}
                   className="bg-orange-600 text-white px-8 py-3 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'Enregistrement...' : 'Confirmer le rendez-vous'}

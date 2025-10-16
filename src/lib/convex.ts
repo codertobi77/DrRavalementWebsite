@@ -28,8 +28,6 @@ export interface Booking {
   client_phone: string;
   service_type: string;
   booking_date: string;
-  booking_time: string;
-  duration: number;
   address?: string;
   notes?: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
@@ -139,11 +137,10 @@ export interface SiteConfig {
   booking_config?: {
     maxAdvanceDays: number;
     workingDays: { start: number; end: number };
-    timeSlots: string[];
+    maxBookingsPerDay: number;
     services: Array<{
       id: string;
       name: string;
-      duration: number;
       description: string;
     }>;
   };

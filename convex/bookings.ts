@@ -33,14 +33,17 @@ export const getBookingsByDate = query({
   },
 });
 
-// Récupérer les créneaux disponibles pour une date
-export const getAvailableTimeSlots = query({
+// Vérifier si une date est disponible pour réservation
+export const isDateAvailable = query({
   args: { date: v.string() },
   handler: async (ctx, args) => {
-    const allTimeSlots = [
-      '08:00', '09:00', '10:00', '11:00',
-      '14:00', '15:00', '16:00', '17:00'
-    ];
+    // Récupérer la configuration des réservations
+    const bookingConfig = await ctx.db
+      .query("site_config")
+      .withIndex("by_key", (q) => q.eq("key", "booking_config"))
+      .first();
+
+    const maxBookingsPerDay = bookingConfig?.value?.maxBookingsPerDay || 5;
 
     // Récupérer les réservations existantes pour cette date
     const existingBookings = await ctx.db
@@ -54,66 +57,7 @@ export const getAvailableTimeSlots = query({
       )
       .collect();
 
-    // Vérifier les conflits d'horaires
-    const availableSlots: string[] = [];
-    
-    for (const time of allTimeSlots) {
-      const requestedTime = new Date(`${args.date}T${time}`);
-      let isAvailable = true;
-      
-      for (const booking of existingBookings) {
-        const bookingTime = new Date(`${args.date}T${booking.booking_time}`);
-        const bookingEndTime = new Date(bookingTime.getTime() + booking.duration * 60000);
-        
-        // Vérifier si les créneaux se chevauchent
-        if (requestedTime < bookingEndTime && 
-            new Date(requestedTime.getTime() + 60 * 60000) > bookingTime) {
-          isAvailable = false;
-          break;
-        }
-      }
-      
-      if (isAvailable) {
-        availableSlots.push(time);
-      }
-    }
-
-    return availableSlots;
-  },
-});
-
-// Vérifier si un créneau est disponible
-export const isTimeSlotAvailable = query({
-  args: { 
-    date: v.string(),
-    time: v.string()
-  },
-  handler: async (ctx, args) => {
-    const existingBookings = await ctx.db
-      .query("bookings")
-      .withIndex("by_date", (q) => q.eq("booking_date", args.date))
-      .filter((q) => 
-        q.or(
-          q.eq(q.field("status"), "pending"),
-          q.eq(q.field("status"), "confirmed")
-        )
-      )
-      .collect();
-
-    const requestedTime = new Date(`${args.date}T${args.time}`);
-    
-    for (const booking of existingBookings) {
-      const bookingTime = new Date(`${args.date}T${booking.booking_time}`);
-      const bookingEndTime = new Date(bookingTime.getTime() + booking.duration * 60000);
-      
-      // Vérifier si les créneaux se chevauchent
-      if (requestedTime < bookingEndTime && 
-          new Date(requestedTime.getTime() + 60 * 60000) > bookingTime) {
-        return false;
-      }
-    }
-
-    return true;
+    return existingBookings.length < maxBookingsPerDay;
   },
 });
 
@@ -125,8 +69,6 @@ export const createBooking = mutation({
     client_phone: v.string(),
     service_type: v.string(),
     booking_date: v.string(),
-    booking_time: v.string(),
-    duration: v.number(),
     address: v.optional(v.string()),
     notes: v.optional(v.string()),
     status: v.optional(v.union(
@@ -153,8 +95,6 @@ export const updateBooking = mutation({
     client_phone: v.optional(v.string()),
     service_type: v.optional(v.string()),
     booking_date: v.optional(v.string()),
-    booking_time: v.optional(v.string()),
-    duration: v.optional(v.number()),
     address: v.optional(v.string()),
     notes: v.optional(v.string()),
     status: v.optional(v.union(
@@ -226,8 +166,6 @@ export const confirmBooking = action({
       clientPhone: booking.client_phone,
       serviceType: booking.service_type,
       date: booking.booking_date,
-      time: booking.booking_time,
-      duration: booking.duration,
       address: booking.address,
       notes: booking.notes,
       bookingId: args.bookingId,

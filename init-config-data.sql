@@ -8,37 +8,28 @@ INSERT INTO site_config (key, value, description, category, is_public) VALUES
     {
       "id": "consultation",
       "name": "Consultation gratuite",
-      "duration": 60,
       "description": "Évaluation gratuite de votre projet de ravalement"
     },
     {
       "id": "devis",
       "name": "Visite pour devis",
-      "duration": 90,
       "description": "Devis personnalisé sur site avec expertise technique"
     },
     {
       "id": "expertise",
       "name": "Expertise technique",
-      "duration": 120,
       "description": "Analyse technique approfondie et diagnostic complet"
     },
     {
       "id": "suivi",
       "name": "Suivi de chantier",
-      "duration": 30,
       "description": "Contrôle qualité et suivi des travaux en cours"
     }
   ],
-  "timeSlots": ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"],
   "workingDays": {"start": 1, "end": 5},
-  "workingHours": {
-    "morning": {"start": "08:00", "end": "12:00"},
-    "afternoon": {"start": "14:00", "end": "18:00"}
-  },
   "maxAdvanceDays": 30,
-  "minAdvanceHours": 24
-}', 'Configuration des réservations et créneaux', 'booking', true)
+  "maxBookingsPerDay": 5
+}', 'Configuration des réservations', 'booking', true)
 ON CONFLICT (key) DO UPDATE SET 
   value = EXCLUDED.value,
   description = EXCLUDED.description,
