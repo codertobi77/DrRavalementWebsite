@@ -1,3 +1,7 @@
+/**
+ * Header optimisé avec cache prioritaire
+ * Version améliorée du Header avec chargement instantané des données
+ */
 
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -5,15 +9,10 @@ import Button from '../base/Button';
 import PriorityContactInfoSection from '../cms/PriorityContactInfoSection';
 import { usePriorityAppearanceConfig } from '../../lib/priority-cache';
 
-export default function Header() {
+export default function PriorityHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const appearanceConfig = usePriorityAppearanceConfig();
-
-  // Données d'apparence avec fallback
-  const siteName = appearanceConfig.data?.siteName || 'DR RAVALEMENT';
-  const tagline = appearanceConfig.data?.tagline || 'Expert Façades & Maçonnerie';
-  const primaryColor = appearanceConfig.data?.primaryColor || '#ea580c';
 
   // Fonction pour déterminer si un lien est actif
   const isActiveLink = (path: string) => {
@@ -22,6 +21,11 @@ export default function Header() {
     }
     return location.pathname.startsWith(path);
   };
+
+  // Données d'apparence avec fallback
+  const siteName = appearanceConfig.data?.siteName || 'DR RAVALEMENT';
+  const tagline = appearanceConfig.data?.tagline || 'Expert Façades & Maçonnerie';
+  const primaryColor = appearanceConfig.data?.primaryColor || '#ea580c';
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50">

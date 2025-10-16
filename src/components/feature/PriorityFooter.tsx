@@ -1,9 +1,14 @@
+/**
+ * Footer optimisé avec cache prioritaire
+ * Version améliorée du Footer avec chargement instantané des données
+ */
 
 import PriorityContactInfoSection from '../cms/PriorityContactInfoSection';
+import PriorityCompanyInfoSection from '../cms/PriorityCompanyInfoSection';
 import PriorityFooterServicesSection from '../cms/PriorityFooterServicesSection';
 import { usePriorityAppearanceConfig, usePriorityZones } from '../../lib/priority-cache';
 
-export default function Footer() {
+export default function PriorityFooter() {
   const appearanceConfig = usePriorityAppearanceConfig();
   const zones = usePriorityZones();
 
