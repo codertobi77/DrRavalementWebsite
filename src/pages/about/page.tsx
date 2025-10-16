@@ -21,7 +21,7 @@ export default function About() {
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                À Propos de <span className="text-orange-400">DR RAVALEMENT</span>
+                À Propos de <span className="text-orange-400 max-sm:text-4xl max-sm:block max-sm:mt-2">DR RAVALEMENT</span>
               </h1>
               <p className="text-large text-orange-100 max-w-3xl mx-auto">
                 Depuis 2008, nous sommes votre partenaire de confiance pour tous vos travaux de ravalement de façades et de maçonnerie en Seine-et-Marne et Île-de-France.
