@@ -304,4 +304,31 @@ export default defineSchema({
     .index("by_order", ["order_index"])
     .index("by_active", ["is_active"])
     .index("by_before_after", ["is_before_after"]),
+
+  // Table des articles de blog
+  articles: defineTable({
+    title: v.string(),
+    slug: v.string(),
+    excerpt: v.string(),
+    content: v.string(),
+    featured_image: v.string(),
+    meta_title: v.optional(v.string()),
+    meta_description: v.optional(v.string()),
+    category: v.string(),
+    tags: v.array(v.string()),
+    author_id: v.optional(v.id("users")),
+    status: v.union(v.literal("draft"), v.literal("published")),
+    published_at: v.optional(v.string()),
+    read_time: v.number(), // en minutes
+    view_count: v.number(),
+    order_index: v.number(),
+    is_featured: v.boolean(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_status", ["status"])
+    .index("by_category", ["category"])
+    .index("by_author", ["author_id"])
+    .index("by_published_at", ["published_at"])
+    .index("by_featured", ["is_featured"])
+    .index("by_order", ["order_index"]),
 });

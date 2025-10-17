@@ -1,18 +1,20 @@
 import { useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "convex/_generated/api";
 import Header from '../../../components/feature/Header';
 import Footer from '../../../components/feature/Footer';
 import AdminNavigation from '../../../components/admin/AdminNavigation';
 import AdminStats from '../../../components/admin/AdminStats';
 import RecentActivity from '../../../components/admin/RecentActivity';
+import ArticleQuickActions from '../../../components/admin/ArticleQuickActions';
 
 export default function AdminDashboard() {
   // Hooks Convex pour les données
   const bookingStats = useQuery(api.bookings.getBookingStats);
   const allBookings = useQuery(api.bookings.getBookings);
+  const articleStats = useQuery(api.articles.getArticleStats);
 
   // Loading state
-  const isLoading = bookingStats === undefined || allBookings === undefined;
+  const isLoading = bookingStats === undefined || allBookings === undefined || articleStats === undefined;
 
   if (isLoading) {
     return (
@@ -84,6 +86,9 @@ export default function AdminDashboard() {
 
             {/* Sidebar */}
             <div className="space-y-8">
+              {/* Articles & Blog */}
+              <ArticleQuickActions />
+
               {/* Activité récente */}
               <RecentActivity />
 

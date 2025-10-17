@@ -78,8 +78,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src')
-    }
+      '@': resolve(__dirname, './src'),
+      'convex/_generated': resolve(__dirname, './convex/_generated')
+    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
   },
   optimizeDeps: {
     include: ['googleapis']

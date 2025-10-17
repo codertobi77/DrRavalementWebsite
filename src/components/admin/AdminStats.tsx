@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api } from "convex/_generated/api";
 
 interface StatCardProps {
   title: string;
@@ -56,6 +56,7 @@ function StatCard({ title, value, change, icon, color, loading = false }: StatCa
 export default function AdminStats() {
   const bookingStats = useQuery(api.bookings.getBookingStats);
   const allBookings = useQuery(api.bookings.getBookings);
+  const articleStats = useQuery(api.articles.getArticleStats);
 
   // Calculer les statistiques dérivées
   const totalBookings = bookingStats?.total || 0;
@@ -89,14 +90,26 @@ export default function AdminStats() {
       color: 'bg-green-500'
     },
     {
-      title: 'Cette semaine',
-      value: thisWeekBookings,
-      icon: 'ri-calendar-week-line',
+      title: 'Articles publiés',
+      value: articleStats?.published || 0,
+      icon: 'ri-article-line',
+      color: 'bg-orange-500'
+    },
+    {
+      title: 'Brouillons',
+      value: articleStats?.draft || 0,
+      icon: 'ri-draft-line',
+      color: 'bg-gray-500'
+    },
+    {
+      title: 'Vues totales',
+      value: articleStats?.totalViews || 0,
+      icon: 'ri-eye-line',
       color: 'bg-purple-500'
     }
   ];
 
-  const isLoading = bookingStats === undefined || allBookings === undefined;
+  const isLoading = bookingStats === undefined || allBookings === undefined || articleStats === undefined;
 
   return (
     <div className="space-y-6">
@@ -123,6 +136,54 @@ export default function AdminStats() {
           />
         ))}
       </div>
+
+      {/* Section Articles - Lien rapide */}
+      {!isLoading && articleStats && articleStats.total > 0 && (
+        <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-orange-900 mb-2">
+                Gestion des Articles
+              </h3>
+              <p className="text-orange-700 text-sm mb-4">
+                Gérez votre contenu blog et vos articles publiés
+              </p>
+              <div className="flex items-center space-x-4 text-sm text-orange-600">
+                <span className="flex items-center">
+                  <i className="ri-article-line mr-1"></i>
+                  {articleStats.published} publiés
+                </span>
+                <span className="flex items-center">
+                  <i className="ri-draft-line mr-1"></i>
+                  {articleStats.draft} brouillons
+                </span>
+                <span className="flex items-center">
+                  <i className="ri-eye-line mr-1"></i>
+                  {articleStats.totalViews} vues
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col space-y-2">
+              <a
+                href="/admin/articles"
+                className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                <i className="ri-edit-line mr-2"></i>
+                Gérer les articles
+              </a>
+              <a
+                href="/blog"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-white text-orange-600 text-sm font-medium rounded-lg border border-orange-300 hover:bg-orange-50 transition-colors"
+              >
+                <i className="ri-external-link-line mr-2"></i>
+                Voir le blog
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Graphique simple des réservations par statut */}
       {!isLoading && totalBookings > 0 && (

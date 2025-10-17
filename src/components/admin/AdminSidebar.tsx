@@ -27,6 +27,13 @@ const sidebarItems: SidebarItem[] = [
     category: 'content'
   },
   {
+    id: 'articles',
+    title: 'Articles',
+    icon: 'ri-article-line',
+    link: '/admin/articles',
+    category: 'content'
+  },
+  {
     id: 'media',
     title: 'Médias',
     icon: 'ri-image-line',

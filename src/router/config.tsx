@@ -25,6 +25,7 @@ const AdminQuotes = lazy(() => import('../pages/admin/quotes/page'));
 const AdminUsers = lazy(() => import('../pages/admin/users/page'));
 const AdminAnalytics = lazy(() => import('../pages/admin/analytics/page'));
 const AdminContent = lazy(() => import('../pages/admin/content/page'));
+const AdminArticles = lazy(() => import('../pages/admin/articles/page'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 
 const routes: RouteObject[] = [
@@ -149,6 +150,14 @@ const routes: RouteObject[] = [
           element: (
             <AdminRouteProtection>
               <AdminContent />
+            </AdminRouteProtection>
+          )
+        },
+        {
+          path: '/admin/articles',
+          element: (
+            <AdminRouteProtection>
+              <AdminArticles />
             </AdminRouteProtection>
           )
         },

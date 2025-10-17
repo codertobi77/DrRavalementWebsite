@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as articles from "../articles.js";
 import type * as auth from "../auth.js";
 import type * as authActions from "../authActions.js";
 import type * as bookings from "../bookings.js";
@@ -34,6 +35,7 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  articles: typeof articles;
   auth: typeof auth;
   authActions: typeof authActions;
   bookings: typeof bookings;

@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import Button from '../base/Button';
 import PriorityContactInfoSection from '../cms/PriorityContactInfoSection';
 import { usePriorityAppearanceConfig } from '../../lib/priority-cache';
 
@@ -56,78 +55,70 @@ export default function Header() {
             </div>
           </a>
 
-          {/* Navigation desktop */}
-          <nav className="hidden xl:flex items-center space-x-6">
-            <a 
-              href="/" 
-              className={`font-medium transition-colors duration-200 text-sm pb-1 ${
-                isActiveLink('/') 
-                  ? 'text-orange-600 border-b-2 border-orange-600' 
-                  : 'text-gray-700 hover:text-orange-600'
-              }`}
-            >
-              Accueil
-            </a>
-            <a 
-              href="/about" 
-              className={`font-medium transition-colors duration-200 text-sm ${
-                isActiveLink('/about') 
-                  ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
-                  : 'text-gray-700 hover:text-orange-600'
-              }`}
-            >
-              À Propos
-            </a>
-            <a 
-              href="/services" 
-              className={`font-medium transition-colors duration-200 text-sm ${
-                isActiveLink('/services') 
-                  ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
-                  : 'text-gray-700 hover:text-orange-600'
-              }`}
-            >
-              Services
-            </a>
-            <a 
-              href="/portfolio" 
-              className={`font-medium transition-colors duration-200 text-sm ${
-                isActiveLink('/portfolio') 
-                  ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
-                  : 'text-gray-700 hover:text-orange-600'
-              }`}
-            >
-              Réalisations
-            </a>
-            <a 
-              href="/blog" 
-              className={`font-medium transition-colors duration-200 text-sm ${
-                isActiveLink('/blog') 
-                  ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
-                  : 'text-gray-700 hover:text-orange-600'
-              }`}
-            >
-              Actualités
-            </a>
-            <a 
-              href="/contact" 
-              className={`font-medium transition-colors duration-200 text-sm ${
-                isActiveLink('/contact') 
-                  ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
-                  : 'text-gray-700 hover:text-orange-600'
-              }`}
-            >
-              Contact
-            </a>
-          </nav>
-
-          {/* CTA Button et Mobile menu button */}
-          <div className="flex items-center space-x-2">
-            {/* CTA Button - visible sur tablette et desktop */}
-            <div className="hidden md:flex items-center">
-              <Button href="/contact" className="text-sm px-4 py-2">
-                Devis Gratuit
-              </Button>
-            </div>
+          {/* Navigation desktop - Positionnée à droite */}
+          <div className="flex items-center">
+            <nav className="hidden xl:flex items-center space-x-6">
+              <a 
+                href="/" 
+                className={`font-medium transition-colors duration-200 text-sm pb-1 ${
+                  isActiveLink('/') 
+                    ? 'text-orange-600 border-b-2 border-orange-600' 
+                    : 'text-gray-700 hover:text-orange-600'
+                }`}
+              >
+                Accueil
+              </a>
+              <a 
+                href="/about" 
+                className={`font-medium transition-colors duration-200 text-sm ${
+                  isActiveLink('/about') 
+                    ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
+                    : 'text-gray-700 hover:text-orange-600'
+                }`}
+              >
+                À Propos
+              </a>
+              <a 
+                href="/services" 
+                className={`font-medium transition-colors duration-200 text-sm ${
+                  isActiveLink('/services') 
+                    ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
+                    : 'text-gray-700 hover:text-orange-600'
+                }`}
+              >
+                Services
+              </a>
+              <a 
+                href="/portfolio" 
+                className={`font-medium transition-colors duration-200 text-sm ${
+                  isActiveLink('/portfolio') 
+                    ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
+                    : 'text-gray-700 hover:text-orange-600'
+                }`}
+              >
+                Réalisations
+              </a>
+              <a 
+                href="/blog" 
+                className={`font-medium transition-colors duration-200 text-sm ${
+                  isActiveLink('/blog') 
+                    ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
+                    : 'text-gray-700 hover:text-orange-600'
+                }`}
+              >
+                Actualités/Blog
+              </a>
+              <a 
+                href="/contact" 
+                className={`font-medium transition-colors duration-200 text-sm ${
+                  isActiveLink('/contact') 
+                    ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
+                    : 'text-gray-700 hover:text-orange-600'
+                }`}
+              >
+                Contact
+              </a>
+            </nav>
 
             {/* Mobile menu button */}
             <button 
@@ -191,7 +182,7 @@ export default function Header() {
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Actualités
+                Actualités/Blog
               </a>
               <a 
                 href="/contact" 
@@ -203,11 +194,6 @@ export default function Header() {
               >
                 Contact
               </a>
-              <div className="pt-3 border-t">
-                <Button href="/contact" className="w-full text-center">
-                  Devis Gratuit
-                </Button>
-              </div>
             </nav>
           </div>
         )}
