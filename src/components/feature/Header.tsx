@@ -99,14 +99,14 @@ export default function Header() {
               Réalisations
             </a>
             <a 
-              href="/booking" 
+              href="/blog" 
               className={`font-medium transition-colors duration-200 text-sm ${
-                isActiveLink('/booking') 
+                isActiveLink('/blog') 
                   ? 'text-orange-600 border-b-2 border-orange-600 pb-1' 
                   : 'text-gray-700 hover:text-orange-600'
               }`}
             >
-              Rendez-vous
+              Actualités
             </a>
             <a 
               href="/contact" 
@@ -184,14 +184,14 @@ export default function Header() {
                 Réalisations
               </a>
               <a 
-                href="/booking" 
+                href="/blog" 
                 className={`font-medium py-2 px-2 rounded-lg ${
-                  isActiveLink('/booking') 
+                  isActiveLink('/blog') 
                     ? 'text-orange-600 bg-orange-50' 
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Rendez-vous
+                Actualités
               </a>
               <a 
                 href="/contact" 
