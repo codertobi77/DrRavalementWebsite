@@ -209,10 +209,10 @@ function BeforeAfterCard({ project }: { project: any }) {
         
         {/* Labels */}
         <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm font-medium">
-          Avant
+          Après
         </div>
         <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm font-medium">
-          Après
+          Avant
         </div>
         
         {/* Badge de catégorie */}
