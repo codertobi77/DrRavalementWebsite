@@ -1223,7 +1223,7 @@ export default function ContentManagement() {
                       {/* Image avant */}
                       <div className="w-1/2 border-r border-white">
                         <ImageWithFallback
-                          src={project.before_image}
+                          src={project.after_image}
                           alt={`${project.title} - Avant`}
                           className="w-full h-full object-cover"
                           fallbackText="Avant"
@@ -1237,7 +1237,7 @@ export default function ContentManagement() {
                       {/* Image après */}
                       <div className="w-1/2">
                         <ImageWithFallback
-                          src={project.after_image}
+                          src={project.before_image}
                           alt={`${project.title} - Après`}
                           className="w-full h-full object-cover"
                           fallbackText="Après"
