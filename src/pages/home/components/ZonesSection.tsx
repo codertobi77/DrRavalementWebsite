@@ -8,7 +8,7 @@ export default function ZonesSectionWrapper() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Zones d'Intervention</h2>
           <p className="text-gray-600 mb-8">
-            DR RAVALEMENT intervient dans toute la Seine-et-Marne et l'Île-de-France
+            DR RAVALEMENT intervient dans toute l'Île-de-France
           </p>
           <ZonesSection />
         </div>
