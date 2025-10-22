@@ -140,10 +140,10 @@ export default function CompanyInfoSection({
       return (
         <div className={className}>
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            À Propos de <span className="text-orange-400">{contactConfig.companyName}</span>
+            Contactez <span className="text-orange-400">{contactConfig.companyName}</span>
           </h1>
           <p className="text-xl text-orange-100 max-w-3xl mx-auto">
-            Depuis 2008, nous sommes votre partenaire de confiance pour tous vos travaux de ravalement de façades et de maçonnerie en {contactConfig.city} et {contactConfig.country}.
+            Notre équipe se tient à votre disposition pour toute demande de devis, d’information ou d’accompagnement sur vos projets.
           </p>
         </div>
       );
