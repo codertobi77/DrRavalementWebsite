@@ -116,14 +116,6 @@ const routes: RouteObject[] = [
           )
         },
         {
-          path: '/admin/analytics',
-          element: (
-            <AdminRouteProtection>
-              <AdminAnalytics />
-            </AdminRouteProtection>
-          )
-        },
-        {
           path: '/admin/content',
           element: (
             <AdminRouteProtection>
