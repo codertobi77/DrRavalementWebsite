@@ -32,7 +32,6 @@ export default function Footer() {
               </div>
               <div>
                 <h3 className="text-lg sm:text-xl font-bold">{siteName}</h3>
-                <p className="text-orange-400 text-caption">{tagline}</p>
               </div>
             </div>
             <div className="flex space-x-4">
