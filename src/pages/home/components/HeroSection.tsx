@@ -14,7 +14,7 @@ export default function HeroSection() {
 
       <div className="relative w-full px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-hero text-white mb-4 sm:mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             DR RAVALEMENT,
             <span className="block bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
               Votre partenaire de confiance

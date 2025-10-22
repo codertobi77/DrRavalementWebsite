@@ -181,7 +181,6 @@ export default function ContactInfoSection({
               <i className="ri-mail-line text-3xl text-orange-600"></i>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Écrivez-nous</h3>
-            <p className="text-lg text-orange-600 font-semibold mb-2">contact@dr-ravalement.fr</p>
               <p className="text-lg text-orange-600 font-semibold mb-2">{contactConfig.email}</p>
             <p className="text-gray-600 mb-4">Réponse sous 24h</p>
             <a 

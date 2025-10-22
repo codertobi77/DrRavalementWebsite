@@ -87,7 +87,7 @@ export default function Contact() {
             <div className="text-center">
               <CompanyInfoSection variant="about" />
               <p className="text-xl text-orange-100 max-w-3xl mx-auto">
-                Devis gratuit sous 24h • Intervention en Seine-et-Marne et Île-de-France
+                Devis gratuit sous 24h • Intervention en Île-de-France
               </p>
             </div>
           </div>
