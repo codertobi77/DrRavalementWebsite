@@ -266,10 +266,10 @@ export default function PortfolioProjectEditModal({
           </label>
           
           {/* Aperçu de l'image avant */}
-          {beforeImagePreview && (
+            {afterImagePreview && (
             <div className="mb-4">
               <img 
-                src={beforeImagePreview} 
+                src={afterImagePreview} 
                 alt="Aperçu avant" 
                 className="w-32 h-24 object-cover rounded-lg border"
               />
@@ -279,77 +279,15 @@ export default function PortfolioProjectEditModal({
           {/* URL de l'image avant */}
           <input
             type="url"
-            value={formData.before_image}
+            value={formData.after_image}
             onChange={(e) => handleBeforeImageUrlChange(e.target.value)}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 mb-2 ${
-              errors.before_image ? 'border-red-500' : 'border-gray-300'
+              errors.after_image ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="https://example.com/avant.jpg"
           />
 
           {/* Upload de fichier avant */}
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={triggerBeforeFileUpload}
-              disabled={isUploadingBefore}
-              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isUploadingBefore ? (
-                <>
-                  <i className="ri-loader-4-line animate-spin mr-2"></i>
-                  Upload...
-                </>
-              ) : (
-                <>
-                  <i className="ri-upload-line mr-2"></i>
-                  Upload Image Avant
-                </>
-              )}
-            </button>
-            <span className="text-sm text-gray-500">ou entrez une URL</span>
-          </div>
-
-          <input
-            ref={beforeFileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleBeforeFileUpload}
-            className="hidden"
-          />
-
-          {errors.before_image && <p className="text-red-500 text-sm mt-1">{errors.before_image}</p>}
-        </div>
-
-        {/* Image Après */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Image "Après" *
-          </label>
-          
-          {/* Aperçu de l'image après */}
-          {afterImagePreview && (
-            <div className="mb-4">
-              <img 
-                src={afterImagePreview} 
-                alt="Aperçu après" 
-                className="w-32 h-24 object-cover rounded-lg border"
-              />
-            </div>
-          )}
-
-          {/* URL de l'image après */}
-          <input
-            type="url"
-            value={formData.after_image}
-            onChange={(e) => handleAfterImageUrlChange(e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 mb-2 ${
-              errors.after_image ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="https://example.com/apres.jpg"
-          />
-
-          {/* Upload de fichier après */}
           <div className="flex items-center space-x-2">
             <button
               type="button"
@@ -365,7 +303,7 @@ export default function PortfolioProjectEditModal({
               ) : (
                 <>
                   <i className="ri-upload-line mr-2"></i>
-                  Upload Image Après
+                  Upload Image Avant
                 </>
               )}
             </button>
@@ -381,6 +319,68 @@ export default function PortfolioProjectEditModal({
           />
 
           {errors.after_image && <p className="text-red-500 text-sm mt-1">{errors.after_image}</p>}
+        </div>
+
+        {/* Image Après */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Image "Après" *
+          </label>
+          
+          {/* Aperçu de l'image après */}
+          {beforeImagePreview && (
+            <div className="mb-4">
+              <img 
+                src={beforeImagePreview} 
+                alt="Aperçu après" 
+                className="w-32 h-24 object-cover rounded-lg border"
+              />
+            </div>
+          )}
+
+          {/* URL de l'image après */}
+          <input
+            type="url"
+            value={formData.before_image}
+            onChange={(e) => handleAfterImageUrlChange(e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 mb-2 ${
+              errors.before_image ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="https://example.com/apres.jpg"
+          />
+
+          {/* Upload de fichier après */}
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={triggerBeforeFileUpload}
+              disabled={isUploadingBefore}
+              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUploadingBefore ? (
+                <>
+                  <i className="ri-loader-4-line animate-spin mr-2"></i>
+                  Upload...
+                </>
+              ) : (
+                <>
+                  <i className="ri-upload-line mr-2"></i>
+                  Upload Image Après
+                </>
+              )}
+            </button>
+            <span className="text-sm text-gray-500">ou entrez une URL</span>
+          </div>
+
+          <input
+            ref={beforeFileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleBeforeFileUpload}
+            className="hidden"
+          />
+
+          {errors.before_image && <p className="text-red-500 text-sm mt-1">{errors.before_image}</p>}
         </div>
 
         <div>
