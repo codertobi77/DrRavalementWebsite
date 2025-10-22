@@ -3,6 +3,7 @@ import { ConvexProvider } from 'convex/react'
 import { convex } from './lib/convex'
 import { AuthProvider } from './lib/auth-context'
 import { CmsCacheProvider } from './contexts/CmsCacheContext'
+import { ToastProvider } from './contexts/ToastContext'
 import { AppRoutes } from './router'
 import { Analytics } from '@vercel/analytics/react'
 
@@ -12,9 +13,11 @@ function App() {
     <ConvexProvider client={convex}>
       <AuthProvider>
         <CmsCacheProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <ToastProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </ToastProvider>
         </CmsCacheProvider>
       </AuthProvider>
       <Analytics />

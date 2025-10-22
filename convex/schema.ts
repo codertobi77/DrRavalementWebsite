@@ -122,6 +122,8 @@ export default defineSchema({
       v.literal("expired")
     ),
     valid_until: v.string(),
+    created_at: v.optional(v.string()),
+    updated_at: v.optional(v.string()),
     items: v.optional(v.array(v.object({
       id: v.string(),
       description: v.string(),

@@ -72,9 +72,12 @@ export const createQuote = mutation({
     }))),
   },
   handler: async (ctx, args) => {
+    const now = new Date().toISOString();
     return await ctx.db.insert("quotes", {
       ...args,
       status: args.status || "draft",
+      created_at: now,
+      updated_at: now,
     });
   },
 });
@@ -108,7 +111,11 @@ export const updateQuote = mutation({
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
-    return await ctx.db.patch(id, updates);
+    const now = new Date().toISOString();
+    return await ctx.db.patch(id, {
+      ...updates,
+      updated_at: now,
+    });
   },
 });
 

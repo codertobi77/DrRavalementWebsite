@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../../../components/feature/Header';
-import Footer from '../../../components/feature/Footer';
+import AdminLayout from '../../../components/admin/AdminLayout';
 import Button from '../../../components/base/Button';
+import ConfirmationModal from '../../../components/base/ConfirmationModal';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import type { BookingConfig, ContactConfig, EmailConfig } from '../../../lib/site-config-convex';
+import type { ContactConfig, EmailConfig } from '../../../lib/site-config-convex';
+import { useToast } from '../../../contexts/ToastContext';
+import { useConfirmation } from '../../../hooks/useConfirmation';
 
 interface ConfigSection {
   id: string;
@@ -16,25 +17,20 @@ interface ConfigSection {
 }
 
 export default function ConfigManagement() {
-  const [activeSection, setActiveSection] = useState<string>('booking');
+  const [activeSection, setActiveSection] = useState<string>('contact');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+
+  // Hooks pour les toasters et confirmations
+  const { showSuccess, showError } = useToast();
+  const { isOpen, isLoading, options, handleConfirm, handleCancel } = useConfirmation();
 
   // États pour chaque configuration
-  const [bookingConfig, setBookingConfig] = useState<BookingConfig | null>(null);
   const [contactConfig, setContactConfig] = useState<ContactConfig | null>(null);
   const [emailConfig, setEmailConfig] = useState<EmailConfig | null>(null);
 
   const configSections: ConfigSection[] = [
-    {
-      id: 'booking',
-      title: 'Réservations',
-      description: 'Services, créneaux et horaires de travail',
-      icon: 'ri-calendar-line',
-      color: 'bg-blue-500'
-    },
+
     {
       id: 'contact',
       title: 'Contact',
@@ -58,46 +54,30 @@ export default function ConfigManagement() {
     }
   ];
 
-
   // Hooks Convex pour charger les configurations
-  const bookingConfigData = useQuery(api.siteConfig.getConfigByKey, { key: "booking_config" });
   const contactConfigData = useQuery(api.siteConfig.getConfigByKey, { key: "contact_config" });
   const emailConfigData = useQuery(api.siteConfig.getConfigByKey, { key: "email_config" });
 
   // Mutations pour sauvegarder
-  const updateBookingConfig = useMutation(api.siteConfig.setConfig);
   const updateContactConfig = useMutation(api.siteConfig.setConfig);
   const updateEmailConfig = useMutation(api.siteConfig.setConfig);
 
   // Effet pour charger les configurations
   useEffect(() => {
-    if (bookingConfigData !== undefined && contactConfigData !== undefined && emailConfigData !== undefined) {
-      setBookingConfig(bookingConfigData as BookingConfig);
+    if (contactConfigData !== undefined && emailConfigData !== undefined) {
       setContactConfig(contactConfigData as ContactConfig);
       setEmailConfig(emailConfigData as EmailConfig);
       setLoading(false);
     }
-  }, [bookingConfigData, contactConfigData, emailConfigData]);
+  }, [contactConfigData, emailConfigData]);
 
   const handleSave = async () => {
     try {
       setSaving(true);
-      setError(null);
-      setSuccess(null);
 
       // Sauvegarder la configuration active
       switch (activeSection) {
-        case 'booking':
-          if (bookingConfig) {
-            await updateBookingConfig({ 
-              key: 'booking_config', 
-              value: bookingConfig,
-              description: 'Configuration des réservations et créneaux',
-              category: 'booking',
-              is_public: true
-            });
-          }
-          break;
+        
         case 'contact':
           if (contactConfig) {
             await updateContactConfig({ 
@@ -122,361 +102,144 @@ export default function ConfigManagement() {
           break;
       }
 
-      setSuccess('Configuration sauvegardée avec succès !');
+      showSuccess('Configuration sauvegardée', 'Les paramètres ont été sauvegardés avec succès.');
     } catch (error) {
       console.error('Error saving configuration:', error);
-      setError('Erreur lors de la sauvegarde');
+      showError('Erreur de sauvegarde', 'Impossible de sauvegarder la configuration.');
     } finally {
       setSaving(false);
     }
   };
 
-  const addService = () => {
-    if (!bookingConfig) return;
-    
-    const newService = {
-      id: `service_${Date.now()}`,
-      name: 'Nouveau service',
-      duration: 60,
-      description: 'Description du service'
-    };
-    
-    setBookingConfig({
-      ...bookingConfig,
-      services: [...bookingConfig.services, newService]
-    });
-  };
+  
 
-  const removeService = (index: number) => {
-    if (!bookingConfig) return;
-    
-    setBookingConfig({
-      ...bookingConfig,
-      services: bookingConfig.services.filter((_, i) => i !== index)
-    });
-  };
-
-  const updateService = (index: number, field: string, value: any) => {
-    if (!bookingConfig) return;
-    
-    const updatedServices = [...bookingConfig.services];
-    updatedServices[index] = { ...updatedServices[index], [field]: value };
-    
-    setBookingConfig({
-      ...bookingConfig,
-      services: updatedServices
-    });
-  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-6xl mx-auto">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-300 rounded w-1/4 mb-8"></div>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-1">
-                  <div className="space-y-2">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="h-16 bg-gray-300 rounded"></div>
-                    ))}
-                  </div>
-                </div>
-                <div className="lg:col-span-3">
-                  <div className="h-96 bg-gray-300 rounded"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
         </div>
-        <Footer />
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          {/* En-tête */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Configuration du site
-                </h1>
-                <p className="text-gray-600">
-                  Modifiez les paramètres et le contenu de votre site web
-                </p>
-              </div>
-              <Link
-                to="/admin"
-                className="flex items-center text-gray-600 hover:text-orange-600 transition-colors"
-              >
-                <i className="ri-arrow-left-line mr-2"></i>
-                Retour au tableau de bord
-              </Link>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* En-tête */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Configuration du Site</h1>
+            <p className="text-gray-600 mt-2">Modifiez les paramètres et le contenu de votre site web</p>
+          </div>
+          <div className="flex space-x-3 mt-4 sm:mt-0">
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+            </Button>
+          </div>
+        </div>
+
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Menu latéral */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Sections
+              </h3>
+              <nav className="space-y-2">
+                {configSections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`w-full flex items-center p-3 rounded-lg text-left transition-colors ${
+                      activeSection === section.id
+                        ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className={`p-2 ${section.color} rounded-lg mr-3`}>
+                      <i className={`${section.icon} text-white text-sm`}></i>
+                    </div>
+                    <div>
+                      <div className="font-medium">{section.title}</div>
+                      <div className="text-xs text-gray-500">{section.description}</div>
+                    </div>
+                  </button>
+                ))}
+              </nav>
             </div>
           </div>
 
-          {/* Messages */}
-          {error && (
-            <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-              <div className="flex items-center">
-                <i className="ri-error-warning-line mr-2"></i>
-                {error}
-              </div>
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
-              <div className="flex items-center">
-                <i className="ri-check-circle-line mr-2"></i>
-                {success}
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Menu latéral */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Sections
-                </h3>
-                <nav className="space-y-2">
-                  {configSections.map((section) => (
-                    <button
-                      key={section.id}
-                      onClick={() => setActiveSection(section.id)}
-                      className={`w-full flex items-center p-3 rounded-lg text-left transition-colors ${
-                        activeSection === section.id
-                          ? 'bg-orange-100 text-orange-700 border border-orange-200'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className={`p-2 ${section.color} rounded-lg mr-3`}>
-                        <i className={`${section.icon} text-white text-sm`}></i>
-                      </div>
-                      <div>
-                        <div className="font-medium">{section.title}</div>
-                        <div className="text-xs text-gray-500">{section.description}</div>
-                      </div>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </div>
-
-            {/* Contenu principal */}
-            <div className="lg:col-span-3">
-              <div className="bg-white rounded-lg shadow">
-                {/* En-tête de la section */}
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className={`p-2 ${configSections.find(s => s.id === activeSection)?.color} rounded-lg mr-3`}>
-                        <i className={`${configSections.find(s => s.id === activeSection)?.icon} text-white`}></i>
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-semibold text-gray-900">
-                          {configSections.find(s => s.id === activeSection)?.title}
-                        </h2>
-                        <p className="text-gray-600">
-                          {configSections.find(s => s.id === activeSection)?.description}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={handleSave}
-                      disabled={saving}
-                      className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
-                    >
-                      {saving ? 'Sauvegarde...' : 'Sauvegarder'}
-                    </Button>
+          {/* Contenu principal */}
+          <div className="lg:col-span-3">
+            <div className="bg-white rounded-lg shadow">
+              {/* En-tête de la section */}
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center">
+                  <div className={`p-2 ${configSections.find(s => s.id === activeSection)?.color} rounded-lg mr-3`}>
+                    <i className={`${configSections.find(s => s.id === activeSection)?.icon} text-white`}></i>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      {configSections.find(s => s.id === activeSection)?.title}
+                    </h2>
+                    <p className="text-gray-600">
+                      {configSections.find(s => s.id === activeSection)?.description}
+                    </p>
                   </div>
                 </div>
-
-                {/* Contenu de la section */}
-                <div className="p-6">
-                  {activeSection === 'booking' && bookingConfig && (
-                    <BookingConfigForm 
-                      config={bookingConfig} 
-                      onChange={setBookingConfig}
-                      onAddService={addService}
-                      onRemoveService={removeService}
-                      onUpdateService={updateService}
-                    />
-                  )}
-
-                  {activeSection === 'contact' && contactConfig && (
-                    <ContactConfigForm 
-                      config={contactConfig} 
-                      onChange={setContactConfig}
-                    />
-                  )}
-
-                  {activeSection === 'email' && emailConfig && (
-                    <EmailConfigForm 
-                      config={emailConfig} 
-                      onChange={setEmailConfig}
-                    />
-                  )}
-
-                  {activeSection === 'appearance' && (
-                    <AppearanceConfigForm />
-                  )}
-                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <Footer />
-    </div>
-  );
-}
 
-// Composant pour la configuration des réservations
-function BookingConfigForm({ 
-  config, 
-  onChange, 
-  onAddService, 
-  onRemoveService, 
-  onUpdateService 
-}: {
-  config: BookingConfig;
-  onChange: (config: BookingConfig) => void;
-  onAddService: () => void;
-  onRemoveService: (index: number) => void;
-  onUpdateService: (index: number, field: string, value: any) => void;
-}) {
-  return (
-    <div className="space-y-6">
-      {/* Services */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Services proposés</h3>
-          <Button
-            onClick={onAddService}
-            className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <i className="ri-add-line mr-2"></i>
-            Ajouter un service
-          </Button>
-        </div>
-        
-        <div className="space-y-4">
-          {config.services.map((service, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nom du service
-                  </label>
-                  <input
-                    type="text"
-                    value={service.name}
-                    onChange={(e) => onUpdateService(index, 'name', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              {/* Contenu de la section */}
+              <div className="p-6">
+                
+
+                {activeSection === 'contact' && contactConfig && (
+                  <ContactConfigForm 
+                    config={contactConfig} 
+                    onChange={setContactConfig}
                   />
-                </div>
-                <div className="flex items-end">
-                  <Button
-                    onClick={() => onRemoveService(index)}
-                    className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    <i className="ri-delete-bin-line"></i>
-                  </Button>
-                </div>
-              </div>
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  value={service.description || ''}
-                  onChange={(e) => onUpdateService(index, 'description', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Description du service"
-                />
+                )}
+
+                {activeSection === 'email' && emailConfig && (
+                  <EmailConfigForm 
+                    config={emailConfig} 
+                    onChange={setEmailConfig}
+                  />
+                )}
+
+                {activeSection === 'appearance' && (
+                  <AppearanceConfigForm />
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Limite de réservations par jour */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Limite de réservations</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre maximum de réservations par jour
-            </label>
-            <input
-              type="number"
-              value={config.maxBookingsPerDay || 5}
-              onChange={(e) => onChange({ ...config, maxBookingsPerDay: parseInt(e.target.value) || 5 })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              min="1"
-              max="20"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Nombre maximum de réservations acceptées par jour
-            </p>
           </div>
         </div>
       </div>
 
-      {/* Jours de travail */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Jours de travail</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Jour de début (0=Dimanche, 1=Lundi...)
-            </label>
-            <input
-              type="number"
-              min="0"
-              max="6"
-              value={config.workingDays.start}
-              onChange={(e) => onChange({
-                ...config,
-                workingDays: { ...config.workingDays, start: parseInt(e.target.value) }
-              })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Jour de fin
-            </label>
-            <input
-              type="number"
-              min="0"
-              max="6"
-              value={config.workingDays.end}
-              onChange={(e) => onChange({
-                ...config,
-                workingDays: { ...config.workingDays, end: parseInt(e.target.value) }
-              })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* Modal de confirmation */}
+      <ConfirmationModal
+        isOpen={isOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={options?.title || ''}
+        message={options?.message || ''}
+        confirmText={options?.confirmText}
+        cancelText={options?.cancelText}
+        type={options?.type}
+        isLoading={isLoading}
+      />
+    </AdminLayout>
   );
 }
+
+
 
 // Composant pour la configuration des contacts
 function ContactConfigForm({ config, onChange }: { config: ContactConfig; onChange: (config: ContactConfig) => void }) {
@@ -605,18 +368,7 @@ function ContactConfigForm({ config, onChange }: { config: ContactConfig; onChan
               placeholder="Ex: 4391A"
             />
           </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Numéro de TVA intracommunautaire
-            </label>
-            <input
-              type="text"
-              value={config.vatNumber || ''}
-              onChange={(e) => onChange({ ...config, vatNumber: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="Ex: FR12345678901"
-            />
-          </div>
+          
         </div>
       </div>
     </div>
@@ -628,17 +380,6 @@ function EmailConfigForm({ config, onChange }: { config: EmailConfig; onChange: 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email du propriétaire
-          </label>
-          <input
-            type="email"
-            value={config.ownerEmail}
-            onChange={(e) => onChange({ ...config, ownerEmail: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Nom d'expéditeur

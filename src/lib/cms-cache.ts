@@ -22,7 +22,7 @@ export interface CacheConfig {
 }
 
 // Configuration par défaut optimisée pour zones à faible couverture
-const DEFAULT_CONFIG: CacheConfig = {
+export const DEFAULT_CONFIG: CacheConfig = {
   ttl: 30 * 60 * 1000, // 30 minutes (augmenté pour zones à faible couverture)
   maxSize: 200, // Augmenté pour stocker plus de données
   version: '1.0.0'
@@ -48,7 +48,20 @@ export const CMS_CACHE_KEYS = {
   CERTIFICATIONS: 'cms_certifications',
   PROCESS_STEPS: 'cms_process_steps',
   PROJECT_FILTERS: 'cms_project_filters',
-  PORTFOLIO_PROJECTS: 'cms_portfolio_projects'
+  PORTFOLIO_PROJECTS: 'cms_portfolio_projects',
+  // Clés de cache pour les données admin
+  ADMIN_ARTICLES: 'admin_articles',
+  ADMIN_ARTICLE_STATS: 'admin_article_stats',
+  ADMIN_ARTICLE_CATEGORIES: 'admin_article_categories',
+  ADMIN_PROJECTS: 'admin_projects',
+  ADMIN_PROJECTS_BY_STATUS: 'admin_projects_by_status',
+  ADMIN_BOOKINGS: 'admin_bookings',
+  ADMIN_BOOKINGS_BY_STATUS: 'admin_bookings_by_status',
+  ADMIN_BOOKING_STATS: 'admin_booking_stats',
+  ADMIN_USERS: 'admin_users',
+  ADMIN_USERS_BY_ROLE: 'admin_users_by_role',
+  ADMIN_USERS_BY_STATUS: 'admin_users_by_status',
+  ADMIN_DASHBOARD_STATS: 'admin_dashboard_stats'
 } as const;
 
 // Gestionnaire de cache localStorage
@@ -404,6 +417,117 @@ export function useCacheRefreshListener() {
   }, []);
 
   return refreshTrigger;
+}
+
+// Hooks spécialisés pour les données admin avec cache
+export function useCachedAdminArticles() {
+  const convexData = useQuery(api.articles.getArticles, {
+    status: undefined,
+    category: undefined,
+  });
+  return useCachedCmsData('ADMIN_ARTICLES', () => convexData, {
+    ttl: 2 * 60 * 1000 // 2 minutes pour les articles admin (changent souvent)
+  });
+}
+
+export function useCachedAdminArticleStats() {
+  const convexData = useQuery(api.articles.getArticleStats);
+  return useCachedCmsData('ADMIN_ARTICLE_STATS', () => convexData, {
+    ttl: 5 * 60 * 1000 // 5 minutes pour les statistiques d'articles
+  });
+}
+
+export function useCachedAdminArticleCategories() {
+  const convexData = useQuery(api.articles.getArticleCategories);
+  return useCachedCmsData('ADMIN_ARTICLE_CATEGORIES', () => convexData, {
+    ttl: 30 * 60 * 1000 // 30 minutes pour les catégories (changent rarement)
+  });
+}
+
+export function useCachedAdminProjects() {
+  const convexData = useQuery(api.projects.getAllProjects);
+  return useCachedCmsData('ADMIN_PROJECTS', () => convexData, {
+    ttl: 3 * 60 * 1000 // 3 minutes pour les projets admin
+  });
+}
+
+export function useCachedAdminProjectsByStatus(status: string) {
+  const convexData = useQuery(
+    api.projects.getProjectsByStatus,
+    status !== 'all' ? { status } : "skip"
+  );
+  return useCachedCmsData('ADMIN_PROJECTS_BY_STATUS', () => convexData, {
+    ttl: 2 * 60 * 1000 // 2 minutes pour les projets filtrés
+  });
+}
+
+export function useCachedAdminBookings() {
+  const convexData = useQuery(api.bookings.getBookings);
+  return useCachedCmsData('ADMIN_BOOKINGS', () => convexData, {
+    ttl: 2 * 60 * 1000 // 2 minutes pour les réservations admin
+  });
+}
+
+export function useCachedAdminBookingsByStatus(status: string) {
+  const convexData = useQuery(
+    api.bookings.getBookingsByStatus,
+    status !== 'all' ? { status } : "skip"
+  );
+  return useCachedCmsData('ADMIN_BOOKINGS_BY_STATUS', () => convexData, {
+    ttl: 1 * 60 * 1000 // 1 minute pour les réservations filtrées
+  });
+}
+
+export function useCachedAdminBookingStats() {
+  const convexData = useQuery(api.bookings.getBookingStats);
+  return useCachedCmsData('ADMIN_BOOKING_STATS', () => convexData, {
+    ttl: 5 * 60 * 1000 // 5 minutes pour les statistiques de réservations
+  });
+}
+
+export function useCachedAdminUsers() {
+  const convexData = useQuery(api.users.getAllUsers);
+  return useCachedCmsData('ADMIN_USERS', () => convexData, {
+    ttl: 10 * 60 * 1000 // 10 minutes pour les utilisateurs (changent rarement)
+  });
+}
+
+export function useCachedAdminUsersByRole(role: string) {
+  const convexData = useQuery(
+    api.users.getUsersByRole,
+    role !== 'all' ? { role } : "skip"
+  );
+  return useCachedCmsData('ADMIN_USERS_BY_ROLE', () => convexData, {
+    ttl: 5 * 60 * 1000 // 5 minutes pour les utilisateurs filtrés par rôle
+  });
+}
+
+export function useCachedAdminUsersByStatus(status: string) {
+  const convexData = useQuery(
+    api.users.getUsersByStatus,
+    status !== 'all' ? { status } : "skip"
+  );
+  return useCachedCmsData('ADMIN_USERS_BY_STATUS', () => convexData, {
+    ttl: 5 * 60 * 1000 // 5 minutes pour les utilisateurs filtrés par statut
+  });
+}
+
+export function useCachedAdminDashboardStats() {
+  const bookingStats = useQuery(api.bookings.getBookingStats);
+  const articleStats = useQuery(api.articles.getArticleStats);
+  
+  const combinedStats = useMemo(() => {
+    if (!bookingStats || !articleStats) return null;
+    return {
+      bookings: bookingStats,
+      articles: articleStats,
+      timestamp: Date.now()
+    };
+  }, [bookingStats, articleStats]);
+
+  return useCachedCmsData('ADMIN_DASHBOARD_STATS', () => combinedStats, {
+    ttl: 3 * 60 * 1000 // 3 minutes pour les statistiques du dashboard
+  });
 }
 
 export default cache;

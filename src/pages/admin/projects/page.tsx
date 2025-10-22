@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import Header from '../../../components/feature/Header';
-import Footer from '../../../components/feature/Footer';
+import AdminLayout from '../../../components/admin/AdminLayout';
 import Button from '../../../components/base/Button';
+import ConfirmationModal from '../../../components/base/ConfirmationModal';
+import { useOptimizedAdminProjects, useOptimizedAdminProjectsByStatus } from '../../../hooks/useOptimizedCmsData';
+import { useToast } from '../../../contexts/ToastContext';
+import { useConfirmation } from '../../../hooks/useConfirmation';
 
 interface Project {
   _id: string;
@@ -25,13 +27,15 @@ export default function ProjectManagement() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'planning' | 'in-progress' | 'completed' | 'on-hold'>('all');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Hooks Convex
-  const allProjects = useQuery(api.projects.getAllProjects);
-  const projectsByStatus = useQuery(
-    api.projects.getProjectsByStatus,
-    filter !== 'all' ? { status: filter } : "skip"
-  );
+  // Hooks pour les toasters et confirmations
+  const { showSuccess, showError, showWarning } = useToast();
+  const { isOpen, isLoading, options, confirm, handleConfirm, handleCancel } = useConfirmation();
+
+  // Utiliser les hooks optimisés avec cache
+  const { data: allProjects, isLoading: allProjectsLoading, refresh: refreshAllProjects } = useOptimizedAdminProjects();
+  const { data: projectsByStatus, isLoading: projectsByStatusLoading, refresh: refreshProjectsByStatus } = useOptimizedAdminProjectsByStatus(filter);
 
   // Mutations
   const createProject = useMutation(api.projects.createProject);
@@ -40,39 +44,64 @@ export default function ProjectManagement() {
 
   // Utiliser les données filtrées ou tous les projets
   const projects = filter === 'all' ? allProjects : projectsByStatus;
-  const loading = projects === undefined;
+  const loading = filter === 'all' ? allProjectsLoading : projectsByStatusLoading;
 
+  // Filtrer les projets par terme de recherche
+  const filteredProjects = projects?.filter(project => {
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.client_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.client_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.address.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesSearch;
+  }) || [];
   const updateProjectStatus = async (projectId: string, status: Project['status']) => {
     try {
       await updateProject({ id: projectId as any, status });
       setSelectedProject(null);
+      refreshAllProjects();
+      refreshProjectsByStatus();
+      showSuccess('Statut mis à jour', 'Le statut du projet a été modifié avec succès.');
     } catch (error) {
       console.error('Error updating project status:', error);
-      setError('Erreur lors de la mise à jour du statut');
+      showError('Erreur de mise à jour', 'Impossible de modifier le statut du projet.');
     }
   };
 
   const updateProjectProgress = async (projectId: string, progress: number) => {
     try {
       await updateProject({ id: projectId as any, progress });
+      refreshAllProjects();
+      refreshProjectsByStatus();
+      showSuccess('Progrès mis à jour', `Le progrès du projet a été mis à jour à ${progress}%.`);
     } catch (error) {
       console.error('Error updating project progress:', error);
-      setError('Erreur lors de la mise à jour du progrès');
+      showError('Erreur de mise à jour', 'Impossible de modifier le progrès du projet.');
     }
   };
 
   const deleteProjectHandler = async (projectId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
-      return;
-    }
-
-    try {
-      await deleteProject({ id: projectId as any });
-      setSelectedProject(null);
-    } catch (error) {
-      console.error('Error deleting project:', error);
-      setError('Erreur lors de la suppression');
-    }
+    const project = projects?.find(p => p._id === projectId);
+    confirm({
+      title: 'Supprimer le projet',
+      message: `Êtes-vous sûr de vouloir supprimer le projet "${project?.title}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteProject({ id: projectId as any });
+          setSelectedProject(null);
+          refreshAllProjects();
+          refreshProjectsByStatus();
+          showSuccess('Projet supprimé', 'Le projet a été supprimé avec succès.');
+        } catch (error) {
+          console.error('Error deleting project:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer le projet.');
+        }
+      },
+    });
   };
 
   const getStatusColor = (status: Project['status']) => {
@@ -97,189 +126,195 @@ export default function ProjectManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-6xl mx-auto">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-300 rounded w-1/4 mb-8"></div>
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-20 bg-gray-300 rounded"></div>
-                ))}
-              </div>
-            </div>
-          </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
         </div>
-        <Footer />
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-8">Gestion des Projets</h1>
-
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
-              <strong className="font-bold">Erreur:</strong>
-              <span className="block sm:inline"> {error}</span>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex justify-between items-center mb-8">
-            <div className="flex space-x-4">
-              <Button
-                onClick={() => console.log('Nouveau projet')}
-                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
-              >
-                <i className="ri-add-line mr-2"></i>
-                Nouveau projet
-              </Button>
-              <Button
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                <i className="ri-download-line mr-2"></i>
-                Exporter
-              </Button>
-            </div>
-
-            {/* Filtres */}
-            <div className="flex space-x-2">
-              {[
-                { key: 'all', label: 'Tous', count: allProjects?.length || 0 },
-                { key: 'planning', label: 'Planification', count: projectsByStatus?.length || 0 },
-                { key: 'in-progress', label: 'En cours', count: projectsByStatus?.length || 0 },
-                { key: 'completed', label: 'Terminés', count: projectsByStatus?.length || 0 },
-                { key: 'on-hold', label: 'En attente', count: projectsByStatus?.length || 0 }
-              ].map(({ key, label, count }) => (
-                <button
-                  key={key}
-                  onClick={() => setFilter(key as any)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    filter === key
-                      ? 'bg-orange-100 text-orange-700 border border-orange-200'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {label} ({count})
-                </button>
-              ))}
-            </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* En-tête */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Gestion des Projets</h1>
+            <p className="text-gray-600 mt-2">Créez et gérez vos projets de rénovation</p>
           </div>
-
-          {/* Liste des projets */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Projet
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Client
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Statut
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Progrès
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Budget
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Dates
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {projects?.map((project) => (
-                    <tr key={project._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {project.title}
-                          </div>
-                          <div className="text-sm text-gray-500 truncate max-w-xs">
-                            {project.description}
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            {project.address}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{project.client_name || 'N/A'}</div>
-                        <div className="text-sm text-gray-500">{project.client_email || 'N/A'}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(project.status)}`}>
-                          {getStatusLabel(project.status)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
-                            <div
-                              className="bg-orange-600 h-2 rounded-full"
-                              style={{ width: `${project.progress}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-gray-600">{project.progress}%</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {project.budget.toLocaleString()} €
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div>{project.start_date}</div>
-                        <div>→ {project.end_date}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end items-center space-x-2">
-                          <button
-                            onClick={() => setSelectedProject(project)}
-                            className="text-orange-600 hover:text-orange-900"
-                          >
-                            <i className="ri-eye-line"></i>
-                          </button>
-                          <button
-                            onClick={() => console.log('Modifier', project._id)}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            <i className="ri-edit-line"></i>
-                          </button>
-                          <button
-                            onClick={() => deleteProjectHandler(project._id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <i className="ri-delete-bin-line"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {projects?.length === 0 && (
-              <div className="text-center py-12 text-gray-500">
-                Aucun projet trouvé pour le statut "{filter === 'all' ? 'tous' : getStatusLabel(filter)}".
-              </div>
-            )}
+          <div className="flex space-x-3 mt-4 sm:mt-0">
+            <Button
+              onClick={() => {
+                refreshAllProjects();
+                refreshProjectsByStatus();
+              }}
+              className="bg-gray-600 text-white hover:bg-gray-700"
+            >
+              <i className="ri-refresh-line mr-2"></i>
+              Rafraîchir
+            </Button>
+            <Button
+              onClick={() => console.log('Nouveau projet')}
+            >
+              <i className="ri-add-line mr-2"></i>
+              Nouveau Projet
+            </Button>
           </div>
         </div>
+
+        {/* Messages d'erreur */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <div className="flex items-center">
+              <i className="ri-error-warning-line mr-2"></i>
+              {error}
+            </div>
+          </div>
+        )}
+
+        {/* Filtres et recherche */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rechercher
+              </label>
+              <input
+                type="text"
+                placeholder="Titre, description, client, adresse..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Statut
+              </label>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as any)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="all">Tous les statuts</option>
+                <option value="planning">Planification</option>
+                <option value="in-progress">En cours</option>
+                <option value="completed">Terminés</option>
+                <option value="on-hold">En attente</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Liste des projets */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">
+              Projets ({filteredProjects.length})
+            </h3>
+          </div>
+
+          {filteredProjects.length === 0 ? (
+            <div className="text-center py-12">
+              <i className="ri-folder-line text-6xl text-gray-300 mb-4"></i>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun projet trouvé</h3>
+              <p className="text-gray-600 mb-6">
+                {searchTerm || filter !== 'all'
+                  ? 'Aucun projet ne correspond à vos critères de recherche.'
+                  : 'Commencez par créer votre premier projet.'}
+              </p>
+              <Button onClick={() => console.log('Nouveau projet')}>
+                <i className="ri-add-line mr-2"></i>
+                Créer un Projet
+              </Button>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {filteredProjects.map((project) => (
+                <div key={project._id} className="p-6 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <h4 className="text-lg font-medium text-gray-900 truncate">
+                          {project.title}
+                        </h4>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+                          {getStatusLabel(project.status)}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        {project.description}
+                      </p>
+
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span className="flex items-center">
+                          <i className="ri-user-line mr-1"></i>
+                          {project.client_name || 'Client non défini'}
+                        </span>
+                        <span className="flex items-center">
+                          <i className="ri-map-pin-line mr-1"></i>
+                          {project.address}
+                        </span>
+                        <span className="flex items-center">
+                          <i className="ri-money-euro-circle-line mr-1"></i>
+                          {project.budget.toLocaleString()} €
+                        </span>
+                        <span className="flex items-center">
+                          <i className="ri-calendar-line mr-1"></i>
+                          {project.start_date} → {project.end_date}
+                        </span>
+                      </div>
+
+                      {/* Barre de progression */}
+                      <div className="mt-3">
+                        <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
+                          <span>Progression</span>
+                          <span>{project.progress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${project.progress}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 ml-4">
+                      <button
+                        onClick={() => setSelectedProject(project)}
+                        className="p-2 text-gray-400 hover:text-orange-600 transition-colors"
+                        title="Voir détails"
+                      >
+                        <i className="ri-eye-line text-lg"></i>
+                      </button>
+
+                      <button
+                        onClick={() => console.log('Modifier', project._id)}
+                        className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Modifier"
+                      >
+                        <i className="ri-edit-line text-lg"></i>
+                      </button>
+
+                      <button
+                        onClick={() => deleteProjectHandler(project._id)}
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                        title="Supprimer"
+                      >
+                        <i className="ri-delete-bin-line text-lg"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-      <Footer />
 
       {/* Modal de détail du projet */}
       {selectedProject && (
@@ -291,7 +326,7 @@ export default function ProjectManagement() {
           onDelete={deleteProjectHandler}
         />
       )}
-    </div>
+    </AdminLayout>
   );
 }
 
@@ -327,45 +362,44 @@ function ProjectDetailModal({ project, onClose, onUpdateStatus, onUpdateProgress
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-auto p-6">
-        <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
-          <h3 className="text-xl font-semibold text-gray-900">Détails du Projet</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <i className="ri-close-line text-2xl"></i>
-          </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Détails du Projet
+          </h2>
         </div>
 
-        <div className="space-y-4">
+        <div className="p-6 space-y-6">
           <div>
             <h4 className="text-lg font-medium text-gray-900 mb-2">{project.title}</h4>
             <p className="text-gray-600">{project.description}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-sm font-medium text-gray-500">Client</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Client</label>
               <p className="text-sm text-gray-900">{project.client_name || 'N/A'}</p>
               <p className="text-sm text-gray-900">{project.client_email || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Adresse</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
               <p className="text-sm text-gray-900">{project.address}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Statut</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Statut</label>
               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(project.status)}`}>
                 {getStatusLabel(project.status)}
               </span>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Budget</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Budget</label>
               <p className="text-sm text-gray-900">{project.budget.toLocaleString()} €</p>
             </div>
           </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-500 mb-2">Progrès</p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Progrès</label>
             <div className="flex items-center space-x-3">
               <div className="flex-1 bg-gray-200 rounded-full h-2">
                 <div
@@ -392,18 +426,18 @@ function ProjectDetailModal({ project, onClose, onUpdateStatus, onUpdateProgress
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium text-gray-500">Date de début</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
               <p className="text-sm text-gray-900">{project.start_date}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Date de fin</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date de fin</label>
               <p className="text-sm text-gray-900">{project.end_date}</p>
             </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <div className="flex justify-end space-x-3 px-6 py-4 border-t border-gray-200">
           {project.status === 'planning' && (
             <Button
               onClick={() => onUpdateStatus(project._id, 'in-progress')}
@@ -429,8 +463,27 @@ function ProjectDetailModal({ project, onClose, onUpdateStatus, onUpdateProgress
             <i className="ri-delete-bin-line mr-2"></i>
             Supprimer
           </Button>
+          <Button
+            onClick={onClose}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Fermer
+          </Button>
         </div>
       </div>
+
+      {/* Modal de confirmation */}
+      <ConfirmationModal
+        isOpen={isOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={options?.title || ''}
+        message={options?.message || ''}
+        confirmText={options?.confirmText}
+        cancelText={options?.cancelText}
+        type={options?.type}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import Header from '../../../components/feature/Header';
-import Footer from '../../../components/feature/Footer';
+import AdminLayout from '../../../components/admin/AdminLayout';
+import Button from '../../../components/base/Button';
+import ConfirmationModal from '../../../components/base/ConfirmationModal';
 import StatisticEditModal from '../../../components/admin/modals/StatisticEditModal';
 import ServiceEditModal from '../../../components/admin/modals/ServiceEditModal';
 import ZoneEditModal from '../../../components/admin/modals/ZoneEditModal';
@@ -17,9 +18,15 @@ import ProjectFilterEditModal from '../../../components/admin/modals/ProjectFilt
 import PortfolioProjectEditModal from '../../../components/admin/modals/PortfolioProjectEditModal';
 import TestCMSConnection from '../../../components/cms/TestCMSConnection';
 import ImageWithFallback from '../../../components/admin/ImageWithFallback';
+import { useToast } from '../../../contexts/ToastContext';
+import { useConfirmation } from '../../../hooks/useConfirmation';
 
 export default function ContentManagement() {
   const [activeTab, setActiveTab] = useState('statistics');
+  
+  // Hooks pour les toasters et confirmations
+  const { showSuccess, showError } = useToast();
+  const { isOpen, isLoading, options, confirm, handleConfirm, handleCancel } = useConfirmation();
   
   // États pour les modales
   const [isStatisticModalOpen, setIsStatisticModalOpen] = useState(false);
@@ -50,8 +57,7 @@ export default function ContentManagement() {
   const [editingPortfolioProject, setEditingPortfolioProject] = useState<any>(null);
   
   // États de chargement
-  const [isLoading, setIsLoading] = useState(false);
-
+  const [isLoadingFullPage, setIsLoadingFullPage] = useState(false); // Loading state for full page operations
   // Hooks Convex pour les données
   const statistics = useQuery(api.cms.getStatistics);
   const services = useQuery(api.cms.getServices);
@@ -115,21 +121,21 @@ export default function ContentManagement() {
 
   // Fonctions de gestion des statistiques
   const handleStatisticSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingStatistic) {
         // Ne passer que les champs modifiables, pas _id ni _creationTime
         const { _id, _creationTime, ...updateData } = data;
         await updateStatistic({ id: editingStatistic._id, ...updateData });
+        showSuccess('Statistique modifiée', 'La statistique a été mise à jour avec succès.');
       } else {
         await createStatistic(data);
+        showSuccess('Statistique créée', 'La statistique a été créée avec succès.');
       }
       setIsStatisticModalOpen(false);
       setEditingStatistic(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', 'Impossible de sauvegarder la statistique.');
     }
   };
 
@@ -139,35 +145,44 @@ export default function ContentManagement() {
   };
 
   const handleStatisticDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteStatistic({ id });
-      setIsStatisticModalOpen(false);
-      setEditingStatistic(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const statistic = statistics?.find(s => s._id === id);
+    confirm({
+      title: 'Supprimer la statistique',
+      message: `Êtes-vous sûr de vouloir supprimer la statistique "${statistic?.label}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteStatistic({ id });
+          setIsStatisticModalOpen(false);
+          setEditingStatistic(null);
+          showSuccess('Statistique supprimée', 'La statistique a été supprimée avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer la statistique.');
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des services
   const handleServiceSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingService) {
         // Ne passer que les champs modifiables, pas _id ni _creationTime
         const { _id, _creationTime, ...updateData } = data;
         await updateService({ id: editingService._id, ...updateData });
+        showSuccess('Service modifié', 'Le service a été mis à jour avec succès.');
       } else {
         await createService(data);
+        showSuccess('Service créé', 'Le service a été créé avec succès.');
       }
       setIsServiceModalOpen(false);
       setEditingService(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder le service. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -177,35 +192,47 @@ export default function ContentManagement() {
   };
 
   const handleServiceDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteService({ id });
-      setIsServiceModalOpen(false);
-      setEditingService(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const service = services?.find(s => s._id === id);
+    confirm({
+      title: 'Supprimer le service',
+      message: `Êtes-vous sûr de vouloir supprimer le service "${service?.title}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteService({ id });
+          setIsServiceModalOpen(false);
+          setEditingService(null);
+          showSuccess('Service supprimé', 'Le service a été supprimé avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer le service.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des zones
   const handleZoneSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingZone) {
         // Ne passer que les champs modifiables, pas _id ni _creationTime
         const { _id, _creationTime, ...updateData } = data;
         await updateZone({ id: editingZone._id, ...updateData });
+        showSuccess('Zone modifiée', 'La zone a été mise à jour avec succès.');
       } else {
         await createZone(data);
+        showSuccess('Zone créée', 'La zone a été créée avec succès.');
       }
       setIsZoneModalOpen(false);
       setEditingZone(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder la zone. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -215,35 +242,47 @@ export default function ContentManagement() {
   };
 
   const handleZoneDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteZone({ id });
-      setIsZoneModalOpen(false);
-      setEditingZone(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const zone = zones?.find(z => z._id === id);
+    confirm({
+      title: 'Supprimer la zone',
+      message: `Êtes-vous sûr de vouloir supprimer la zone "${zone?.name}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteZone({ id });
+          setIsZoneModalOpen(false);
+          setEditingZone(null);
+          showSuccess('Zone supprimée', 'La zone a été supprimée avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer la zone.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des raisons
   const handleReasonSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingReason) {
         // Ne passer que les champs modifiables, pas _id ni _creationTime
         const { _id, _creationTime, ...updateData } = data;
         await updateReason({ id: editingReason._id, ...updateData });
+        showSuccess('Raison modifiée', 'La raison a été mise à jour avec succès.');
       } else {
         await createReason(data);
+        showSuccess('Raison créée', 'La raison a été créée avec succès.');
       }
       setIsReasonModalOpen(false);
       setEditingReason(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder la raison. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -253,35 +292,47 @@ export default function ContentManagement() {
   };
 
   const handleReasonDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteReason({ id });
-      setIsReasonModalOpen(false);
-      setEditingReason(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const reason = reasons?.find(r => r._id === id);
+    confirm({
+      title: 'Supprimer la raison',
+      message: `Êtes-vous sûr de vouloir supprimer la raison "${reason?.title}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteReason({ id });
+          setIsReasonModalOpen(false);
+          setEditingReason(null);
+          showSuccess('Raison supprimée', 'La raison a été supprimée avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer la raison.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des témoignages
   const handleTestimonialSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingTestimonial) {
         // Ne passer que les champs modifiables, pas _id ni _creationTime
         const { _id, _creationTime, ...updateData } = data;
         await updateTestimonial({ id: editingTestimonial._id, ...updateData });
+        showSuccess('Témoignage modifié', 'Le témoignage a été mis à jour avec succès.');
       } else {
         await createTestimonial(data);
+        showSuccess('Témoignage créé', 'Le témoignage a été créé avec succès.');
       }
       setIsTestimonialModalOpen(false);
       setEditingTestimonial(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder le témoignage. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -291,54 +342,61 @@ export default function ContentManagement() {
   };
 
   const handleTestimonialDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteTestimonial({ id });
-      setIsTestimonialModalOpen(false);
-      setEditingTestimonial(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const testimonial = testimonials?.find(t => t._id === id);
+    confirm({
+      title: 'Supprimer le témoignage',
+      message: `Êtes-vous sûr de vouloir supprimer le témoignage de "${testimonial?.author}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteTestimonial({ id });
+          setIsTestimonialModalOpen(false);
+          setEditingTestimonial(null);
+          showSuccess('Témoignage supprimé', 'Le témoignage a été supprimé avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer le témoignage.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion de l'histoire de l'entreprise
   const handleHistorySave = async (data: any) => {
-    setIsLoading(true);
     try {
       const { _id, _creationTime, ...updateData } = data;
       await updateCompanyHistory({ id: editingHistory._id, ...updateData });
+      showSuccess('Histoire modifiée', 'L\'histoire de l\'entreprise a été mise à jour avec succès.');
       setIsHistoryModalOpen(false);
       setEditingHistory(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder l\'histoire. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
-  const handleHistoryEdit = (history: any) => {
-    setEditingHistory(history);
-    setIsHistoryModalOpen(true);
-  };
 
   // Fonctions de gestion des valeurs
   const handleValueSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingValue) {
         const { _id, _creationTime, ...updateData } = data;
         await updateValue({ id: editingValue._id, ...updateData });
+        showSuccess('Valeur modifiée', 'La valeur a été mise à jour avec succès.');
       } else {
         await createValue(data);
+        showSuccess('Valeur créée', 'La valeur a été créée avec succès.');
       }
       setIsValueModalOpen(false);
       setEditingValue(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder la valeur. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -348,34 +406,46 @@ export default function ContentManagement() {
   };
 
   const handleValueDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteValue({ id });
-      setIsValueModalOpen(false);
-      setEditingValue(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const value = values?.find(v => v._id === id);
+    confirm({
+      title: 'Supprimer la valeur',
+      message: `Êtes-vous sûr de vouloir supprimer la valeur "${value?.title}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteValue({ id });
+          setIsValueModalOpen(false);
+          setEditingValue(null);
+          showSuccess('Valeur supprimée', 'La valeur a été supprimée avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer la valeur.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des membres d'équipe
   const handleTeamMemberSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingTeamMember) {
         const { _id, _creationTime, ...updateData } = data;
         await updateTeamMember({ id: editingTeamMember._id, ...updateData });
+        showSuccess('Membre modifié', 'Le membre d\'équipe a été mis à jour avec succès.');
       } else {
         await createTeamMember(data);
+        showSuccess('Membre créé', 'Le membre d\'équipe a été créé avec succès.');
       }
       setIsTeamMemberModalOpen(false);
       setEditingTeamMember(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder le membre d\'équipe. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -385,34 +455,46 @@ export default function ContentManagement() {
   };
 
   const handleTeamMemberDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteTeamMember({ id });
-      setIsTeamMemberModalOpen(false);
-      setEditingTeamMember(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const member = teamMembers?.find(m => m._id === id);
+    confirm({
+      title: 'Supprimer le membre',
+      message: `Êtes-vous sûr de vouloir supprimer le membre "${member?.name}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteTeamMember({ id });
+          setIsTeamMemberModalOpen(false);
+          setEditingTeamMember(null);
+          showSuccess('Membre supprimé', 'Le membre d\'équipe a été supprimé avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer le membre d\'équipe.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des certifications
   const handleCertificationSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingCertification) {
         const { _id, _creationTime, ...updateData } = data;
         await updateCertification({ id: editingCertification._id, ...updateData });
+        showSuccess('Certification modifiée', 'La certification a été mise à jour avec succès.');
       } else {
         await createCertification(data);
+        showSuccess('Certification créée', 'La certification a été créée avec succès.');
       }
       setIsCertificationModalOpen(false);
       setEditingCertification(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder la certification. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -422,34 +504,46 @@ export default function ContentManagement() {
   };
 
   const handleCertificationDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteCertification({ id });
-      setIsCertificationModalOpen(false);
-      setEditingCertification(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const certification = certifications?.find(c => c._id === id);
+    confirm({
+      title: 'Supprimer la certification',
+      message: `Êtes-vous sûr de vouloir supprimer la certification "${certification?.title}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteCertification({ id });
+          setIsCertificationModalOpen(false);
+          setEditingCertification(null);
+          showSuccess('Certification supprimée', 'La certification a été supprimée avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer la certification.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des étapes de processus
   const handleProcessStepSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingProcessStep) {
         const { _id, _creationTime, ...updateData } = data;
         await updateProcessStep({ id: editingProcessStep._id, ...updateData });
+        showSuccess('Étape modifiée', 'L\'étape de processus a été mise à jour avec succès.');
       } else {
         await createProcessStep(data);
+        showSuccess('Étape créée', 'L\'étape de processus a été créée avec succès.');
       }
       setIsProcessStepModalOpen(false);
       setEditingProcessStep(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder l\'étape de processus. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -459,34 +553,46 @@ export default function ContentManagement() {
   };
 
   const handleProcessStepDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteProcessStep({ id });
-      setIsProcessStepModalOpen(false);
-      setEditingProcessStep(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const step = processSteps?.find(s => s._id === id);
+    confirm({
+      title: 'Supprimer l\'étape',
+      message: `Êtes-vous sûr de vouloir supprimer l\'étape "${step?.title}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteProcessStep({ id });
+          setIsProcessStepModalOpen(false);
+          setEditingProcessStep(null);
+          showSuccess('Étape supprimée', 'L\'étape de processus a été supprimée avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer l\'étape de processus.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des filtres de projets
   const handleProjectFilterSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingProjectFilter) {
         const { _id, _creationTime, ...updateData } = data;
         await updateProjectFilter({ id: editingProjectFilter._id, ...updateData });
+        showSuccess('Filtre modifié', 'Le filtre de projet a été mis à jour avec succès.');
       } else {
         await createProjectFilter(data);
+        showSuccess('Filtre créé', 'Le filtre de projet a été créé avec succès.');
       }
       setIsProjectFilterModalOpen(false);
       setEditingProjectFilter(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder le filtre de projet. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -496,34 +602,46 @@ export default function ContentManagement() {
   };
 
   const handleProjectFilterDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deleteProjectFilter({ id });
-      setIsProjectFilterModalOpen(false);
-      setEditingProjectFilter(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const filter = projectFilters?.find(f => f._id === id);
+    confirm({
+      title: 'Supprimer le filtre',
+      message: `Êtes-vous sûr de vouloir supprimer le filtre "${filter?.label}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deleteProjectFilter({ id });
+          setIsProjectFilterModalOpen(false);
+          setEditingProjectFilter(null);
+          showSuccess('Filtre supprimé', 'Le filtre de projet a été supprimé avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer le filtre de projet.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   // Fonctions de gestion des projets de portfolio
   const handlePortfolioProjectSave = async (data: any) => {
-    setIsLoading(true);
     try {
       if (editingPortfolioProject) {
         const { _id, _creationTime, ...updateData } = data;
         await updatePortfolioProject({ id: editingPortfolioProject._id, ...updateData });
+        showSuccess('Projet modifié', 'Le projet de portfolio a été mis à jour avec succès.');
       } else {
         await createPortfolioProject(data);
+        showSuccess('Projet créé', 'Le projet de portfolio a été créé avec succès.');
       }
       setIsPortfolioProjectModalOpen(false);
       setEditingPortfolioProject(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsLoading(false);
+      showError('Erreur de sauvegarde', `Impossible de sauvegarder le projet de portfolio. ${error instanceof Error ? error.message : ''}`);
     }
   };
 
@@ -533,16 +651,28 @@ export default function ContentManagement() {
   };
 
   const handlePortfolioProjectDelete = async (id: any) => {
-    setIsLoading(true);
-    try {
-      await deletePortfolioProject({ id });
-      setIsPortfolioProjectModalOpen(false);
-      setEditingPortfolioProject(null);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const project = portfolioProjects?.find(p => p._id === id);
+    confirm({
+      title: 'Supprimer le projet',
+      message: `Êtes-vous sûr de vouloir supprimer le projet "${project?.title}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setIsLoadingFullPage(true);
+          await deletePortfolioProject({ id });
+          setIsPortfolioProjectModalOpen(false);
+          setEditingPortfolioProject(null);
+          showSuccess('Projet supprimé', 'Le projet de portfolio a été supprimé avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer le projet de portfolio.');
+        } finally {
+          setIsLoadingFullPage(false);
+        }
+      },
+    });
   };
 
   const tabs = [
@@ -1304,70 +1434,75 @@ export default function ContentManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8 sm:py-16">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-              Gestion du Contenu
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600">
-              Gérez le contenu modifiable de votre site web
-            </p>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* En-tête */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Gestion du Contenu</h1>
+            <p className="text-gray-600 mt-2">Gérez le contenu modifiable de votre site web</p>
           </div>
-
-          {/* Composant de test pour vérifier la connexion CMS */}
-          <div className="mb-8">
+          <div className="flex space-x-3 mt-4 sm:mt-0">
+            <Button
+              onClick={() => window.location.reload()}
+              className="bg-gray-600 text-white hover:bg-gray-700"
+            >
+              <i className="ri-refresh-line mr-2"></i>
+              Rafraîchir
+            </Button>
           </div>
+        </div>
 
-          {/* Navigation par onglets - Responsive */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-            <div className="border-b border-gray-200">
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex space-x-6 px-4 lg:px-6 overflow-x-auto scrollbar-hide">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`tab-button py-4 px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0 ${
-                      activeTab === tab.id
-                        ? 'border-orange-500 text-orange-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    <i className={`${tab.icon} mr-2`}></i>
-                    <span className="hidden lg:inline">{tab.label}</span>
-                    <span className="lg:hidden">{tab.label.split(' ')[0]}</span>
-                  </button>
-                ))}
-              </nav>
-              
-              {/* Mobile Navigation */}
-              <div className="md:hidden">
-                <select
-                  value={activeTab}
-                  onChange={(e) => setActiveTab(e.target.value)}
-                  className="w-full p-4 text-sm border-0 border-b-2 border-gray-200 focus:border-orange-500 focus:ring-0 bg-transparent"
+        {/* Composant de test pour vérifier la connexion CMS */}
+        <div className="mb-8">
+          <TestCMSConnection />
+        </div>
+
+        {/* Navigation par onglets - Responsive */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="border-b border-gray-200">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-6 px-4 lg:px-6 overflow-x-auto scrollbar-hide">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`tab-button py-4 px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0 ${
+                    activeTab === tab.id
+                      ? 'border-orange-500 text-orange-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
                 >
-                  {tabs.map((tab) => (
-                    <option key={tab.id} value={tab.id}>
-                      {tab.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <i className={`${tab.icon} mr-2`}></i>
+                  <span className="hidden lg:inline">{tab.label}</span>
+                  <span className="lg:hidden">{tab.label.split(' ')[0]}</span>
+                </button>
+              ))}
+            </nav>
+            
+            {/* Mobile Navigation */}
+            <div className="md:hidden">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="w-full p-4 text-sm border-0 border-b-2 border-gray-200 focus:border-orange-500 focus:ring-0 bg-transparent"
+              >
+                {tabs.map((tab) => (
+                  <option key={tab.id} value={tab.id}>
+                    {tab.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
           {/* Contenu des onglets */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+          <div className="p-4 sm:p-6">
             {renderContent()}
           </div>
         </div>
       </div>
-      
+
       {/* Modales d'édition */}
       <StatisticEditModal
         isOpen={isStatisticModalOpen}
@@ -1511,8 +1646,19 @@ export default function ContentManagement() {
         project={editingPortfolioProject}
         isLoading={isLoading}
       />
-      
-      <Footer />
-    </div>
+
+      {/* Modal de confirmation */}
+      <ConfirmationModal
+        isOpen={isOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={options?.title || ''}
+        message={options?.message || ''}
+        confirmText={options?.confirmText}
+        cancelText={options?.cancelText}
+        type={options?.type === 'success' ? 'info' : options?.type}
+        isLoading={isLoading}
+      />
+    </AdminLayout>
   );
 }

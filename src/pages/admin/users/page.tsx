@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
-import Header from '../../../components/feature/Header';
-import Footer from '../../../components/feature/Footer';
+import AdminLayout from '../../../components/admin/AdminLayout';
 import Button from '../../../components/base/Button';
+import ConfirmationModal from '../../../components/base/ConfirmationModal';
+import { useOptimizedAdminUsers, useOptimizedAdminUsersByRole, useOptimizedAdminUsersByStatus } from '../../../hooks/useOptimizedCmsData';
+import { useToast } from '../../../contexts/ToastContext';
+import { useConfirmation } from '../../../hooks/useConfirmation';
 
 interface User {
   _id: Id<"users">;
@@ -24,17 +26,16 @@ export default function UserManagement() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'pending'>('all');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Hooks Convex
-  const allUsers = useQuery(api.users.getAllUsers);
-  const usersByRole = useQuery(
-    api.users.getUsersByRole,
-    filter !== 'all' ? { role: filter } : "skip"
-  );
-  const usersByStatus = useQuery(
-    api.users.getUsersByStatus,
-    statusFilter !== 'all' ? { status: statusFilter } : "skip"
-  );
+  // Hooks pour les toasters et confirmations
+  const { showSuccess, showError, showWarning } = useToast();
+  const { isOpen, isLoading, options, confirm, handleConfirm, handleCancel } = useConfirmation();
+
+  // Utiliser les hooks optimisés avec cache
+  const { data: allUsers, isLoading: allUsersLoading, refresh: refreshAllUsers } = useOptimizedAdminUsers();
+  const { data: usersByRole, isLoading: usersByRoleLoading, refresh: refreshUsersByRole } = useOptimizedAdminUsersByRole(filter);
+  const { data: usersByStatus, isLoading: usersByStatusLoading, refresh: refreshUsersByStatus } = useOptimizedAdminUsersByStatus(statusFilter);
 
   // Mutations
   const createUserMutation = useMutation(api.users.createUser);
@@ -43,18 +44,33 @@ export default function UserManagement() {
 
   // Utiliser les données filtrées
   const users = filter !== 'all' ? usersByRole : statusFilter !== 'all' ? usersByStatus : allUsers;
-  const loading = users === undefined;
+  const loading = filter !== 'all' ? usersByRoleLoading : statusFilter !== 'all' ? usersByStatusLoading : allUsersLoading;
 
   // Type assertion pour les données Convex
   const typedUsers = (users ?? []) as User[];
+
+  // Filtrer les utilisateurs par terme de recherche
+  const filteredUsers = typedUsers.filter(user => {
+    const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = filter === 'all' || user.role === filter;
+    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
 
   const updateUserRole = async (userId: Id<"users">, role: User['role']) => {
     try {
       await updateUser({ id: userId, role });
       setSelectedUser(null);
+      refreshAllUsers();
+      refreshUsersByRole();
+      refreshUsersByStatus();
+      showSuccess('Rôle mis à jour', 'Le rôle de l\'utilisateur a été modifié avec succès.');
     } catch (error) {
       console.error('Error updating user role:', error);
-      setError('Erreur lors de la mise à jour du rôle');
+      showError('Erreur de mise à jour', 'Impossible de modifier le rôle de l\'utilisateur.');
     }
   };
 
@@ -62,24 +78,37 @@ export default function UserManagement() {
     try {
       await updateUser({ id: userId, status });
       setSelectedUser(null);
+      refreshAllUsers();
+      refreshUsersByRole();
+      refreshUsersByStatus();
+      showSuccess('Statut mis à jour', 'Le statut de l\'utilisateur a été modifié avec succès.');
     } catch (error) {
       console.error('Error updating user status:', error);
-      setError('Erreur lors de la mise à jour du statut');
+      showError('Erreur de mise à jour', 'Impossible de modifier le statut de l\'utilisateur.');
     }
   };
 
   const deleteUserHandler = async (userId: Id<"users">) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-      return;
-    }
-
-    try {
-      await deleteUserMutation({ id: userId });
-      setSelectedUser(null);
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      setError('Erreur lors de la suppression de l\'utilisateur');
-    }
+    const user = typedUsers.find(u => u._id === userId);    confirm({
+      title: 'Supprimer l\'utilisateur',
+      message: `Êtes-vous sûr de vouloir supprimer l'utilisateur "${user?.name || user?.email}" ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteUserMutation({ id: userId });
+          setSelectedUser(null);
+          refreshAllUsers();
+          refreshUsersByRole();
+          refreshUsersByStatus();
+          showSuccess('Utilisateur supprimé', 'L\'utilisateur a été supprimé avec succès.');
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          showError('Erreur de suppression', 'Impossible de supprimer l\'utilisateur.');
+        }
+      },
+    });
   };
 
   const getRoleColor = (role: User['role']) => {
@@ -118,11 +147,6 @@ export default function UserManagement() {
     }
   };
 
-  const filteredUsers = typedUsers.filter(user => 
-    (filter === 'all' || user.role === filter) &&
-    (statusFilter === 'all' || user.status === statusFilter)
-  );
-
   const createUserHandler = async (userData: { name: string; email: string; role: User['role']; status: User['status'] }) => {
     try {
       await createUserMutation({
@@ -132,179 +156,206 @@ export default function UserManagement() {
         status: userData.status
       });
       setShowCreateModal(false);
+      refreshAllUsers();
+      refreshUsersByRole();
+      refreshUsersByStatus();
+      showSuccess('Utilisateur créé', 'L\'utilisateur a été créé avec succès.');
     } catch (error) {
       console.error('Error creating user:', error);
-      setError('Erreur lors de la création de l\'utilisateur');
+      showError('Erreur de création', 'Impossible de créer l\'utilisateur.');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-6xl mx-auto">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-300 rounded w-1/4 mb-8"></div>
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-20 bg-gray-300 rounded"></div>
-                ))}
-              </div>
-            </div>
-          </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
         </div>
-        <Footer />
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          {/* En-tête */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Gestion des utilisateurs
-                </h1>
-                <p className="text-gray-600">
-                  Gérez les accès et permissions des utilisateurs
-                </p>
-              </div>
-              <Link
-                to="/admin"
-                className="flex items-center text-gray-600 hover:text-orange-600 transition-colors"
-              >
-                <i className="ri-arrow-left-line mr-2"></i>
-                Retour au tableau de bord
-              </Link>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* En-tête */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
+            <p className="text-gray-600 mt-2">Gérez les accès et permissions des utilisateurs</p>
+          </div>
+          <div className="flex space-x-3 mt-4 sm:mt-0">
+            <Button
+              onClick={() => {
+                refreshAllUsers();
+                refreshUsersByRole();
+                refreshUsersByStatus();
+              }}
+              className="bg-gray-600 text-white hover:bg-gray-700"
+            >
+              <i className="ri-refresh-line mr-2"></i>
+              Rafraîchir
+            </Button>
+            <Button
+              onClick={() => setShowCreateModal(true)}
+            >
+              <i className="ri-add-line mr-2"></i>
+              Nouvel Utilisateur
+            </Button>
+          </div>
+        </div>
+
+        {/* Messages d'erreur */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <div className="flex items-center">
+              <i className="ri-error-warning-line mr-2"></i>
+              {error}
             </div>
           </div>
+        )}
 
-          {/* Messages d'erreur */}
-          {error && (
-            <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-              <div className="flex items-center">
-                <i className="ri-error-warning-line mr-2"></i>
-                {error}
-              </div>
+        {/* Filtres et recherche */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rechercher
+              </label>
+              <input
+                type="text"
+                placeholder="Nom, email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rôle
+              </label>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as any)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="all">Tous les rôles</option>
+                <option value="admin">Administrateurs</option>
+                <option value="editor">Éditeurs</option>
+                <option value="viewer">Consultants</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Statut
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="all">Tous les statuts</option>
+                <option value="active">Actifs</option>
+                <option value="inactive">Inactifs</option>
+                <option value="pending">En attente</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Liste des utilisateurs */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">
+              Utilisateurs ({filteredUsers.length})
+            </h3>
+          </div>
+
+          {filteredUsers.length === 0 ? (
+            <div className="text-center py-12">
+              <i className="ri-user-line text-6xl text-gray-300 mb-4"></i>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun utilisateur trouvé</h3>
+              <p className="text-gray-600 mb-6">
+                {searchTerm || filter !== 'all' || statusFilter !== 'all'
+                  ? 'Aucun utilisateur ne correspond aux filtres sélectionnés'
+                  : 'Commencez par ajouter votre premier utilisateur'}
+              </p>
+              <Button onClick={() => setShowCreateModal(true)}>
+                <i className="ri-add-line mr-2"></i>
+                Ajouter un Utilisateur
+              </Button>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {filteredUsers.map((user) => (
+                <div key={user._id} className="p-6 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          {user.avatar ? (
+                            <img className="h-10 w-10 rounded-full" src={user.avatar} alt={user.name} />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                              <i className="ri-user-line text-gray-600"></i>
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-medium text-gray-900 truncate">
+                            {user.name || 'Nom non défini'}
+                          </h4>
+                          <p className="text-sm text-gray-500">{user.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3 text-sm">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                          {getRoleLabel(user.role)}
+                        </span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
+                          {getStatusLabel(user.status)}
+                        </span>
+                        <span className="text-gray-500">
+                          <i className="ri-time-line mr-1"></i>
+                          {user.last_login ? new Date(user.last_login).toLocaleDateString('fr-FR') : 'Jamais'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 ml-4">
+                      <button
+                        onClick={() => setSelectedUser(user)}
+                        className="p-2 text-gray-400 hover:text-orange-600 transition-colors"
+                        title="Voir détails"
+                      >
+                        <i className="ri-eye-line text-lg"></i>
+                      </button>
+
+                      <button
+                        onClick={() => console.log('Modifier', user._id)}
+                        className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Modifier"
+                      >
+                        <i className="ri-edit-line text-lg"></i>
+                      </button>
+
+                      <button
+                        onClick={() => deleteUserHandler(user._id)}
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                        title="Supprimer"
+                      >
+                        <i className="ri-delete-bin-line text-lg"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
-
-          {/* Barre d'outils */}
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              {/* Actions */}
-              <div className="flex flex-wrap items-center gap-3">
-                <Button
-                  onClick={() => setShowCreateModal(true)}
-                  className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
-                >
-                  <i className="ri-add-line mr-2"></i>
-                  Nouvel utilisateur
-                </Button>
-                <Button
-                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <i className="ri-download-line mr-2"></i>
-                  Exporter
-                </Button>
-              </div>
-
-              {/* Filtres */}
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">Rôle:</span>
-                  <select
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value as any)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="all">Tous ({typedUsers.length})</option>
-                    <option value="admin">Administrateurs ({typedUsers.filter(u => u.role === 'admin').length})</option>
-                    <option value="editor">Éditeurs ({typedUsers.filter(u => u.role === 'editor').length})</option>
-                    <option value="viewer">Consultants ({typedUsers.filter(u => u.role === 'viewer').length})</option>
-                  </select>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">Statut:</span>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as any)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="all">Tous</option>
-                    <option value="active">Actifs ({typedUsers.filter(u => u.status === 'active').length})</option>
-                    <option value="inactive">Inactifs ({typedUsers.filter(u => u.status === 'inactive').length})</option>
-                    <option value="pending">En attente ({typedUsers.filter(u => u.status === 'pending').length})</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Liste des utilisateurs */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            {filteredUsers.length === 0 ? (
-              <div className="text-center py-12">
-                <i className="ri-user-line text-6xl text-gray-300 mb-4"></i>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Aucun utilisateur trouvé
-                </h3>
-                <p className="text-gray-600">
-                  {filter === 'all' && statusFilter === 'all'
-                    ? 'Commencez par ajouter votre premier utilisateur'
-                    : 'Aucun utilisateur ne correspond aux filtres sélectionnés'
-                  }
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Utilisateur
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Rôle
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Dernière connexion
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredUsers.map((user) => (
-                      <UserRow
-                        key={user._id}
-                        user={user}
-                        onView={() => setSelectedUser(user)}
-                        onUpdateRole={updateUserRole}
-                        onUpdateStatus={updateUserStatus}
-                        onDelete={deleteUserHandler}
-                        getRoleColor={getRoleColor}
-                        getRoleLabel={getRoleLabel}
-                        getStatusColor={getStatusColor}
-                        getStatusLabel={getStatusLabel}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
@@ -330,84 +381,7 @@ export default function UserManagement() {
           onCreate={createUserHandler}
         />
       )}
-      
-      <Footer />
-    </div>
-  );
-}
-
-// Composant pour une ligne d'utilisateur
-function UserRow({ 
-  user, 
-  onView, 
-  onDelete, 
-  getRoleColor, 
-  getRoleLabel, 
-  getStatusColor, 
-  getStatusLabel 
-}: {
-  user: User;
-  onView: () => void;
-  onUpdateRole: (id: Id<"users">, role: User['role']) => void;
-  onUpdateStatus: (id: Id<"users">, status: User['status']) => void;
-  onDelete: (id: Id<"users">) => void;
-  getRoleColor: (role: User['role']) => string;
-  getRoleLabel: (role: User['role']) => string;
-  getStatusColor: (status: User['status']) => string;
-  getStatusLabel: (status: User['status']) => string;
-}) {
-  return (
-    <tr className="hover:bg-gray-50">
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 h-10 w-10">
-            {user.avatar ? (
-              <img className="h-10 w-10 rounded-full" src={user.avatar} alt={user.name} />
-            ) : (
-              <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                <i className="ri-user-line text-gray-600"></i>
-              </div>
-            )}
-          </div>
-          <div className="ml-4">
-            <div className="text-sm font-medium text-gray-900">{user.name || 'Nom non défini'}</div>
-            <div className="text-sm text-gray-500">{user.email}</div>
-          </div>
-        </div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
-          {getRoleLabel(user.role)}
-        </span>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status)}`}>
-          {getStatusLabel(user.status)}
-        </span>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {user.last_login ? new Date(user.last_login).toLocaleDateString('fr-FR') : 'Jamais'}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        <div className="flex space-x-2">
-          <button
-            onClick={onView}
-            className="text-orange-600 hover:text-orange-900"
-          >
-            <i className="ri-eye-line"></i>
-          </button>
-          <button className="text-blue-600 hover:text-blue-900">
-            <i className="ri-edit-line"></i>
-          </button>
-          <button
-            onClick={() => onDelete(user._id)}
-            className="text-red-600 hover:text-red-900"
-          >
-            <i className="ri-delete-bin-line"></i>
-          </button>
-        </div>
-      </td>
-    </tr>
+    </AdminLayout>
   );
 }
 
@@ -638,6 +612,7 @@ function CreateUserModal({
           </div>
         </form>
       </div>
+
+      {/* Modal de confirmation */}
     </div>
-  );
-}
+  );}

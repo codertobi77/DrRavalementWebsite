@@ -21,9 +21,7 @@ const AdminDashboard = lazy(() => import('../pages/admin/dashboard/page'));
 const AdminConfig = lazy(() => import('../pages/admin/config/page'));
 const AdminBookings = lazy(() => import('../pages/admin/bookings/page'));
 const AdminProjects = lazy(() => import('../pages/admin/projects/page'));
-const AdminQuotes = lazy(() => import('../pages/admin/quotes/page'));
 const AdminUsers = lazy(() => import('../pages/admin/users/page'));
-const AdminAnalytics = lazy(() => import('../pages/admin/analytics/page'));
 const AdminContent = lazy(() => import('../pages/admin/content/page'));
 const AdminArticles = lazy(() => import('../pages/admin/articles/page'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -69,18 +67,6 @@ const routes: RouteObject[] = [
     path: '/client-dashboard',
     element: <ClientDashboard />
   },
-  {
-    path: '/color-simulator',
-    element: <ColorSimulator />
-  },
-  {
-    path: '/interactive-map',
-    element: <InteractiveMap />
-  },
-  {
-    path: '/quote-calculator',
-    element: <QuoteCalculator />
-  },
         {
           path: '/admin/login',
           element: <AdminLogin />
@@ -118,14 +104,6 @@ const routes: RouteObject[] = [
           element: (
             <AdminRouteProtection>
               <AdminProjects />
-            </AdminRouteProtection>
-          )
-        },
-        {
-          path: '/admin/quotes',
-          element: (
-            <AdminRouteProtection>
-              <AdminQuotes />
             </AdminRouteProtection>
           )
         },

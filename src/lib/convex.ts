@@ -103,6 +103,7 @@ export interface Project {
 
 export interface Quote {
   _id: string;
+  _creationTime: number; // Convex system field
   client_name: string;
   client_email: string;
   client_phone: string;
@@ -119,6 +120,8 @@ export interface Quote {
     unit_price: number;
     total: number;
   }>;
+  created_at?: string; // Optional for backward compatibility
+  updated_at?: string; // Optional for backward compatibility
 }
 
 export interface Notification {
