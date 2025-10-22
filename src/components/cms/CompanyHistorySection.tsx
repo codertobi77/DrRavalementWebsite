@@ -42,12 +42,6 @@ export default function CompanyHistorySection({
               <div className="h-96 bg-gray-300 rounded-lg animate-pulse"></div>
             </div>
           </div>
-          {isCached && (
-            <div className="text-center text-sm text-gray-500 mt-4">
-              <i className="ri-database-line mr-1"></i>
-              Données chargées depuis le cache
-            </div>
-          )}
         </div>
       </div>
     );
@@ -71,9 +65,9 @@ export default function CompanyHistorySection({
               </div>
               
               {/* Statistiques */}
-              {history.statistics && history.statistics.length > 0 && (
+              {Array.isArray((history as any).statistics) && (history as any).statistics.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-                  {history.statistics.map((stat, index) => (
+                  {(history as any).statistics.map((stat: { value: string | number; label: string }, index: number) => (
                     <div key={index} className="text-center">
                       <div className="text-2xl font-bold text-orange-600">
                         {stat.value}
@@ -102,13 +96,6 @@ export default function CompanyHistorySection({
               )}
             </div>
           </div>
-          
-          {isCached && (
-            <div className="text-center text-sm text-gray-500 mt-8">
-              <i className="ri-database-line mr-1"></i>
-              Données chargées depuis le cache
-            </div>
-          )}
         </div>
       </div>
     );
