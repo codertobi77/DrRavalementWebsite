@@ -21,7 +21,7 @@ export default function HeroSection() {
             </span>
           </h1>
           <p className="text-large text-orange-100 mb-6 sm:mb-8 max-w-4xl mx-auto px-4">
-            Pour tous vos travaux de ravalement de façades, couverture, électricité, plomberie, serrurerie, carrelage, isolation et étude technique en Seine-et-Marne et en Île-de-France.
+            Pour tous vos travaux de ravalement de façades, couverture, électricité, plomberie, serrurerie, carrelage, isolation et étude technique en Île-de-France.
           </p>
         </div>
 
