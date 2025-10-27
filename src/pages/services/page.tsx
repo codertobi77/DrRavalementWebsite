@@ -55,7 +55,7 @@ export default function Services() {
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
                   <i className="ri-paint-brush-line text-2xl text-orange-600"></i>
                 </div>
-                <h3 className="text-card-title text-gray-900 mb-4">Peinture Extérieure</h3>
+                <h3 className="text-card-title text-gray-900 mb-4">Peinture Extérieure Intérieure</h3>
                 <p className="text-body text-gray-600 mb-4">
                   Application de peintures spécialisées avec protection longue durée.
                 </p>
