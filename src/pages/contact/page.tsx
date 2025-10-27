@@ -262,7 +262,7 @@ export default function Contact() {
                         <p className="text-orange-100">Réponse garantie sous 24h avec devis détaillé</p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-4">
+                    {/* <div className="flex items-start space-x-4">
                       <i className="ri-shield-check-line text-2xl mt-1"></i>
                       <div>
                         <h4 className="font-semibold mb-2">Assurance Décennale</h4>
@@ -282,7 +282,7 @@ export default function Contact() {
                         <h4 className="font-semibold mb-2">Proximité</h4>
                         <p className="text-orange-100">Intervention rapide en Seine-et-Marne et Île-de-France</p>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -351,7 +351,7 @@ export default function Contact() {
         </section> */}
 
         {/* FAQ */}
-        <section className="py-20 bg-gray-50">
+        {/* <section className="py-20 bg-gray-50">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Questions Fréquentes</h2>
@@ -398,7 +398,7 @@ export default function Contact() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
       <Footer />
     </div>

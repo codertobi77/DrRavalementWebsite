@@ -22,7 +22,7 @@ export default function Services() {
                 Nos <span className="text-orange-400">Services</span>
               </h1>
               <p className="text-large text-orange-100 max-w-3xl mx-auto">
-                Découvrez notre gamme complète de services en ravalement, maçonnerie et couverture
+                Découvrez notre gamme complète de services en ravalement, rénovation intérieure et extérieure.
               </p>
             </div>
           </div>
@@ -34,7 +34,7 @@ export default function Services() {
             <div className="text-center mb-16">
               <h2 className="text-section-title text-gray-900 mb-4">Nos Spécialités</h2>
               <p className="text-large text-gray-600 max-w-3xl mx-auto">
-                Des services complets pour tous vos projets de rénovation
+                Des services complets pour tous vos projets de rénovation intérieure et extérieure.
               </p>
             </div>
             <ServicesSection />
@@ -57,7 +57,7 @@ export default function Services() {
                 </div>
                 <h3 className="text-card-title text-gray-900 mb-4">Peinture Extérieure</h3>
                 <p className="text-body text-gray-600 mb-4">
-                  Application de peintures spécialisées pour façades avec protection longue durée.
+                  Application de peintures spécialisées avec protection longue durée.
                 </p>
                 <ul className="text-small text-gray-600 space-y-2">
                   <li>• Peintures anti-mousse</li>
@@ -97,14 +97,15 @@ export default function Services() {
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
                   <i className="ri-water-percent-line text-2xl text-orange-600"></i>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Nettoyage Façades</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Rénovation d'intérieur</h3>
                 <p className="text-gray-600 mb-4">
-                  Nettoyage professionnel pour redonner éclat à vos façades.
+                  Travaux complets pour redonner confort, style et valeur à vos espaces intérieurs.
                 </p>
                 <ul className="text-sm text-gray-600 space-y-2">
-                  <li>• Haute pression</li>
-                  <li>• Sablage doux</li>
-                  <li>• Traitement anti-mousse</li>
+                  <li>• Peinture et revêtements muraux</li>
+                  <li>• Pose de carrelage, parquet et faux plafonds</li>
+                  <li>• Rénovation de cuisine et salle de bain</li>
+                  <li>• Amélioration de l'isolation et de l'éclairage</li>
                 </ul>
               </div>
               <div className="bg-white rounded-2xl p-8 shadow-lg">

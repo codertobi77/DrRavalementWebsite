@@ -29,9 +29,7 @@ export default function Header() {
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center text-xs sm:text-sm">
             <PriorityContactInfoSection variant="header" />
-            <div className="hidden md:block text-xs lg:text-sm">
-              <span>Ravalement • Maçonnerie • Couverture</span>
-            </div>
+          
           </div>
         </div>
       </div>
