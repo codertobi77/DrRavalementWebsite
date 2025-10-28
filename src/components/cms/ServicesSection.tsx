@@ -109,9 +109,9 @@ function ServicesSection({ variant = "services" }: { variant?: "homepage" | "ser
                           Montage de structures porteuses, réalisation d’ouvertures sur porteurs, chaînages raidisseurs avec ferraillage, et scellement chimique pour renforts. Nos équipes manipulent béton armé, moellons, parpaings et briques avec procédures de coulage et de vibration strictes. Respect total des normes parasismiques et DTU.
                         </>
                       )}
-                      {service.title === "Électricité" && (
+                      {service.title === "Plomberie & Sanitaire" && (
                         <>
-                          Nous garantissons la sécurité et la performance de vos installations électriques, en neuf comme en rénovation...
+                          Bénéficiez d’un service complet pour garantir le bon fonctionnement, le confort et l’hygiène de vos installations.
                         </>
                       )}
                       {!["Ravalement & Maçonnerie", "Isolation & Performance Énergétique", "Électricité"].includes(service.title) && (
