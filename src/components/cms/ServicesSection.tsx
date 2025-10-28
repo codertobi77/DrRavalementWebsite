@@ -69,51 +69,62 @@ function ServicesSection({ variant = "services" }: { variant?: "homepage" | "ser
       return (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {(services.slice(0, 9)).map((service) => (
-              <div
-                key={service._id}
-                className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="relative h-56 overflow-hidden">
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = '/placeholder-service.jpg';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+            {(() => {
+              // Sort by 'order' attribute
+              const ordered = services
+                .slice()
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+              // Put first at the end, show up to 9
+              const rotated =
+                ordered.length > 1
+                  ? ordered.slice(1, 9).concat(ordered[0])
+                  : ordered;
+              return rotated.slice(0, 9).map((service) => (
+                <div
+                  key={service._id}
+                  className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300"
+                >
+                  <div className="relative h-56 overflow-hidden">
+                    <img
+                      src={service.image}
+                      alt={service.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder-service.jpg';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                  </div>
+                  <div className="p-5">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
+                    <p className="text-gray-600 line-clamp-4">
+                      {service.title === "Ravalement & Maçonnerie" && (
+                        <>
+                          Redonnez éclat et solidité à votre habitation grâce à nos services complets de rénovation, de ravalement et de maçonnerie.
+                        </>
+                      )}
+                      {service.title === "Isolation & Performance Énergétique" && (
+                        <>
+                          Montage de structures porteuses, réalisation d’ouvertures sur porteurs, chaînages raidisseurs avec ferraillage, et scellement chimique pour renforts. Nos équipes manipulent béton armé, moellons, parpaings et briques avec procédures de coulage et de vibration strictes. Respect total des normes parasismiques et DTU.
+                        </>
+                      )}
+                      {service.title === "Électricité" && (
+                        <>
+                          Nous garantissons la sécurité et la performance de vos installations électriques, en neuf comme en rénovation...
+                        </>
+                      )}
+                      {!["Ravalement & Maçonnerie", "Isolation & Performance Énergétique", "Électricité"].includes(service.title) && (
+                        <>
+                          {service.description}
+                        </>
+                      )}
+                    </p>
+                    {/* No button, no modal, no objective for homepage */}
+                  </div>
                 </div>
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
-                  <p className="text-gray-600 line-clamp-4">
-                    {service.title === "Ravalement & Maçonnerie" && (
-                      <>
-                        Redonnez éclat et solidité à votre habitation grâce à nos services complets de rénovation, de ravalement et de maçonnerie.
-                      </>
-                    )}
-                    {service.title === "Isolation & Performance Énergétique" && (
-                      <>
-                        Montage de structures porteuses, réalisation d’ouvertures sur porteurs, chaînages raidisseurs avec ferraillage, et scellement chimique pour renforts. Nos équipes manipulent béton armé, moellons, parpaings et briques avec procédures de coulage et de vibration strictes. Respect total des normes parasismiques et DTU.
-                      </>
-                    )}
-                    {service.title === "Électricité" && (
-                      <>
-                        Nous garantissons la sécurité et la performance de vos installations électriques, en neuf comme en rénovation...
-                      </>
-                    )}
-                    {!["Ravalement & Maçonnerie", "Isolation & Performance Énergétique", "Électricité"].includes(service.title) && (
-                      <>
-                        {service.description}
-                      </>
-                    )}
-                  </p>
-                  {/* No button, no modal, no objective for homepage */}
-                </div>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
           <div className="flex justify-center mt-10">
             <Link
