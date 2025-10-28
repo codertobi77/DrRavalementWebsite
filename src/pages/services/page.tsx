@@ -22,7 +22,7 @@ export default function Services() {
                 Nos <span className="text-orange-400">Services</span>
               </h1>
               <p className="text-large text-orange-100 max-w-3xl mx-auto">
-                Découvrez notre gamme complète de services en ravalement, rénovation intérieure et extérieure.
+                Découvrez notre gamme complète de services.
               </p>
             </div>
           </div>

@@ -21,7 +21,7 @@ export default function HeroSection() {
             </span>
           </h1>
           <p className="text-large text-orange-100 mb-6 sm:mb-8 max-w-4xl mx-auto px-4">
-            Pour tous vos travaux de ravalement de façades, couverture, électricité, plomberie, serrurerie, carrelage, isolation et étude technique en <br /> Île-de-France.
+          Experts en rénovation, nous réalisons vos travaux de ravalement, de couverture, d’électricité, de plomberie, de serrurerie, de carrelage, d’isolation ainsi que vos études techniques.
           </p>
         </div>
 

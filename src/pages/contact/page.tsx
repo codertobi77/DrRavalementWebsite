@@ -252,10 +252,10 @@ export default function Contact() {
                 </div>
                 
                 {/* Informations */}
-                <div className="bg-orange-600 p-8 lg:p-12 text-white">
-                  <h3 className="text-2xl font-bold mb-6">Pourquoi Choisir DR RAVALEMENT ?</h3>
-                  <div className="space-y-6">
-                    <div className="flex items-start space-x-4">
+                <div className="bg-orange-600 p-8 lg:p-12 text-white flex flex-col justify-center h-full min-h-[320px]">
+                  <h3 className="text-2xl font-bold mb-6 text-center">Pourquoi Choisir DR RAVALEMENT ?</h3>
+                  <div className="flex flex-col items-center space-y-6">
+                    <div className="flex items-center space-x-4">
                       <i className="ri-time-line text-2xl mt-1"></i>
                       <div>
                         <h4 className="font-semibold mb-2">Devis Rapide</h4>

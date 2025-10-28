@@ -24,7 +24,7 @@ export default function Portfolio() {
                 Nos <span className="text-orange-400">Réalisations</span>
               </h1>
               <p className="text-xl text-orange-100 max-w-3xl mx-auto">
-                Découvrez nos projets de ravalement, maçonnerie et couverture réalisés en Seine-et-Marne et Île-de-France
+                Découvrez des ouvrages de rénovation alliant solidité et précision.
               </p>
             </div>
           </div>
