@@ -114,7 +114,7 @@ function ServicesSection({ variant = "services" }: { variant?: "homepage" | "ser
                           Bénéficiez d’un service complet pour garantir le bon fonctionnement, le confort et l’hygiène de vos installations.
                         </>
                       )}
-                      {!["Ravalement & Maçonnerie", "Isolation & Performance Énergétique", "Électricité"].includes(service.title) && (
+                      {!["Ravalement & Maçonnerie", "Isolation & Performance Énergétique", "Plomberie & Sanitaire"].includes(service.title) && (
                         <>
                           {service.description}
                         </>
