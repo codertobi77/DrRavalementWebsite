@@ -8,7 +8,7 @@ export default function ServicesSectionWrapper() {
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Nos Spécialités DR RAVALEMENT</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Expertise en maçonnerie générale et en rénovation extérieure grâce à des techniques modernes et performantes.
+          Expertise en maçonnerie générale et en rénovation grâce à des techniques modernes et performantes.
           </p>
         </div>
 
