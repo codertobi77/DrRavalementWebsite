@@ -79,7 +79,7 @@ function ServicesSection({ variant = "services" }: { variant?: "homepage" | "ser
                 ordered.length > 1
                   ? ordered.slice(1, 9).concat(ordered[0])
                   : ordered;
-              return rotated.slice(0, 9).map((service) => (
+              return rotated.slice(0, 3).map((service) => (
                 <div
                   key={service._id}
                   className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300"
