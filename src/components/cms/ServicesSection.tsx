@@ -69,7 +69,7 @@ function ServicesSection({ variant = "services" }: { variant?: "homepage" | "ser
       return (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {(services.slice(0, 3)).map((service) => (
+            {(services.slice(0, 9)).map((service) => (
               <div
                 key={service._id}
                 className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300"
@@ -88,7 +88,7 @@ function ServicesSection({ variant = "services" }: { variant?: "homepage" | "ser
                 </div>
                 <div className="p-5">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
-                  <p className="text-gray-600 line-clamp-3">
+                  <p className="text-gray-600 line-clamp-4">
                     {service.title === "Ravalement & Maçonnerie" && (
                       <>
                         Redonnez éclat et solidité à votre habitation grâce à nos services complets de rénovation, de ravalement et de maçonnerie.
