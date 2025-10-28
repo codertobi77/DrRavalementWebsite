@@ -88,7 +88,28 @@ function ServicesSection({ variant = "services" }: { variant?: "homepage" | "ser
                 </div>
                 <div className="p-5">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
-                  <p className="text-gray-600 line-clamp-3">{service.description}</p>
+                  <p className="text-gray-600 line-clamp-3">
+                    {service.title === "Ravalement & Maçonnerie" && (
+                      <>
+                        Redonnez éclat et solidité à votre habitation grâce à nos services complets de rénovation, de ravalement et de maçonnerie.
+                      </>
+                    )}
+                    {service.title === "Isolation & Performance Énergétique" && (
+                      <>
+                        Montage de structures porteuses, réalisation d’ouvertures sur porteurs, chaînages raidisseurs avec ferraillage, et scellement chimique pour renforts. Nos équipes manipulent béton armé, moellons, parpaings et briques avec procédures de coulage et de vibration strictes. Respect total des normes parasismiques et DTU.
+                      </>
+                    )}
+                    {service.title === "Électricité" && (
+                      <>
+                        Nous garantissons la sécurité et la performance de vos installations électriques, en neuf comme en rénovation...
+                      </>
+                    )}
+                    {!["Ravalement & Maçonnerie", "Isolation & Performance Énergétique", "Électricité"].includes(service.title) && (
+                      <>
+                        {service.description}
+                      </>
+                    )}
+                  </p>
                   {/* No button, no modal, no objective for homepage */}
                 </div>
               </div>
