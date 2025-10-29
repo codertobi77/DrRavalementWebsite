@@ -1,0 +1,18 @@
+# Robots.txt pour Dr-Ravalement
+# Configuration pour les moteurs de recherche
+
+# Autoriser tous les robots pour les pages publiques
+User-agent: *
+Allow: /
+
+# Bloquer l'accès aux pages d'administration et espaces privés
+Disallow: /admin/
+Disallow: /client-dashboard
+
+# Autoriser l'indexation des ressources statiques
+Allow: /assets/
+Allow: /images/
+
+# Localisation du sitemap
+Sitemap: https://dr-ravalement.fr/sitemap.xml
+
